@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auditoria Spiral Conveyor — Operatividad</title>
+<style>
+:root{--p:#4F2170;--p3:#f0ecf5;--o:#E18719;--g:#287819;--b:#2D6EAA;--r:#A52323;--t:#3D3D3D;--bg:#F7F5FA;--w:#fff;--bd:#DDD8E4;--m:#8A7F96;--y:#B89B00}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Calibri,Arial,sans-serif;background:var(--bg);color:var(--t);font-size:13px}
+.wrap{max-width:1100px;margin:0 auto;padding:12px}
+.hd{background:var(--p);color:#fff;padding:20px 24px 18px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
+.hd-left h1{font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:-.02em}
+.hd-left p{font-size:11px;opacity:.7;margin-top:3px}
+.hd-right{text-align:right;font-size:10px;opacity:.6;line-height:1.6}
+.hd-bar{height:3px;background:var(--o)}
+.tabs{display:flex;background:var(--w);border-left:1px solid var(--bd);border-right:1px solid var(--bd)}
+.tabs button{flex:1;padding:12px 8px;border:none;background:none;font-weight:600;font-size:12px;cursor:pointer;color:var(--m);border-bottom:3px solid transparent;font-family:inherit;transition:all .2s}
+.tabs button:hover{color:var(--p);background:var(--p3)}
+.tabs button.on{color:var(--p);border-bottom-color:var(--o);background:var(--p3)}
+.pnl{background:var(--w);border:1px solid var(--bd);border-top:none;padding:20px 24px;display:none}.pnl.active{display:block}
+.sec-title{font-size:15px;font-weight:700;color:var(--p);margin-bottom:3px}
+.sec-sub{font-size:11px;color:var(--m);margin-bottom:16px}
+.sum-bar{display:flex;gap:20px;padding:12px 20px;background:var(--p);border-radius:8px;margin-bottom:18px;align-items:center;color:#fff}
+.sum-n{font-size:26px;font-weight:800;font-family:monospace;line-height:1}
+.sum-l{font-size:8px;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+.sum-div{width:1px;height:32px;background:rgba(255,255,255,.2)}
+.sum-hint{margin-left:auto;font-size:10px;opacity:.5}
+.kb{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:10px;overflow:hidden;border:2px solid var(--bd);margin-bottom:22px}
+.kb-col{padding:16px;min-height:160px}
+.kb-ok{background:#FAFDF9;border-right:2px solid var(--bd)}
+.kb-no{background:#FEFAFA}
+.kb-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,.06)}
+.kb-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0}
+.kb-t{font-size:14px;font-weight:800}.kb-s{font-size:9px;color:var(--m)}
+.kb-cnt{margin-left:auto;font-size:26px;font-weight:900;font-family:monospace}
+.kb-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:flex;align-items:center;gap:7px;background:#fff;padding:7px 11px;border-radius:6px;border:1px solid var(--bd);cursor:pointer;transition:all .2s;user-select:none}
+.chip:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);transform:translateY(-1px)}
+.chip:active{transform:scale(.97)}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chip-name{font-size:11px;font-weight:700;color:var(--p)}
+.chip-info{font-size:8px;color:var(--m)}
+.chip-arrow{font-size:10px;color:var(--m);opacity:.4;margin-left:auto}
+.kb-no .chip{background:#FFF8F8;border-color:#E8D4D4}
+.kb-no .chip-name{color:var(--r)}
+.chip-mot{font-size:8px;color:var(--r);font-style:italic;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-sec{margin-bottom:18px}
+.map-hd{background:var(--p);color:#fff;padding:11px 18px;font-size:13px;font-weight:700;border-radius:8px 8px 0 0}
+.map-wrap{border:2px solid var(--p);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;position:relative;background:#1a1a2e}
+.map-img{width:100%;display:block;opacity:.8}
+.map-ov{position:absolute;top:0;left:0;width:100%;height:100%}
+.nd{position:absolute;transform:translate(-50%,-50%);z-index:5;cursor:default}
+.nd-c{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-weight:700;font-size:7px;border:2px solid rgba(255,255,255,.85);box-shadow:0 2px 8px rgba(0,0,0,.4);transition:all .25s;line-height:1.1;text-align:center}
+.nd-c:hover{transform:scale(1.2)}
+.nd-lbl{font-size:6px;opacity:.85;font-weight:400}
+.nd-st{font-size:11px;font-weight:900;font-family:monospace}
+.nd-off .nd-c{background:var(--r)!important;border-color:rgba(255,255,255,.5)!important}
+@keyframes pr{0%{box-shadow:0 0 0 0 rgba(165,35,35,.5)}70%{box-shadow:0 0 0 12px rgba(165,35,35,0)}100%{box-shadow:0 0 0 0 rgba(165,35,35,0)}}
+.nd-off .nd-c{animation:pr 2s infinite}
+.nd-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--p);color:#fff;padding:8px 12px;border-radius:6px;font-size:10px;white-space:nowrap;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.25);line-height:1.5}
+.nd-tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--p)}
+.nd:hover .nd-tip{display:block}
+.tip-t{font-weight:700;font-size:11px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:3px;margin-bottom:3px}
+.tip-b{display:inline-block;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:700;margin-top:3px}
+.map-leg{display:flex;gap:16px;justify-content:center;padding:10px;background:var(--p3);flex-wrap:wrap;font-size:10px}
+.ml-i{display:flex;align-items:center;gap:4px}
+.ml-d{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.note{background:var(--p3);border-left:3px solid var(--p);border-radius:0 6px 6px 0;padding:10px 14px;font-size:10px;color:var(--m);line-height:1.6}
+.note strong{color:var(--p)}
+.ft{text-align:center;margin-top:16px;font-size:9px;color:#B0A8B8;padding-bottom:18px}
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--w);border-radius:10px;padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.modal h3{font-size:14px;color:var(--p);margin-bottom:4px}
+.modal p{font-size:11px;color:var(--m);margin-bottom:14px}
+.modal textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:6px;font-family:inherit;font-size:11px;resize:none;margin-bottom:14px}
+.modal textarea:focus{outline:2px solid var(--p);border-color:var(--p)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-btns button{padding:8px 18px;border:none;border-radius:6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-cancel{background:var(--p3);color:var(--p)}.btn-cancel:hover{background:#e0d6eb}
+.btn-confirm{background:var(--r);color:#fff}.btn-confirm:hover{background:#8A1C1C}
+.btn-reactivate{background:var(--g);color:#fff}.btn-reactivate:hover{background:#1F5E12}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hd"><div class="hd-left"><h1>Auditoria de Funcionamiento — Spiral Conveyor</h1><p>Area de Paletizado — Planta SAL</p></div><div class="hd-right">Mondelez International<br>18 spirals | 20 paletizadoras</div></div>
+<div class="hd-bar"></div>
+<div class="tabs">
+<button class="on" onclick="showTab(0)">Operatividad</button>
+<button onclick="showTab(1)">Inspeccion</button>
+<button onclick="showTab(2)">Dashboard</button>
+<button onclick="showTab(3)">Historial</button>
+</div>
+
+<div class="pnl active" id="tab0">
+<div class="sec-title">Control de Operatividad</div>
+<div class="sec-sub">Click en un chip para moverlo a la otra columna. El estado se refleja en el mapa en tiempo real.</div>
+<div class="sum-bar">
+<div><div class="sum-n" id="cntOn">0</div><div class="sum-l">Operativos</div></div>
+<div class="sum-div"></div>
+<div><div class="sum-n" id="cntOff">0</div><div class="sum-l">Fuera de servicio</div></div>
+<div class="sum-div"></div>
+<div style="opacity:.5"><div class="sum-n">18</div><div class="sum-l">Total spirals</div></div>
+<div class="sum-hint">Datos guardados en navegador</div>
+</div>
+<div class="kb">
+<div class="kb-col kb-ok">
+<div class="kb-hd"><div class="kb-icon" style="background:var(--g)">SI</div><div><div class="kb-t" style="color:var(--g)">Pueden operar</div><div class="kb-s">Click en un chip para sacarlo de servicio</div></div><div class="kb-cnt" id="cntOnK" style="color:var(--g)">0</div></div>
+<div class="kb-chips" id="chipsOn"></div>
+</div>
+<div class="kb-col kb-no">
+<div class="kb-hd"><div class="kb-icon" style="background:var(--r)">NO</div><div><div class="kb-t" style="color:var(--r)">Fuera de servicio</div><div class="kb-s">Click en un chip para reactivarlo</div></div><div class="kb-cnt" id="cntOffK" style="color:var(--r)">0</div></div>
+<div class="kb-chips" id="chipsOff"></div>
+</div>
+</div>
+<div class="map-sec">
+<div class="map-hd">Mapa de Planta — Operatividad de Spirals</div>
+<div class="map-wrap">
+<img src="layout.png" alt="Layout CAD" class="map-img">
+<div class="map-ov" id="mapOv"></div>
+</div>
+<div class="map-leg">
+<div class="ml-i"><div class="ml-d" style="background:var(--g)"></div> Operativo</div>
+<div class="ml-i"><div class="ml-d" style="background:var(--y)"></div> Degradado</div>
+<div class="ml-i"><div class="ml-d" style="background:var(--o)"></div> Con Riesgo</div>
+<div class="ml-i"><div class="ml-d" style="background:var(--r)"></div> Fuera de Servicio</div>
+<div class="ml-i" style="color:var(--m);font-style:italic">Hover para detalle</div>
+</div>
+</div>
+<div class="note"><strong>Lectura del mapa:</strong> El color del circulo refleja la criticidad de la ultima inspeccion. OK = operativo, X = fuera de servicio. Los nodos rojos pulsan para llamar la atencion. La operatividad se controla desde el Kanban de arriba.</div>
+</div>
+
+<div class="pnl" id="tab1"><p style="text-align:center;color:var(--m);padding:48px;font-size:12px">Formulario de inspeccion — integrar desde la version actual de la app.</p></div>
+<div class="pnl" id="tab2"><p style="text-align:center;color:var(--m);padding:48px;font-size:12px">Dashboard de priorizacion — integrar desde la version actual de la app.</p></div>
+<div class="pnl" id="tab3"><p style="text-align:center;color:var(--m);padding:48px;font-size:12px">Historial de inspecciones — integrar desde la version actual de la app.</p></div>
+<div class="ft">Auditoria Spiral Conveyor — Mondelez International — Planta SAL</div>
+</div>
+
+<div class="modal-bg" id="modalOff">
+<div class="modal">
+<h3 id="modalOffTitle">Sacar de servicio</h3>
+<p>Indica el motivo por el cual este spiral no esta operativo:</p>
+<textarea id="modalOffMotivo" rows="3" placeholder="Ej: Motor danado, banda se salio del riel..."></textarea>
+<div class="modal-btns">
+<button class="btn-cancel" onclick="cancelModal()">Cancelar</button>
+<button class="btn-confirm" onclick="confirmOff()">Fuera de servicio</button>
+</div>
+</div>
+</div>
+
+<div class="modal-bg" id="modalOn">
+<div class="modal">
+<h3 id="modalOnTitle">Reactivar spiral</h3>
+<p id="modalOnMsg">Confirma que deseas marcar este spiral como operativo.</p>
+<div class="modal-btns">
+<button class="btn-cancel" onclick="cancelModal()">Cancelar</button>
+<button class="btn-reactivate" onclick="confirmOn()">Reactivar</button>
+</div>
+</div>
+</div>
+
+<script>
+var SPIRALS=[
+{id:"p12",name:"Pal 1-2",grp:"Arthur",crit:"risk",pct:75,pos:{top:7,left:60.1}},
+{id:"p4",name:"Pal 4",grp:"Arthur",crit:"ok",pct:100,pos:{top:9,left:45.8}},
+{id:"p59a",name:"Pal 5-9A",grp:"Arthur",crit:"risk",pct:68,pos:{top:7.7,left:39}},
+{id:"p6ab",name:"Pal 6A-6B",grp:"Arthur",crit:"ok",pct:100,pos:{top:10.6,left:27}},
+{id:"p7ab",name:"Pal 7A-7B",grp:"Arthur",crit:"deg",pct:82,pos:{top:7.2,left:52.8}},
+{id:"p9b",name:"Pal 9B",grp:"Arthur",crit:"ok",pct:100,pos:{top:9.1,left:24.2}},
+{id:"p3",name:"Pal 3",grp:"Sunrise",crit:"ok",pct:94,pos:{top:42.2,left:79.3}},
+{id:"p8",name:"Pal 8",grp:"Sunrise",crit:"ok",pct:88,pos:{top:86.4,left:36.9}},
+{id:"p10z",name:"Pal 10 (zona)",grp:"Sunrise",crit:"deg",pct:71,pos:{top:46.6,left:19.5}},
+{id:"p10p",name:"Pal 10 (2do piso)",grp:"Sunrise",crit:"ok",pct:100,pos:{top:62.5,left:5.4}},
+{id:"pppu",name:"Pal 11 PPU",grp:"Sunrise",crit:"ok",pct:100,pos:{top:86.5,left:57.6}},
+{id:"pppl",name:"Pal 11 PPL",grp:"Sunrise",crit:"ok",pct:94,pos:{top:88.6,left:54.8}},
+{id:"pot",name:"Pal 11 OT",grp:"Sunrise",crit:"deg",pct:76,pos:{top:86.5,left:47.1}},
+{id:"pgz",name:"Pal 11 GenZ",grp:"Sunrise",crit:"ok",pct:100,pos:{top:83.1,left:34.2}},
+{id:"p12s",name:"Pal 12",grp:"Sunrise",crit:"ok",pct:88,pos:{top:88.2,left:44.6}},
+{id:"p13",name:"Pal 13",grp:"Sunrise",crit:"crit",pct:35,pos:{top:88.6,left:65.2}},
+{id:"p14z",name:"Pal 14 (zona)",grp:"Sunrise",crit:"risk",pct:62,pos:{top:43.8,left:21.2}},
+{id:"p14p",name:"Pal 14 (2do piso)",grp:"Sunrise",crit:"risk",pct:65,pos:{top:66.4,left:5.2}}
+];
+var CRIT={ok:{color:"#287819",label:"Operativo"},deg:{color:"#B89B00",label:"Degradado"},risk:{color:"#E18719",label:"Con Riesgo"},crit:{color:"#A52323",label:"Critico"}};
+var DOFF={"pot":{m:"Banda se salio del riel, esperando refaccion"},"p13":{m:"Motor danado, paro de emergencia no funciona"},"p14p":{m:"Cableado danado, mantenimiento programado"}};
+var state={},pendingId=null;
+
+function init(){
+var sv=localStorage.getItem("spiralOps2");
+if(sv){try{state=JSON.parse(sv);}catch(e){state={};}}
+if(!Object.keys(state).length){for(var i=0;i<SPIRALS.length;i++){var s=SPIRALS[i];state[s.id]=DOFF[s.id]?{on:false,motivo:DOFF[s.id].m}:{on:true,motivo:""};}}
+render();}
+
+function save(){localStorage.setItem("spiralOps2",JSON.stringify(state));}
+
+function render(){
+var onH="",offH="",cOn=0,cOff=0;
+var art=[],sun=[];
+for(var i=0;i<SPIRALS.length;i++){if(SPIRALS[i].grp==="Arthur")art.push(SPIRALS[i]);else sun.push(SPIRALS[i]);}
+function bld(arr,isOn){var h="";for(var j=0;j<arr.length;j++){var s=arr[j],st=state[s.id];if(isOn&&!st.on)continue;if(!isOn&&st.on)continue;
+var c=CRIT[s.crit],ga=s.grp==="Arthur"?"Art":"Sun";
+if(isOn){h+='<div class="chip" onclick="clickOff(\''+s.id+'\')" title="Click para sacar de servicio"><div class="chip-dot" style="background:'+c.color+'"></div><div><div class="chip-name">'+s.name+'</div><div class="chip-info">'+ga+' — '+s.pct+'%</div></div><div class="chip-arrow">&#8594;</div></div>';cOn++;}
+else{h+='<div class="chip" onclick="clickOn(\''+s.id+'\')" title="Click para reactivar"><div class="chip-dot" style="background:'+c.color+'"></div><div><div class="chip-name">'+s.name+'</div><div class="chip-info">'+ga+' — '+s.pct+'%</div>';if(st.motivo)h+='<div class="chip-mot">'+st.motivo+'</div>';h+='</div><div class="chip-arrow">&#8592;</div></div>';cOff++;}}return h;}
+onH=bld(art,true)+bld(sun,true);offH=bld(art,false)+bld(sun,false);
+document.getElementById("chipsOn").innerHTML=onH;document.getElementById("chipsOff").innerHTML=offH;
+document.getElementById("cntOn").textContent=cOn;document.getElementById("cntOff").textContent=cOff;
+document.getElementById("cntOnK").textContent=cOn;document.getElementById("cntOffK").textContent=cOff;
+renderMap();}
+
+function renderMap(){
+var h="";
+for(var i=0;i<SPIRALS.length;i++){var s=SPIRALS[i],st=state[s.id],c=CRIT[s.crit],isOn=st.on;
+var cls=isOn?"nd":"nd nd-off",bg=isOn?c.color:"#A52323",sym=isOn?"OK":"X";
+var sn=s.name.replace("Pal ","").replace("(zona)","z").replace("(2do piso)","2do");if(sn.length>8)sn=sn.substring(0,8);
+h+='<div class="'+cls+'" style="top:'+s.pos.top+'%;left:'+s.pos.left+'%"><div class="nd-c" style="background:'+bg+'"><div class="nd-st">'+sym+'</div><div class="nd-lbl">'+sn+'</div></div>';
+h+='<div class="nd-tip"><div class="tip-t">Spiral '+s.name+'</div>'+s.grp+(isOn?" — Operativo":" — FUERA DE SERVICIO")+"<br>";
+if(!isOn&&st.motivo)h+="Motivo: "+st.motivo+"<br>";
+h+="Criticidad: "+c.label+" — "+s.pct+'%<div class="tip-b" style="background:'+(isOn?c.color:"#A52323")+';color:#fff">'+(isOn?"OPERATIVO":"FUERA DE SERVICIO")+"</div></div></div>";}
+document.getElementById("mapOv").innerHTML=h;}
+
+function clickOff(id){pendingId=id;var s=findS(id);document.getElementById("modalOffTitle").textContent="Sacar de servicio: "+s.name;document.getElementById("modalOffMotivo").value="";document.getElementById("modalOffMotivo").style.borderColor="";document.getElementById("modalOff").className="modal-bg show";setTimeout(function(){document.getElementById("modalOffMotivo").focus();},100);}
+function clickOn(id){pendingId=id;var s=findS(id),st=state[id];document.getElementById("modalOnTitle").textContent="Reactivar: "+s.name;var m="Este spiral estaba fuera de servicio";if(st.motivo)m+=" ("+st.motivo+")";m+=". Confirma que deseas marcarlo como operativo.";document.getElementById("modalOnMsg").textContent=m;document.getElementById("modalOn").className="modal-bg show";}
+function confirmOff(){if(!pendingId)return;var mot=document.getElementById("modalOffMotivo").value.trim();if(!mot){document.getElementById("modalOffMotivo").style.borderColor="#A52323";return;}state[pendingId]={on:false,motivo:mot};save();render();document.getElementById("modalOff").className="modal-bg";pendingId=null;}
+function confirmOn(){if(!pendingId)return;state[pendingId]={on:true,motivo:""};save();render();document.getElementById("modalOn").className="modal-bg";pendingId=null;}
+function cancelModal(){document.getElementById("modalOff").className="modal-bg";document.getElementById("modalOn").className="modal-bg";pendingId=null;}
+function findS(id){for(var i=0;i<SPIRALS.length;i++){if(SPIRALS[i].id===id)return SPIRALS[i];}return null;}
+function showTab(n){var t=document.querySelectorAll(".tabs button"),p=document.querySelectorAll(".pnl");for(var i=0;i<t.length;i++){t[i].className=i===n?"on":"";p[i].className=i===n?"pnl active":"pnl";}}
+init();
+</script>
+</body>
+</html>
+
