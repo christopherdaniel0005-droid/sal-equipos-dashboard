@@ -3,232 +3,613 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Auditoria Spiral Conveyor — Operatividad</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Area PT - Planta SAL</title>
 <style>
-:root{--p:#4F2170;--p3:#f0ecf5;--o:#E18719;--g:#287819;--b:#2D6EAA;--r:#A52323;--t:#3D3D3D;--bg:#F7F5FA;--w:#fff;--bd:#DDD8E4;--m:#8A7F96;--y:#B89B00}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Calibri,Arial,sans-serif;background:var(--bg);color:var(--t);font-size:13px}
-.wrap{max-width:1100px;margin:0 auto;padding:12px}
-.hd{background:var(--p);color:#fff;padding:20px 24px 18px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
-.hd-left h1{font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:-.02em}
-.hd-left p{font-size:11px;opacity:.7;margin-top:3px}
-.hd-right{text-align:right;font-size:10px;opacity:.6;line-height:1.6}
-.hd-bar{height:3px;background:var(--o)}
-.tabs{display:flex;background:var(--w);border-left:1px solid var(--bd);border-right:1px solid var(--bd)}
-.tabs button{flex:1;padding:12px 8px;border:none;background:none;font-weight:600;font-size:12px;cursor:pointer;color:var(--m);border-bottom:3px solid transparent;font-family:inherit;transition:all .2s}
-.tabs button:hover{color:var(--p);background:var(--p3)}
-.tabs button.on{color:var(--p);border-bottom-color:var(--o);background:var(--p3)}
-.pnl{background:var(--w);border:1px solid var(--bd);border-top:none;padding:20px 24px;display:none}.pnl.active{display:block}
-.sec-title{font-size:15px;font-weight:700;color:var(--p);margin-bottom:3px}
-.sec-sub{font-size:11px;color:var(--m);margin-bottom:16px}
-.sum-bar{display:flex;gap:20px;padding:12px 20px;background:var(--p);border-radius:8px;margin-bottom:18px;align-items:center;color:#fff}
-.sum-n{font-size:26px;font-weight:800;font-family:monospace;line-height:1}
-.sum-l{font-size:8px;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
-.sum-div{width:1px;height:32px;background:rgba(255,255,255,.2)}
-.sum-hint{margin-left:auto;font-size:10px;opacity:.5}
-.kb{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:10px;overflow:hidden;border:2px solid var(--bd);margin-bottom:22px}
-.kb-col{padding:16px;min-height:160px}
-.kb-ok{background:#FAFDF9;border-right:2px solid var(--bd)}
-.kb-no{background:#FEFAFA}
-.kb-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,.06)}
-.kb-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0}
-.kb-t{font-size:14px;font-weight:800}.kb-s{font-size:9px;color:var(--m)}
-.kb-cnt{margin-left:auto;font-size:26px;font-weight:900;font-family:monospace}
-.kb-chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{display:flex;align-items:center;gap:7px;background:#fff;padding:7px 11px;border-radius:6px;border:1px solid var(--bd);cursor:pointer;transition:all .2s;user-select:none}
-.chip:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);transform:translateY(-1px)}
-.chip:active{transform:scale(.97)}
-.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.chip-name{font-size:11px;font-weight:700;color:var(--p)}
-.chip-info{font-size:8px;color:var(--m)}
-.chip-arrow{font-size:10px;color:var(--m);opacity:.4;margin-left:auto}
-.kb-no .chip{background:#FFF8F8;border-color:#E8D4D4}
-.kb-no .chip-name{color:var(--r)}
-.chip-mot{font-size:8px;color:var(--r);font-style:italic;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.map-sec{margin-bottom:18px}
-.map-hd{background:var(--p);color:#fff;padding:11px 18px;font-size:13px;font-weight:700;border-radius:8px 8px 0 0}
-.map-wrap{border:2px solid var(--p);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;position:relative;background:#1a1a2e}
-.map-img{width:100%;display:block;opacity:.8}
-.map-ov{position:absolute;top:0;left:0;width:100%;height:100%}
-.nd{position:absolute;transform:translate(-50%,-50%);z-index:5;cursor:default}
-.nd-c{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-weight:700;font-size:7px;border:2px solid rgba(255,255,255,.85);box-shadow:0 2px 8px rgba(0,0,0,.4);transition:all .25s;line-height:1.1;text-align:center}
-.nd-c:hover{transform:scale(1.2)}
-.nd-lbl{font-size:6px;opacity:.85;font-weight:400}
-.nd-st{font-size:11px;font-weight:900;font-family:monospace}
-.nd-off .nd-c{background:var(--r)!important;border-color:rgba(255,255,255,.5)!important}
-@keyframes pr{0%{box-shadow:0 0 0 0 rgba(165,35,35,.5)}70%{box-shadow:0 0 0 12px rgba(165,35,35,0)}100%{box-shadow:0 0 0 0 rgba(165,35,35,0)}}
-.nd-off .nd-c{animation:pr 2s infinite}
-.nd-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--p);color:#fff;padding:8px 12px;border-radius:6px;font-size:10px;white-space:nowrap;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.25);line-height:1.5}
-.nd-tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--p)}
-.nd:hover .nd-tip{display:block}
-.tip-t{font-weight:700;font-size:11px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:3px;margin-bottom:3px}
-.tip-b{display:inline-block;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:700;margin-top:3px}
-.map-leg{display:flex;gap:16px;justify-content:center;padding:10px;background:var(--p3);flex-wrap:wrap;font-size:10px}
-.ml-i{display:flex;align-items:center;gap:4px}
-.ml-d{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.1)}
-.note{background:var(--p3);border-left:3px solid var(--p);border-radius:0 6px 6px 0;padding:10px 14px;font-size:10px;color:var(--m);line-height:1.6}
-.note strong{color:var(--p)}
-.ft{text-align:center;margin-top:16px;font-size:9px;color:#B0A8B8;padding-bottom:18px}
-.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
-.modal-bg.show{display:flex}
-.modal{background:var(--w);border-radius:10px;padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
-.modal h3{font-size:14px;color:var(--p);margin-bottom:4px}
-.modal p{font-size:11px;color:var(--m);margin-bottom:14px}
-.modal textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:6px;font-family:inherit;font-size:11px;resize:none;margin-bottom:14px}
-.modal textarea:focus{outline:2px solid var(--p);border-color:var(--p)}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end}
-.modal-btns button{padding:8px 18px;border:none;border-radius:6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-cancel{background:var(--p3);color:var(--p)}.btn-cancel:hover{background:#e0d6eb}
-.btn-confirm{background:var(--r);color:#fff}.btn-confirm:hover{background:#8A1C1C}
-.btn-reactivate{background:var(--g);color:#fff}.btn-reactivate:hover{background:#1F5E12}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f4f3f6;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* === HEADER === */
+.header{background:#4F2170;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;min-height:48px}
+.header h1{font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.02em}
+.header .info{font-size:11px;opacity:.7}
+
+/* === TABS === */
+.tabs{display:flex;background:#3a1854;padding:0 20px}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+.tab:hover{color:#fff}
+.tab.active{color:#fff;border-bottom-color:#E18719}
+
+/* === KPI BAR === */
+.kpi-bar{display:flex;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8e5ec;flex-wrap:wrap}
+.kpi-card{flex:1;min-width:140px;padding:10px 14px;background:#f9f8fb;border-radius:8px;border:1px solid #e8e5ec;text-align:center}
+.kpi-card .value{font-size:22px;font-weight:700;color:#4F2170}
+.kpi-card .label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.kpi-card.alert .value{color:#A52323}
+.kpi-card.warn .value{color:#E18719}
+.kpi-card.good .value{color:#287819}
+
+/* === MAIN CONTENT === */
+.content{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* === MAP TAB === */
+.map-container{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.map-controls{display:flex;gap:8px;padding:8px 16px;background:#f4f3f6;align-items:center;flex-wrap:wrap;border-bottom:1px solid #e8e5ec}
+.ctrl-label{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.ctrl-btn{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d5d0dc;background:#fff;color:#555;transition:all .15s}
+.ctrl-btn:hover{border-color:#4F2170;color:#4F2170}
+.ctrl-btn.active{background:#4F2170;color:#fff;border-color:#4F2170}
+
+.legend{display:flex;gap:12px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600}
+.legend-dot{width:12px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.1)}
+
+.map-scroll{flex:1;overflow:auto;background:#eae7ee;position:relative}
+.map-wrapper{position:relative;display:inline-block;min-width:100%}
+.map-wrapper img{display:block;width:100%;height:auto}
+
+/* === MARKERS === */
+.mk{position:absolute;transform:translate(-50%,-50%);z-index:10;cursor:pointer;transition:all .15s}
+.mk:hover{z-index:100}
+.mk:hover .mk-dot{box-shadow:0 0 0 4px rgba(255,255,255,.8),0 2px 8px rgba(0,0,0,.3)}
+.mk:hover .mk-lbl{opacity:1;transform:translateX(-50%) translateY(-2px)}
+.mk.selected .mk-dot{box-shadow:0 0 0 4px rgba(255,255,255,.9),0 0 0 7px #4F2170}
+
+.mk-dot{width:20px;height:20px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:all .15s}
+.mk-dot.pal{border-radius:4px}
+.mk-badge{position:absolute;top:-6px;right:-8px;background:#4F2170;color:#fff;font-size:8px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:2px solid #f4f3f6;padding:0 3px}
+.mk-lbl{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.12);pointer-events:none;opacity:0;transition:all .15s}
+.show-labels .mk-lbl{opacity:1}
+
+.dot-op{background:#287819}.dot-deg{background:#E18719}.dot-fs{background:#A52323}
+.lbl-pal{color:#4F2170}.lbl-wr{color:#E18719}.lbl-sp{color:#287819}
+
+/* === SIDE PANEL === */
+.side-panel{width:380px;background:#fff;border-left:2px solid #e8e5ec;display:flex;flex-direction:column;overflow:hidden;transition:margin-right .3s}
+.side-panel.closed{margin-right:-380px}
+.sp-header{background:#4F2170;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.sp-header h2{font-size:14px;font-weight:700}
+.sp-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;opacity:.7}
+.sp-close:hover{opacity:1}
+.sp-info{padding:12px 16px;border-bottom:1px solid #e8e5ec;font-size:12px;display:flex;gap:8px;flex-wrap:wrap}
+.sp-tag{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase}
+.sp-tag.tipo-pal{background:#f0e6f6;color:#4F2170}.sp-tag.tipo-wr{background:#fef0dc;color:#E18719}.sp-tag.tipo-sp{background:#e6f4e4;color:#287819}
+.sp-tag.st-op{background:#e6f4e4;color:#287819}.sp-tag.st-deg{background:#fef0dc;color:#E18719}.sp-tag.st-fs{background:#fbe6e6;color:#A52323}
+.sp-stats{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid #e8e5ec}
+.sp-stat{flex:1;text-align:center;padding:8px;background:#f9f8fb;border-radius:6px}
+.sp-stat .num{font-size:18px;font-weight:700;color:#4F2170}
+.sp-stat .txt{font-size:9px;color:#888;text-transform:uppercase}
+.sp-list-title{padding:10px 16px 6px;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e8e5ec}
+.sp-list{flex:1;overflow-y:auto;padding:0}
+.tarjeta-item{padding:10px 16px;border-bottom:1px solid #f0eef3;cursor:default;transition:background .1s}
+.tarjeta-item:hover{background:#f9f8fb}
+.tj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.tj-folio{font-size:11px;font-weight:700;color:#4F2170}
+.tj-pri{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px}
+.tj-pri.alta{background:#fbe6e6;color:#A52323}.tj-pri.media{background:#fef0dc;color:#E18719}.tj-pri.baja{background:#e6f4e4;color:#287819}
+.tj-desc{font-size:11px;color:#555;line-height:1.3;margin-bottom:4px}
+.tj-meta{font-size:10px;color:#aaa;display:flex;gap:10px}
+.sp-empty{padding:20px;text-align:center;color:#aaa;font-style:italic;font-size:12px}
+
+/* === TABLE TAB === */
+.table-container{flex:1;display:none;flex-direction:column;overflow:hidden}
+.table-container.active{display:flex}
+.map-container.active{display:flex}
+.map-container{display:none}
+.table-filters{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #e8e5ec;background:#fff}
+.table-filters select,.table-filters input{padding:6px 10px;border:1px solid #d5d0dc;border-radius:5px;font-size:12px;font-family:Calibri,Arial,sans-serif}
+.table-filters input{min-width:200px}
+.table-scroll{flex:1;overflow:auto;padding:0 16px 16px}
+table.data-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+table.data-table th{background:#4F2170;color:#fff;padding:8px 10px;text-align:left;font-weight:700;position:sticky;top:0;z-index:5;font-size:10px;text-transform:uppercase;letter-spacing:.03em}
+table.data-table td{padding:6px 10px;border-bottom:1px solid #eee}
+table.data-table tr:hover td{background:#f9f8fb}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+
+/* === FOOTER === */
+.footer{background:#4F2170;color:rgba(255,255,255,.6);padding:6px 20px;font-size:10px;display:flex;justify-content:space-between}
+
+/* Loading */
+.loading{display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:14px}
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="hd"><div class="hd-left"><h1>Auditoria de Funcionamiento — Spiral Conveyor</h1><p>Area de Paletizado — Planta SAL</p></div><div class="hd-right">Mondelez International<br>18 spirals | 20 paletizadoras</div></div>
-<div class="hd-bar"></div>
+
+<div class="header">
+  <h1>Area PT - Planta SAL</h1>
+  <span class="info" id="lastUpdate">Cargando datos...</span>
+</div>
+
 <div class="tabs">
-<button class="on" onclick="showTab(0)">Operatividad</button>
-<button onclick="showTab(1)">Inspeccion</button>
-<button onclick="showTab(2)">Dashboard</button>
-<button onclick="showTab(3)">Historial</button>
+  <div class="tab active" data-tab="map">Mapa</div>
+  <div class="tab" data-tab="table">Tarjetas</div>
 </div>
 
-<div class="pnl active" id="tab0">
-<div class="sec-title">Control de Operatividad</div>
-<div class="sec-sub">Click en un chip para moverlo a la otra columna. El estado se refleja en el mapa en tiempo real.</div>
-<div class="sum-bar">
-<div><div class="sum-n" id="cntOn">0</div><div class="sum-l">Operativos</div></div>
-<div class="sum-div"></div>
-<div><div class="sum-n" id="cntOff">0</div><div class="sum-l">Fuera de servicio</div></div>
-<div class="sum-div"></div>
-<div style="opacity:.5"><div class="sum-n">18</div><div class="sum-l">Total spirals</div></div>
-<div class="sum-hint">Datos guardados en navegador</div>
-</div>
-<div class="kb">
-<div class="kb-col kb-ok">
-<div class="kb-hd"><div class="kb-icon" style="background:var(--g)">SI</div><div><div class="kb-t" style="color:var(--g)">Pueden operar</div><div class="kb-s">Click en un chip para sacarlo de servicio</div></div><div class="kb-cnt" id="cntOnK" style="color:var(--g)">0</div></div>
-<div class="kb-chips" id="chipsOn"></div>
-</div>
-<div class="kb-col kb-no">
-<div class="kb-hd"><div class="kb-icon" style="background:var(--r)">NO</div><div><div class="kb-t" style="color:var(--r)">Fuera de servicio</div><div class="kb-s">Click en un chip para reactivarlo</div></div><div class="kb-cnt" id="cntOffK" style="color:var(--r)">0</div></div>
-<div class="kb-chips" id="chipsOff"></div>
-</div>
-</div>
-<div class="map-sec">
-<div class="map-hd">Mapa de Planta — Operatividad de Spirals</div>
-<div class="map-wrap">
-<img src="layout.png" alt="Layout CAD" class="map-img">
-<div class="map-ov" id="mapOv"></div>
-</div>
-<div class="map-leg">
-<div class="ml-i"><div class="ml-d" style="background:var(--g)"></div> Operativo</div>
-<div class="ml-i"><div class="ml-d" style="background:var(--y)"></div> Degradado</div>
-<div class="ml-i"><div class="ml-d" style="background:var(--o)"></div> Con Riesgo</div>
-<div class="ml-i"><div class="ml-d" style="background:var(--r)"></div> Fuera de Servicio</div>
-<div class="ml-i" style="color:var(--m);font-style:italic">Hover para detalle</div>
-</div>
-</div>
-<div class="note"><strong>Lectura del mapa:</strong> El color del circulo refleja la criticidad de la ultima inspeccion. OK = operativo, X = fuera de servicio. Los nodos rojos pulsan para llamar la atencion. La operatividad se controla desde el Kanban de arriba.</div>
+<div class="kpi-bar" id="kpiBar">
+  <div class="kpi-card"><div class="value" id="kAbiertas">-</div><div class="label">Abiertas</div></div>
+  <div class="kpi-card good"><div class="value" id="kCerradas">-</div><div class="label">Cerradas (total)</div></div>
+  <div class="kpi-card warn"><div class="value" id="kAntiguedad">-</div><div class="label">Antiguedad prom. (dias)</div></div>
+  <div class="kpi-card"><div class="value" id="kEquipos">-</div><div class="label">Equipos con tarjetas</div></div>
+  <div class="kpi-card alert"><div class="value" id="kFuera">-</div><div class="label">Fuera de servicio</div></div>
+  <div class="kpi-card good"><div class="value" id="kTasa">-</div><div class="label">Tasa de cierre</div></div>
 </div>
 
-<div class="pnl" id="tab1"><p style="text-align:center;color:var(--m);padding:48px;font-size:12px">Formulario de inspeccion — integrar desde la version actual de la app.</p></div>
-<div class="pnl" id="tab2"><p style="text-align:center;color:var(--m);padding:48px;font-size:12px">Dashboard de priorizacion — integrar desde la version actual de la app.</p></div>
-<div class="pnl" id="tab3"><p style="text-align:center;color:var(--m);padding:48px;font-size:12px">Historial de inspecciones — integrar desde la version actual de la app.</p></div>
-<div class="ft">Auditoria Spiral Conveyor — Mondelez International — Planta SAL</div>
+<div class="content">
+  <!-- MAP TAB -->
+  <div class="map-container active" id="mapTab">
+    <div class="map-controls">
+      <span class="ctrl-label">Etiquetas:</span>
+      <span class="ctrl-btn active" id="btnShow">Mostrar</span>
+      <span class="ctrl-btn" id="btnHide">Ocultar</span>
+
+      <div class="legend">
+        <span class="ctrl-label">Tipo:</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#4F2170;border-radius:3px"></span> Paletizadora</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#E18719;border-radius:50%"></span> Wrapper</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#287819;border-radius:50%"></span> Espiral</span>
+        <span style="width:12px"></span>
+        <span class="ctrl-label">Estatus:</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#287819"></span> Operativo</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#E18719"></span> Degradado</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#A52323"></span> Fuera de servicio</span>
+      </div>
+    </div>
+
+    <div class="map-scroll">
+      <div class="map-wrapper show-labels" id="mapWrapper">
+        <img src="pltz-layout.png" alt="Layout Area PT" id="layoutImg">
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE TAB -->
+  <div class="table-container" id="tableTab">
+    <div class="table-filters">
+      <select id="filtroEstado"><option value="">Todos los estados</option></select>
+      <select id="filtroTipo"><option value="">Todos los tipos</option></select>
+      <select id="filtroEquipo"><option value="">Todos los equipos</option></select>
+      <select id="filtroPrioridad"><option value="">Todas las prioridades</option></select>
+      <input type="text" id="filtroBuscar" placeholder="Buscar por folio, defecto o descripcion...">
+    </div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Equipo</th>
+            <th>Tipo</th>
+            <th>Defecto</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Fecha Inclusion</th>
+            <th>Antiguedad</th>
+            <th>Descripcion</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="side-panel closed" id="sidePanel">
+    <div class="sp-header">
+      <h2 id="spTitle">Equipo</h2>
+      <button class="sp-close" id="spClose">X</button>
+    </div>
+    <div class="sp-info" id="spInfo"></div>
+    <div class="sp-stats" id="spStats"></div>
+    <div class="sp-list-title">Tarjetas abiertas</div>
+    <div class="sp-list" id="spList"></div>
+  </div>
 </div>
 
-<div class="modal-bg" id="modalOff">
-<div class="modal">
-<h3 id="modalOffTitle">Sacar de servicio</h3>
-<p>Indica el motivo por el cual este spiral no esta operativo:</p>
-<textarea id="modalOffMotivo" rows="3" placeholder="Ej: Motor danado, banda se salio del riel..."></textarea>
-<div class="modal-btns">
-<button class="btn-cancel" onclick="cancelModal()">Cancelar</button>
-<button class="btn-confirm" onclick="confirmOff()">Fuera de servicio</button>
-</div>
-</div>
-</div>
-
-<div class="modal-bg" id="modalOn">
-<div class="modal">
-<h3 id="modalOnTitle">Reactivar spiral</h3>
-<p id="modalOnMsg">Confirma que deseas marcar este spiral como operativo.</p>
-<div class="modal-btns">
-<button class="btn-cancel" onclick="cancelModal()">Cancelar</button>
-<button class="btn-reactivate" onclick="confirmOn()">Reactivar</button>
-</div>
-</div>
+<div class="footer">
+  <span>Area PT - Planta SAL - 45 equipos</span>
+  <span id="footerGen"></span>
 </div>
 
 <script>
-var SPIRALS=[
-{id:"p12",name:"Pal 1-2",grp:"Arthur",crit:"risk",pct:75,pos:{top:7,left:60.1}},
-{id:"p4",name:"Pal 4",grp:"Arthur",crit:"ok",pct:100,pos:{top:9,left:45.8}},
-{id:"p59a",name:"Pal 5-9A",grp:"Arthur",crit:"risk",pct:68,pos:{top:7.7,left:39}},
-{id:"p6ab",name:"Pal 6A-6B",grp:"Arthur",crit:"ok",pct:100,pos:{top:10.6,left:27}},
-{id:"p7ab",name:"Pal 7A-7B",grp:"Arthur",crit:"deg",pct:82,pos:{top:7.2,left:52.8}},
-{id:"p9b",name:"Pal 9B",grp:"Arthur",crit:"ok",pct:100,pos:{top:9.1,left:24.2}},
-{id:"p3",name:"Pal 3",grp:"Sunrise",crit:"ok",pct:94,pos:{top:42.2,left:79.3}},
-{id:"p8",name:"Pal 8",grp:"Sunrise",crit:"ok",pct:88,pos:{top:86.4,left:36.9}},
-{id:"p10z",name:"Pal 10 (zona)",grp:"Sunrise",crit:"deg",pct:71,pos:{top:46.6,left:19.5}},
-{id:"p10p",name:"Pal 10 (2do piso)",grp:"Sunrise",crit:"ok",pct:100,pos:{top:62.5,left:5.4}},
-{id:"pppu",name:"Pal 11 PPU",grp:"Sunrise",crit:"ok",pct:100,pos:{top:86.5,left:57.6}},
-{id:"pppl",name:"Pal 11 PPL",grp:"Sunrise",crit:"ok",pct:94,pos:{top:88.6,left:54.8}},
-{id:"pot",name:"Pal 11 OT",grp:"Sunrise",crit:"deg",pct:76,pos:{top:86.5,left:47.1}},
-{id:"pgz",name:"Pal 11 GenZ",grp:"Sunrise",crit:"ok",pct:100,pos:{top:83.1,left:34.2}},
-{id:"p12s",name:"Pal 12",grp:"Sunrise",crit:"ok",pct:88,pos:{top:88.2,left:44.6}},
-{id:"p13",name:"Pal 13",grp:"Sunrise",crit:"crit",pct:35,pos:{top:88.6,left:65.2}},
-{id:"p14z",name:"Pal 14 (zona)",grp:"Sunrise",crit:"risk",pct:62,pos:{top:43.8,left:21.2}},
-{id:"p14p",name:"Pal 14 (2do piso)",grp:"Sunrise",crit:"risk",pct:65,pos:{top:66.4,left:5.2}}
-];
-var CRIT={ok:{color:"#287819",label:"Operativo"},deg:{color:"#B89B00",label:"Degradado"},risk:{color:"#E18719",label:"Con Riesgo"},crit:{color:"#A52323",label:"Critico"}};
-var DOFF={"pot":{m:"Banda se salio del riel, esperando refaccion"},"p13":{m:"Motor danado, paro de emergencia no funciona"},"p14p":{m:"Cableado danado, mantenimiento programado"}};
-var state={},pendingId=null;
+(function(){
 
-function init(){
-var sv=localStorage.getItem("spiralOps2");
-if(sv){try{state=JSON.parse(sv);}catch(e){state={};}}
-if(!Object.keys(state).length){for(var i=0;i<SPIRALS.length;i++){var s=SPIRALS[i];state[s.id]=DOFF[s.id]?{on:false,motivo:DOFF[s.id].m}:{on:true,motivo:""};}}
-render();}
+// ============================================================
+//  COORDENADAS DE EQUIPOS (del JSON que generaste)
+// ============================================================
+var COORDS = {
+  "Pal 1":{"x":71.55,"y":26.5,"tipo":"Paletizadoras"},
+  "Pal 2":{"x":67.05,"y":26.69,"tipo":"Paletizadoras"},
+  "Pal 3":{"x":73.24,"y":49.81,"tipo":"Paletizadoras"},
+  "Pal 4":{"x":50.9,"y":26.6,"tipo":"Paletizadoras"},
+  "Pal 5":{"x":48.24,"y":26.5,"tipo":"Paletizadoras"},
+  "Pal 6A":{"x":55.55,"y":26.5,"tipo":"Paletizadoras"},
+  "Pal 6B":{"x":36.74,"y":26.5,"tipo":"Paletizadoras"},
+  "Pal 7A":{"x":63.95,"y":26.6,"tipo":"Paletizadoras"},
+  "Pal 7B":{"x":58.94,"y":26.6,"tipo":"Paletizadoras"},
+  "Pal 8":{"x":40.87,"y":66.15,"tipo":"Paletizadoras"},
+  "Pal 9A":{"x":43.3,"y":26.71,"tipo":"Paletizadoras"},
+  "Pal 9B":{"x":31.8,"y":26.61,"tipo":"Paletizadoras"},
+  "Pal 10":{"x":21.47,"y":66.22,"tipo":"Paletizadoras"},
+  "Pal 11 GenZ":{"x":35.27,"y":66.22,"tipo":"Paletizadoras"},
+  "Pal 11 PPL":{"x":58.5,"y":66.52,"tipo":"Paletizadoras"},
+  "Pal 11 PPU":{"x":63.95,"y":66.42,"tipo":"Paletizadoras"},
+  "Pal 11 OT":{"x":52.37,"y":66.22,"tipo":"Paletizadoras"},
+  "Pal 12":{"x":46.84,"y":66.22,"tipo":"Paletizadoras"},
+  "Pal 13":{"x":70,"y":66.32,"tipo":"Paletizadoras"},
+  "Pal 14":{"x":28.41,"y":66.22,"tipo":"Paletizadoras"},
+  "W1":{"x":83.32,"y":6.89,"tipo":"Wrappers"},
+  "W2":{"x":86.34,"y":15.96,"tipo":"Wrappers"},
+  "W3":{"x":83.1,"y":22.69,"tipo":"Wrappers"},
+  "W5":{"x":81.92,"y":61.81,"tipo":"Wrappers"},
+  "W6":{"x":89.07,"y":68.55,"tipo":"Wrappers"},
+  "W7":{"x":83.69,"y":77.52,"tipo":"Wrappers"},
+  "W8":{"x":88.11,"y":89.48,"tipo":"Wrappers"},
+  "SP-1 y 2":{"x":64.14,"y":8.55,"tipo":"Espirales"},
+  "SP-3":{"x":85.53,"y":44.06,"tipo":"Espirales"},
+  "SP-4 y 6A":{"x":48.07,"y":10.69,"tipo":"Espirales"},
+  "SP-5 y 9A":{"x":40.62,"y":9.52,"tipo":"Espirales"},
+  "SP-6B":{"x":27.05,"y":12.06,"tipo":"Espirales"},
+  "SP-7A y 7B":{"x":55.96,"y":8.84,"tipo":"Espirales"},
+  "SP-8":{"x":37.96,"y":88.8,"tipo":"Espirales"},
+  "SP-9B":{"x":23.88,"y":10.67,"tipo":"Espirales"},
+  "SP-10":{"x":18.7,"y":48.51,"tipo":"Espirales"},
+  "SP-10 FZ":{"x":2.73,"y":64.9,"tipo":"Espirales"},
+  "SP-11 OT":{"x":49.48,"y":88.6,"tipo":"Espirales"},
+  "SP-11 PPL":{"x":58.26,"y":91.04,"tipo":"Espirales"},
+  "SP-11 PPU":{"x":61.28,"y":88.8,"tipo":"Espirales"},
+  "SP-GENZ":{"x":35.03,"y":85.29,"tipo":"Espirales"},
+  "SP-12":{"x":46.76,"y":90.85,"tipo":"Espirales"},
+  "SP-13":{"x":69.84,"y":91.43,"tipo":"Espirales"},
+  "SP-14":{"x":20.35,"y":45.87,"tipo":"Espirales"},
+  "SP-14 FZ":{"x":2.8,"y":67.63,"tipo":"Espirales"}
+};
 
-function save(){localStorage.setItem("spiralOps2",JSON.stringify(state));}
+// ============================================================
+//  ESTADO GLOBAL
+// ============================================================
+var DATA = null;
+var tarjetasPorEquipo = {};
+var abiertasPorEquipo = {};
+var selectedEquipo = null;
 
-function render(){
-var onH="",offH="",cOn=0,cOff=0;
-var art=[],sun=[];
-for(var i=0;i<SPIRALS.length;i++){if(SPIRALS[i].grp==="Arthur")art.push(SPIRALS[i]);else sun.push(SPIRALS[i]);}
-function bld(arr,isOn){var h="";for(var j=0;j<arr.length;j++){var s=arr[j],st=state[s.id];if(isOn&&!st.on)continue;if(!isOn&&st.on)continue;
-var c=CRIT[s.crit],ga=s.grp==="Arthur"?"Art":"Sun";
-if(isOn){h+='<div class="chip" onclick="clickOff(\''+s.id+'\')" title="Click para sacar de servicio"><div class="chip-dot" style="background:'+c.color+'"></div><div><div class="chip-name">'+s.name+'</div><div class="chip-info">'+ga+' — '+s.pct+'%</div></div><div class="chip-arrow">&#8594;</div></div>';cOn++;}
-else{h+='<div class="chip" onclick="clickOn(\''+s.id+'\')" title="Click para reactivar"><div class="chip-dot" style="background:'+c.color+'"></div><div><div class="chip-name">'+s.name+'</div><div class="chip-info">'+ga+' — '+s.pct+'%</div>';if(st.motivo)h+='<div class="chip-mot">'+st.motivo+'</div>';h+='</div><div class="chip-arrow">&#8592;</div></div>';cOff++;}}return h;}
-onH=bld(art,true)+bld(sun,true);offH=bld(art,false)+bld(sun,false);
-document.getElementById("chipsOn").innerHTML=onH;document.getElementById("chipsOff").innerHTML=offH;
-document.getElementById("cntOn").textContent=cOn;document.getElementById("cntOff").textContent=cOff;
-document.getElementById("cntOnK").textContent=cOn;document.getElementById("cntOffK").textContent=cOff;
-renderMap();}
+// ============================================================
+//  CARGAR DATOS
+// ============================================================
+function cargarDatos(){
+  fetch("data/tarjetas.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      DATA = data;
+      procesarDatos();
+      renderKPIs();
+      renderMarcadores();
+      renderTabla();
+      document.getElementById("lastUpdate").textContent = "Actualizado: " + data.resumen.generado;
+      document.getElementById("footerGen").textContent = "Datos: " + data.resumen.archivo + " | Generado: " + data.resumen.generado;
+    })
+    .catch(function(err){
+      console.error("Error cargando datos:", err);
+      document.getElementById("lastUpdate").textContent = "Error al cargar datos";
+      // Render markers without data (all green)
+      renderMarcadores();
+    });
+}
 
-function renderMap(){
-var h="";
-for(var i=0;i<SPIRALS.length;i++){var s=SPIRALS[i],st=state[s.id],c=CRIT[s.crit],isOn=st.on;
-var cls=isOn?"nd":"nd nd-off",bg=isOn?c.color:"#A52323",sym=isOn?"OK":"X";
-var sn=s.name.replace("Pal ","").replace("(zona)","z").replace("(2do piso)","2do");if(sn.length>8)sn=sn.substring(0,8);
-h+='<div class="'+cls+'" style="top:'+s.pos.top+'%;left:'+s.pos.left+'%"><div class="nd-c" style="background:'+bg+'"><div class="nd-st">'+sym+'</div><div class="nd-lbl">'+sn+'</div></div>';
-h+='<div class="nd-tip"><div class="tip-t">Spiral '+s.name+'</div>'+s.grp+(isOn?" — Operativo":" — FUERA DE SERVICIO")+"<br>";
-if(!isOn&&st.motivo)h+="Motivo: "+st.motivo+"<br>";
-h+="Criticidad: "+c.label+" — "+s.pct+'%<div class="tip-b" style="background:'+(isOn?c.color:"#A52323")+';color:#fff">'+(isOn?"OPERATIVO":"FUERA DE SERVICIO")+"</div></div></div>";}
-document.getElementById("mapOv").innerHTML=h;}
+function procesarDatos(){
+  tarjetasPorEquipo = {};
+  abiertasPorEquipo = {};
+  var cerrados = ["cerrado","cerrada","resuelto","resuelta","closed"];
 
-function clickOff(id){pendingId=id;var s=findS(id);document.getElementById("modalOffTitle").textContent="Sacar de servicio: "+s.name;document.getElementById("modalOffMotivo").value="";document.getElementById("modalOffMotivo").style.borderColor="";document.getElementById("modalOff").className="modal-bg show";setTimeout(function(){document.getElementById("modalOffMotivo").focus();},100);}
-function clickOn(id){pendingId=id;var s=findS(id),st=state[id];document.getElementById("modalOnTitle").textContent="Reactivar: "+s.name;var m="Este spiral estaba fuera de servicio";if(st.motivo)m+=" ("+st.motivo+")";m+=". Confirma que deseas marcarlo como operativo.";document.getElementById("modalOnMsg").textContent=m;document.getElementById("modalOn").className="modal-bg show";}
-function confirmOff(){if(!pendingId)return;var mot=document.getElementById("modalOffMotivo").value.trim();if(!mot){document.getElementById("modalOffMotivo").style.borderColor="#A52323";return;}state[pendingId]={on:false,motivo:mot};save();render();document.getElementById("modalOff").className="modal-bg";pendingId=null;}
-function confirmOn(){if(!pendingId)return;state[pendingId]={on:true,motivo:""};save();render();document.getElementById("modalOn").className="modal-bg";pendingId=null;}
-function cancelModal(){document.getElementById("modalOff").className="modal-bg";document.getElementById("modalOn").className="modal-bg";pendingId=null;}
-function findS(id){for(var i=0;i<SPIRALS.length;i++){if(SPIRALS[i].id===id)return SPIRALS[i];}return null;}
-function showTab(n){var t=document.querySelectorAll(".tabs button"),p=document.querySelectorAll(".pnl");for(var i=0;i<t.length;i++){t[i].className=i===n?"on":"";p[i].className=i===n?"pnl active":"pnl";}}
-init();
+  for(var i = 0; i < DATA.tarjetas.length; i++){
+    var t = DATA.tarjetas[i];
+    var eq = t.equipoMapa;
+    if(!tarjetasPorEquipo[eq]) tarjetasPorEquipo[eq] = [];
+    tarjetasPorEquipo[eq].push(t);
+
+    if(cerrados.indexOf(t.estado.toLowerCase()) === -1){
+      if(!abiertasPorEquipo[eq]) abiertasPorEquipo[eq] = [];
+      abiertasPorEquipo[eq].push(t);
+    }
+  }
+}
+
+function getStatus(nombre){
+  var abiertas = abiertasPorEquipo[nombre];
+  if(!abiertas || abiertas.length === 0) return "op";
+  if(abiertas.length <= 3) return "deg";
+  return "fs";
+}
+
+function getStatusText(st){
+  if(st === "op") return "Operativo";
+  if(st === "deg") return "Degradado";
+  return "Fuera de servicio";
+}
+
+// ============================================================
+//  RENDER KPIs
+// ============================================================
+function renderKPIs(){
+  if(!DATA) return;
+  var r = DATA.resumen;
+  document.getElementById("kAbiertas").textContent = r.tarjetasAbiertas;
+  document.getElementById("kCerradas").textContent = r.tarjetasCerradas.toLocaleString();
+
+  // Antiguedad promedio de abiertas
+  var cerrados = ["cerrado","cerrada","resuelto","resuelta","closed"];
+  var totalAnt = 0, countAnt = 0;
+  for(var i = 0; i < DATA.tarjetas.length; i++){
+    var t = DATA.tarjetas[i];
+    if(cerrados.indexOf(t.estado.toLowerCase()) === -1 && t.antiguedadDias > 0){
+      totalAnt += t.antiguedadDias;
+      countAnt++;
+    }
+  }
+  var promAnt = countAnt > 0 ? Math.round(totalAnt / countAnt) : 0;
+  document.getElementById("kAntiguedad").textContent = promAnt;
+
+  // Equipos con tarjetas abiertas
+  document.getElementById("kEquipos").textContent = Object.keys(abiertasPorEquipo).length;
+
+  // Fuera de servicio
+  var fueraCount = 0;
+  for(var eq in COORDS){
+    if(getStatus(eq) === "fs") fueraCount++;
+  }
+  document.getElementById("kFuera").textContent = fueraCount;
+
+  // Tasa de cierre
+  var tasa = r.tarjetasTotal > 0 ? Math.round((r.tarjetasCerradas / r.tarjetasTotal) * 100) : 0;
+  document.getElementById("kTasa").textContent = tasa + "%";
+}
+
+// ============================================================
+//  RENDER MARCADORES EN MAPA
+// ============================================================
+function renderMarcadores(){
+  var wrapper = document.getElementById("mapWrapper");
+  // Limpiar marcadores anteriores
+  var old = wrapper.querySelectorAll(".mk");
+  for(var o = 0; o < old.length; o++) old[o].remove();
+
+  for(var nombre in COORDS){
+    var c = COORDS[nombre];
+    var st = getStatus(nombre);
+    var abiertas = abiertasPorEquipo[nombre] ? abiertasPorEquipo[nombre].length : 0;
+
+    var tipo = c.tipo;
+    var dotClass = st === "op" ? "dot-op" : st === "deg" ? "dot-deg" : "dot-fs";
+    var lblClass = tipo === "Paletizadoras" ? "lbl-pal" : tipo === "Wrappers" ? "lbl-wr" : "lbl-sp";
+    var shapeClass = tipo === "Paletizadoras" ? "pal" : "";
+
+    var mk = document.createElement("div");
+    mk.className = "mk";
+    mk.setAttribute("data-equipo", nombre);
+    mk.style.left = c.x + "%";
+    mk.style.top = c.y + "%";
+
+    var dot = document.createElement("div");
+    dot.className = "mk-dot " + dotClass + " " + shapeClass;
+    mk.appendChild(dot);
+
+    var lbl = document.createElement("div");
+    lbl.className = "mk-lbl " + lblClass;
+    lbl.textContent = nombre;
+    mk.appendChild(lbl);
+
+    if(abiertas > 0){
+      var badge = document.createElement("div");
+      badge.className = "mk-badge";
+      badge.textContent = abiertas;
+      mk.appendChild(badge);
+    }
+
+    mk.addEventListener("click", (function(n){ return function(){ openPanel(n); }; })(nombre));
+    wrapper.appendChild(mk);
+  }
+}
+
+// ============================================================
+//  SIDE PANEL
+// ============================================================
+function openPanel(nombre){
+  var panel = document.getElementById("sidePanel");
+  var c = COORDS[nombre];
+  if(!c) return;
+
+  // Deselect previous
+  var prev = document.querySelector(".mk.selected");
+  if(prev) prev.classList.remove("selected");
+
+  // Select new
+  var mk = document.querySelector('.mk[data-equipo="' + nombre + '"]');
+  if(mk) mk.classList.add("selected");
+
+  selectedEquipo = nombre;
+  var st = getStatus(nombre);
+  var tipo = c.tipo;
+  var abiertas = abiertasPorEquipo[nombre] || [];
+  var todas = tarjetasPorEquipo[nombre] || [];
+
+  // Title
+  document.getElementById("spTitle").textContent = nombre;
+
+  // Info tags
+  var tipoClass = tipo === "Paletizadoras" ? "tipo-pal" : tipo === "Wrappers" ? "tipo-wr" : "tipo-sp";
+  var stClass = st === "op" ? "st-op" : st === "deg" ? "st-deg" : "st-fs";
+  document.getElementById("spInfo").innerHTML =
+    '<span class="sp-tag ' + tipoClass + '">' + tipo + '</span>' +
+    '<span class="sp-tag ' + stClass + '">' + getStatusText(st) + '</span>';
+
+  // Stats
+  var cerradas = todas.length - abiertas.length;
+  var promAnt = 0;
+  if(abiertas.length > 0){
+    var sumAnt = 0;
+    for(var i = 0; i < abiertas.length; i++) sumAnt += abiertas[i].antiguedadDias;
+    promAnt = Math.round(sumAnt / abiertas.length);
+  }
+  document.getElementById("spStats").innerHTML =
+    '<div class="sp-stat"><div class="num" style="color:#A52323">' + abiertas.length + '</div><div class="txt">Abiertas</div></div>' +
+    '<div class="sp-stat"><div class="num" style="color:#287819">' + cerradas + '</div><div class="txt">Cerradas</div></div>' +
+    '<div class="sp-stat"><div class="num">' + promAnt + '</div><div class="txt">Dias prom.</div></div>' +
+    '<div class="sp-stat"><div class="num">' + todas.length + '</div><div class="txt">Total</div></div>';
+
+  // List of open tarjetas
+  var list = document.getElementById("spList");
+  if(abiertas.length === 0){
+    list.innerHTML = '<div class="sp-empty">Sin tarjetas abiertas</div>';
+  } else {
+    // Sort by antiguedad descending
+    abiertas.sort(function(a, b){ return b.antiguedadDias - a.antiguedadDias; });
+    var html = "";
+    for(var j = 0; j < abiertas.length; j++){
+      var t = abiertas[j];
+      var priClass = "";
+      var priLower = t.prioridad.toLowerCase();
+      if(priLower.indexOf("alta") > -1 || priLower.indexOf("high") > -1 || priLower === "a") priClass = "alta";
+      else if(priLower.indexOf("media") > -1 || priLower.indexOf("medium") > -1 || priLower === "b") priClass = "media";
+      else priClass = "baja";
+
+      html += '<div class="tarjeta-item">';
+      html += '<div class="tj-top"><span class="tj-folio">#' + t.folio + '</span><span class="tj-pri ' + priClass + '">' + t.prioridad + '</span></div>';
+      html += '<div class="tj-desc">' + (t.defecto || t.descripcion || "Sin descripcion") + '</div>';
+      html += '<div class="tj-meta"><span>' + t.antiguedadDias + ' dias</span><span>' + t.estado + '</span><span>' + t.fechaInclusion + '</span></div>';
+      html += '</div>';
+    }
+    list.innerHTML = html;
+  }
+
+  panel.classList.remove("closed");
+}
+
+document.getElementById("spClose").addEventListener("click", function(){
+  document.getElementById("sidePanel").classList.add("closed");
+  var prev = document.querySelector(".mk.selected");
+  if(prev) prev.classList.remove("selected");
+  selectedEquipo = null;
+});
+
+// ============================================================
+//  TABLA DE TARJETAS
+// ============================================================
+function renderTabla(){
+  if(!DATA) return;
+  populateFilters();
+  filtrarTabla();
+}
+
+function populateFilters(){
+  var estados = {}, tipos = {}, equipos = {}, prioridades = {};
+  for(var i = 0; i < DATA.tarjetas.length; i++){
+    var t = DATA.tarjetas[i];
+    if(t.estado) estados[t.estado] = true;
+    if(t.tipoEquipo) tipos[t.tipoEquipo] = true;
+    if(t.equipoMapa) equipos[t.equipoMapa] = true;
+    if(t.prioridad) prioridades[t.prioridad] = true;
+  }
+  fillSelect("filtroEstado", estados, "Todos los estados");
+  fillSelect("filtroTipo", tipos, "Todos los tipos");
+  fillSelect("filtroEquipo", equipos, "Todos los equipos");
+  fillSelect("filtroPrioridad", prioridades, "Todas las prioridades");
+}
+
+function fillSelect(id, obj, defaultText){
+  var sel = document.getElementById(id);
+  sel.innerHTML = '<option value="">' + defaultText + '</option>';
+  var keys = Object.keys(obj).sort();
+  for(var i = 0; i < keys.length; i++){
+    sel.innerHTML += '<option value="' + keys[i] + '">' + keys[i] + '</option>';
+  }
+}
+
+function filtrarTabla(){
+  if(!DATA) return;
+  var fEstado = document.getElementById("filtroEstado").value;
+  var fTipo = document.getElementById("filtroTipo").value;
+  var fEquipo = document.getElementById("filtroEquipo").value;
+  var fPri = document.getElementById("filtroPrioridad").value;
+  var fBuscar = document.getElementById("filtroBuscar").value.toLowerCase();
+
+  var tbody = document.getElementById("tableBody");
+  var html = "";
+  var count = 0;
+
+  for(var i = 0; i < DATA.tarjetas.length; i++){
+    var t = DATA.tarjetas[i];
+    if(fEstado && t.estado !== fEstado) continue;
+    if(fTipo && t.tipoEquipo !== fTipo) continue;
+    if(fEquipo && t.equipoMapa !== fEquipo) continue;
+    if(fPri && t.prioridad !== fPri) continue;
+    if(fBuscar){
+      var searchStr = (t.folio + " " + t.defecto + " " + t.descripcion + " " + t.equipoMapa).toLowerCase();
+      if(searchStr.indexOf(fBuscar) === -1) continue;
+    }
+
+    var cerrados = ["cerrado","cerrada","resuelto","resuelta","closed"];
+    var dotColor = cerrados.indexOf(t.estado.toLowerCase()) > -1 ? "#287819" : "#E18719";
+
+    html += "<tr>";
+    html += "<td><strong>" + t.folio + "</strong></td>";
+    html += "<td>" + t.equipoMapa + "</td>";
+    html += "<td>" + t.tipoEquipo + "</td>";
+    html += "<td>" + (t.defecto || "-") + "</td>";
+    html += "<td>" + t.prioridad + "</td>";
+    html += '<td><span class="status-dot" style="background:' + dotColor + '"></span>' + t.estado + "</td>";
+    html += "<td>" + t.fechaInclusion + "</td>";
+    html += "<td>" + t.antiguedadDias + " dias</td>";
+    html += "<td>" + (t.descripcion || "-").substring(0, 80) + "</td>";
+    html += "</tr>";
+    count++;
+    if(count >= 500) break; // Limitar para performance
+  }
+
+  if(count === 0){
+    html = '<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px">No se encontraron tarjetas con esos filtros</td></tr>';
+  }
+
+  tbody.innerHTML = html;
+}
+
+// Filter event listeners
+["filtroEstado","filtroTipo","filtroEquipo","filtroPrioridad"].forEach(function(id){
+  document.getElementById(id).addEventListener("change", filtrarTabla);
+});
+document.getElementById("filtroBuscar").addEventListener("input", filtrarTabla);
+
+// ============================================================
+//  TABS
+// ============================================================
+var tabs = document.querySelectorAll(".tab");
+tabs.forEach(function(tab){
+  tab.addEventListener("click", function(){
+    tabs.forEach(function(t){ t.classList.remove("active"); });
+    tab.classList.add("active");
+    var target = tab.getAttribute("data-tab");
+    document.getElementById("mapTab").classList.toggle("active", target === "map");
+    document.getElementById("tableTab").classList.toggle("active", target === "table");
+  });
+});
+
+// ============================================================
+//  LABEL TOGGLE
+// ============================================================
+document.getElementById("btnShow").addEventListener("click", function(){
+  document.getElementById("mapWrapper").classList.add("show-labels");
+  this.classList.add("active");
+  document.getElementById("btnHide").classList.remove("active");
+});
+document.getElementById("btnHide").addEventListener("click", function(){
+  document.getElementById("mapWrapper").classList.remove("show-labels");
+  this.classList.add("active");
+  document.getElementById("btnShow").classList.remove("active");
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+cargarDatos();
+
+})();
 </script>
 </body>
 </html>
-
