@@ -4,166 +4,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Area PT - Planta SAL</title>
+<title>Status de equipos | Paletizado - Planta Salinas</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f4f3f6;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* === HEADER === */
+/* HEADER */
 .header{background:#4F2170;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;min-height:48px}
 .header h1{font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.02em}
 .header .info{font-size:11px;opacity:.7}
+.system-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;margin-left:10px}
 
-/* === TABS === */
+/* TABS */
 .tabs{display:flex;background:#3a1854;padding:0 20px}
-.tab{padding:10px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
-.tab:hover{color:#fff}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s}
+.tab:hover{color:rgba(255,255,255,.8)}
 .tab.active{color:#fff;border-bottom-color:#E18719}
 
-/* === KPI BAR === */
-.kpi-bar{display:flex;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8e5ec;flex-wrap:wrap}
-.kpi-card{flex:1;min-width:140px;padding:10px 14px;background:#f9f8fb;border-radius:8px;border:1px solid #e8e5ec;text-align:center}
-.kpi-card .value{font-size:22px;font-weight:700;color:#4F2170}
-.kpi-card .label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+/* KPI BAR */
+.kpi-bar{display:flex;gap:8px;padding:10px 20px;background:#fff;border-bottom:1px solid #e8e5ec;flex-wrap:wrap;align-items:center}
+.kpi-card{flex:1;min-width:110px;padding:8px 10px;background:#f9f8fb;border-radius:8px;border:1px solid #e8e5ec;text-align:center}
+.kpi-card .value{font-size:20px;font-weight:700;color:#4F2170}
+.kpi-card .label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
 .kpi-card.alert .value{color:#A52323}
 .kpi-card.warn .value{color:#E18719}
 .kpi-card.good .value{color:#287819}
+.date-filter{display:flex;align-items:center;gap:6px;font-size:11px;color:#666;margin-left:8px;padding:6px 10px;background:#f9f8fb;border-radius:8px;border:1px solid #e8e5ec}
+.date-filter input{padding:4px 6px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;font-family:Calibri,Arial,sans-serif}
+.date-filter label{font-weight:600;font-size:9px;text-transform:uppercase;color:#888}
 
-/* === MAIN CONTENT === */
+/* CONTENT */
 .content{flex:1;display:flex;overflow:hidden;position:relative}
+.tab-pane{display:none;flex:1;flex-direction:column;overflow:hidden}
+.tab-pane.active{display:flex}
 
-/* === MAP TAB === */
+/* MAP */
 .map-container{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .map-controls{display:flex;gap:8px;padding:8px 16px;background:#f4f3f6;align-items:center;flex-wrap:wrap;border-bottom:1px solid #e8e5ec}
 .ctrl-label{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em}
 .ctrl-btn{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d5d0dc;background:#fff;color:#555;transition:all .15s}
 .ctrl-btn:hover{border-color:#4F2170;color:#4F2170}
 .ctrl-btn.active{background:#4F2170;color:#fff;border-color:#4F2170}
-
-.legend{display:flex;gap:12px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.zoom-controls{display:flex;gap:4px;margin-left:8px}
+.zoom-btn{width:28px;height:28px;border-radius:4px;border:1px solid #d5d0dc;background:#fff;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4F2170}
+.zoom-btn:hover{background:#4F2170;color:#fff}
+.legend{display:flex;gap:10px;margin-left:auto;align-items:center;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600}
 .legend-dot{width:12px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.1)}
 
-.map-scroll{flex:1;overflow:auto;background:#eae7ee;position:relative}
-.map-wrapper{position:relative;display:inline-block;min-width:100%}
-.map-wrapper img{display:block;width:100%;height:auto}
+.map-scroll{flex:1;overflow:auto;background:#eae7ee;display:flex;align-items:center;justify-content:center}
+.map-wrapper{position:relative;display:inline-block;transition:transform .2s;transform-origin:top left}
+.map-wrapper img{display:block;max-width:100%;max-height:100%;height:auto}
 
-/* === MARKERS === */
+/* MARKERS */
 .mk{position:absolute;transform:translate(-50%,-50%);z-index:10;cursor:pointer;transition:all .15s}
 .mk:hover{z-index:100}
 .mk:hover .mk-dot{box-shadow:0 0 0 4px rgba(255,255,255,.8),0 2px 8px rgba(0,0,0,.3)}
 .mk:hover .mk-lbl{opacity:1;transform:translateX(-50%) translateY(-2px)}
 .mk.selected .mk-dot{box-shadow:0 0 0 4px rgba(255,255,255,.9),0 0 0 7px #4F2170}
-
 .mk-dot{width:20px;height:20px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:all .15s}
 .mk-dot.pal{border-radius:4px}
 .mk-badge{position:absolute;top:-6px;right:-8px;background:#4F2170;color:#fff;font-size:8px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:2px solid #f4f3f6;padding:0 3px}
 .mk-lbl{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.12);pointer-events:none;opacity:0;transition:all .15s}
 .show-labels .mk-lbl{opacity:1}
-
 .dot-op{background:#287819}.dot-deg{background:#E18719}.dot-fs{background:#A52323}
 .lbl-pal{color:#4F2170}.lbl-wr{color:#E18719}.lbl-sp{color:#287819}
 
-/* === SIDE PANEL === */
-.side-panel{width:380px;background:#fff;border-left:2px solid #e8e5ec;display:flex;flex-direction:column;overflow:hidden;transition:margin-right .3s}
-.side-panel.closed{margin-right:-380px}
+/* SIDE PANEL */
+.side-panel{width:360px;background:#fff;border-left:2px solid #e8e5ec;display:flex;flex-direction:column;overflow:hidden;transition:width .3s}
+.side-panel.closed{width:0;border:none}
 .sp-header{background:#4F2170;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
 .sp-header h2{font-size:14px;font-weight:700}
 .sp-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;opacity:.7}
 .sp-close:hover{opacity:1}
 .sp-info{padding:12px 16px;border-bottom:1px solid #e8e5ec;font-size:12px;display:flex;gap:8px;flex-wrap:wrap}
 .sp-tag{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase}
-.sp-tag.tipo-pal{background:#f0e6f6;color:#4F2170}.sp-tag.tipo-wr{background:#fef0dc;color:#E18719}.sp-tag.tipo-sp{background:#e6f4e4;color:#287819}
-.sp-tag.st-op{background:#e6f4e4;color:#287819}.sp-tag.st-deg{background:#fef0dc;color:#E18719}.sp-tag.st-fs{background:#fbe6e6;color:#A52323}
+.sp-tag.tipo-pal{background:#f0e6f6;color:#4F2170}
+.sp-tag.tipo-wr{background:#fef0dc;color:#E18719}
+.sp-tag.tipo-sp{background:#e6f4e4;color:#287819}
+.sp-tag.st-op{background:#e6f4e4;color:#287819}
+.sp-tag.st-deg{background:#fef0dc;color:#E18719}
+.sp-tag.st-fs{background:#fbe6e6;color:#A52323}
 .sp-stats{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid #e8e5ec}
 .sp-stat{flex:1;text-align:center;padding:8px;background:#f9f8fb;border-radius:6px}
 .sp-stat .num{font-size:18px;font-weight:700;color:#4F2170}
 .sp-stat .txt{font-size:9px;color:#888;text-transform:uppercase}
 .sp-list-title{padding:10px 16px 6px;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #e8e5ec}
-.sp-list{flex:1;overflow-y:auto;padding:0}
-.tarjeta-item{padding:10px 16px;border-bottom:1px solid #f0eef3;cursor:default;transition:background .1s}
+.sp-list{flex:1;overflow-y:auto}
+.tarjeta-item{padding:10px 16px;border-bottom:1px solid #f0eef3}
 .tarjeta-item:hover{background:#f9f8fb}
 .tj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .tj-folio{font-size:11px;font-weight:700;color:#4F2170}
-.tj-pri{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px}
-.tj-pri.alta{background:#fbe6e6;color:#A52323}.tj-pri.media{background:#fef0dc;color:#E18719}.tj-pri.baja{background:#e6f4e4;color:#287819}
+.tj-pri{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:#f0eef3;color:#555}
 .tj-desc{font-size:11px;color:#555;line-height:1.3;margin-bottom:4px}
 .tj-meta{font-size:10px;color:#aaa;display:flex;gap:10px}
 .sp-empty{padding:20px;text-align:center;color:#aaa;font-style:italic;font-size:12px}
 
-/* === TABLE TAB === */
-.table-container{flex:1;display:none;flex-direction:column;overflow:hidden}
-.table-container.active{display:flex}
-.map-container.active{display:flex}
-.map-container{display:none}
+/* OPERATIVIDAD TAB */
+.oper-header{padding:10px 20px;font-size:12px;color:#888;font-style:italic;background:#fff;border-bottom:1px solid #e8e5ec}
+.oper-summary{display:flex;gap:12px;padding:12px 20px;background:#4F2170;color:#fff;align-items:center}
+.oper-summary-item{font-size:13px;font-weight:700}
+.oper-summary-item span{font-size:20px;margin-right:4px}
+.oper-summary-note{margin-left:auto;font-size:10px;opacity:.6}
+.oper-columns{display:flex;flex:1;overflow:hidden}
+.oper-col{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.oper-col-head{padding:10px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.oper-col-head.green{background:#e6f4e4;color:#287819;border-bottom:3px solid #287819}
+.oper-col-head.red{background:#fbe6e6;color:#A52323;border-bottom:3px solid #A52323}
+.oper-col-head .count-badge{background:#fff;border-radius:12px;padding:2px 10px;font-size:14px;font-weight:700}
+.oper-col-sub{padding:6px 16px;font-size:10px;color:#aaa;font-style:italic;border-bottom:1px solid #e8e5ec}
+.oper-chips{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.oper-divider{width:2px;background:#e8e5ec}
+
+.chip{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;display:flex;align-items:center;gap:5px;transition:all .15s;max-width:100%}
+.chip:hover{filter:brightness(1.1);box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.chip.op{background:#e6f4e4;color:#287819;border-color:#c3e0bf}
+.chip.fs{background:#fbe6e6;color:#A52323;border-color:#efc5c5}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chip.op .chip-dot{background:#287819}
+.chip.fs .chip-dot{background:#A52323}
+.chip-reason{font-size:9px;font-weight:400;opacity:.8;margin-left:2px}
+
+/* Operatividad map */
+.oper-map-section{border-top:2px solid #e8e5ec}
+.oper-map-title{padding:8px 16px;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;background:#f4f3f6;display:flex;align-items:center;gap:8px}
+.oper-map-wrap{position:relative;display:inline-block;width:100%}
+.oper-map-wrap img{display:block;width:100%;height:auto}
+
+/* TABLE TAB */
 .table-filters{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #e8e5ec;background:#fff}
 .table-filters select,.table-filters input{padding:6px 10px;border:1px solid #d5d0dc;border-radius:5px;font-size:12px;font-family:Calibri,Arial,sans-serif}
-.table-filters input{min-width:200px}
+.table-filters input[type="text"]{min-width:200px}
 .table-scroll{flex:1;overflow:auto;padding:0 16px 16px}
-table.data-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
-table.data-table th{background:#4F2170;color:#fff;padding:8px 10px;text-align:left;font-weight:700;position:sticky;top:0;z-index:5;font-size:10px;text-transform:uppercase;letter-spacing:.03em}
-table.data-table td{padding:6px 10px;border-bottom:1px solid #eee}
+table.data-table{width:auto;min-width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+table.data-table th{background:#4F2170;color:#fff;padding:8px 12px;text-align:left;font-weight:700;position:sticky;top:0;z-index:5;font-size:10px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+table.data-table td{padding:8px 12px;border-bottom:1px solid #eee;white-space:nowrap}
+table.data-table td.wrap{white-space:normal;min-width:200px;max-width:300px}
 table.data-table tr:hover td{background:#f9f8fb}
-.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
 
-/* === FOOTER === */
+/* FOOTER */
 .footer{background:#4F2170;color:rgba(255,255,255,.6);padding:6px 20px;font-size:10px;display:flex;justify-content:space-between}
 
-/* Loading */
-.loading{display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:14px}
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:10px;padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal h3{font-size:15px;color:#4F2170;margin-bottom:4px}
+.modal p{font-size:12px;color:#888;margin-bottom:12px}
+.modal textarea{width:100%;height:60px;border:1px solid #d5d0dc;border-radius:6px;padding:8px;font-size:12px;font-family:Calibri,Arial,sans-serif;resize:none}
+.modal-btns{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.modal-btn{padding:8px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none}
+.modal-btn.cancel{background:#f0eef3;color:#555}
+.modal-btn.confirm{background:#A52323;color:#fff}
+.modal-btn.reactivate{background:#287819;color:#fff}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Area PT - Planta SAL</h1>
+  <div style="display:flex;align-items:center">
+    <h1>Status de equipos | Paletizado - Planta Salinas</h1>
+    <span class="system-badge" id="systemBadge">Sistema activo</span>
+  </div>
   <span class="info" id="lastUpdate">Cargando datos...</span>
 </div>
 
-<div class="tabs">
+<div class="tabs" id="tabBar">
   <div class="tab active" data-tab="map">Mapa</div>
   <div class="tab" data-tab="table">Tarjetas</div>
+  <div class="tab" data-tab="oper">Operatividad</div>
 </div>
 
 <div class="kpi-bar" id="kpiBar">
   <div class="kpi-card"><div class="value" id="kAbiertas">-</div><div class="label">Abiertas</div></div>
-  <div class="kpi-card good"><div class="value" id="kCerradas">-</div><div class="label">Cerradas (total)</div></div>
-  <div class="kpi-card warn"><div class="value" id="kAntiguedad">-</div><div class="label">Antiguedad prom. (dias)</div></div>
-  <div class="kpi-card"><div class="value" id="kEquipos">-</div><div class="label">Equipos con tarjetas</div></div>
-  <div class="kpi-card alert"><div class="value" id="kFuera">-</div><div class="label">Fuera de servicio</div></div>
-  <div class="kpi-card good"><div class="value" id="kTasa">-</div><div class="label">Tasa de cierre</div></div>
+  <div class="kpi-card"><div class="value" id="kCerradas">-</div><div class="label">Cerradas</div></div>
+  <div class="kpi-card warn"><div class="value" id="kAntiguedad">-</div><div class="label">Antig. Prom. (dias)</div></div>
+  <div class="kpi-card good"><div class="value" id="kOperativos">-</div><div class="label">Operativos</div></div>
+  <div class="kpi-card warn"><div class="value" id="kDegradados">-</div><div class="label">Degradados</div></div>
+  <div class="kpi-card alert"><div class="value" id="kFuera">-</div><div class="label">Fuera de Serv.</div></div>
+  <div class="date-filter">
+    <label>Desde</label><input type="date" id="fechaDesde">
+    <label>Hasta</label><input type="date" id="fechaHasta">
+  </div>
 </div>
 
 <div class="content">
   <!-- MAP TAB -->
-  <div class="map-container active" id="mapTab">
-    <div class="map-controls">
-      <span class="ctrl-label">Etiquetas:</span>
-      <span class="ctrl-btn active" id="btnShow">Mostrar</span>
-      <span class="ctrl-btn" id="btnHide">Ocultar</span>
-
-      <div class="legend">
-        <span class="ctrl-label">Tipo:</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#4F2170;border-radius:3px"></span> Paletizadora</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#E18719;border-radius:50%"></span> Wrapper</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#287819;border-radius:50%"></span> Espiral</span>
-        <span style="width:12px"></span>
-        <span class="ctrl-label">Estatus:</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#287819"></span> Operativo</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#E18719"></span> Degradado</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#A52323"></span> Fuera de servicio</span>
+  <div class="tab-pane active" id="paneMap">
+    <div class="map-container">
+      <div class="map-controls">
+        <span class="ctrl-label">Etiquetas:</span>
+        <span class="ctrl-btn active" id="btnShow">Mostrar</span>
+        <span class="ctrl-btn" id="btnHide">Ocultar</span>
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="zoomIn">+</button>
+          <button class="zoom-btn" id="zoomOut">-</button>
+          <button class="zoom-btn" id="zoomFit" style="font-size:11px">Fit</button>
+        </div>
+        <div class="legend">
+          <span class="ctrl-label">Tipo:</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#4F2170;border-radius:3px"></span> Paletizadora</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#E18719;border-radius:50%"></span> Wrapper</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#287819;border-radius:50%"></span> Espiral</span>
+          <span style="width:8px"></span>
+          <span class="ctrl-label">Estatus:</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#287819"></span> Operativo</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#E18719"></span> Degradado</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#A52323"></span> Fuera de Servicio</span>
+        </div>
+      </div>
+      <div class="map-scroll" id="mapScroll">
+        <div class="map-wrapper show-labels" id="mapWrapper">
+          <img src="pltz-layout.png" alt="Layout Area PT" id="layoutImg">
+        </div>
       </div>
     </div>
-
-    <div class="map-scroll">
-      <div class="map-wrapper show-labels" id="mapWrapper">
-        <img src="pltz-layout.png" alt="Layout Area PT" id="layoutImg">
-      </div>
+    <div class="side-panel closed" id="sidePanel">
+      <div class="sp-header"><h2 id="spTitle">Equipo</h2><button class="sp-close" id="spClose">X</button></div>
+      <div class="sp-info" id="spInfo"></div>
+      <div class="sp-stats" id="spStats"></div>
+      <div class="sp-list-title">Tarjetas abiertas</div>
+      <div class="sp-list" id="spList"></div>
     </div>
   </div>
 
   <!-- TABLE TAB -->
-  <div class="table-container" id="tableTab">
+  <div class="tab-pane" id="paneTable">
     <div class="table-filters">
       <select id="filtroEstado"><option value="">Todos los estados</option></select>
       <select id="filtroTipo"><option value="">Todos los tipos</option></select>
@@ -173,34 +239,43 @@ table.data-table tr:hover td{background:#f9f8fb}
     </div>
     <div class="table-scroll">
       <table class="data-table">
-        <thead>
-          <tr>
-            <th>Folio</th>
-            <th>Equipo</th>
-            <th>Tipo</th>
-            <th>Defecto</th>
-            <th>Prioridad</th>
-            <th>Estado</th>
-            <th>Fecha Inclusion</th>
-            <th>Antiguedad</th>
-            <th>Descripcion</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>Folio</th><th>Equipo</th><th>Tipo</th><th>Defecto</th><th>Prioridad</th><th>Estado</th><th>Fecha Inclusion</th><th>Antiguedad</th><th>Descripcion</th>
+        </tr></thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- SIDE PANEL -->
-  <div class="side-panel closed" id="sidePanel">
-    <div class="sp-header">
-      <h2 id="spTitle">Equipo</h2>
-      <button class="sp-close" id="spClose">X</button>
+  <!-- OPERATIVIDAD TAB -->
+  <div class="tab-pane" id="paneOper">
+    <div class="oper-summary">
+      <div class="oper-summary-item"><span id="operCountOp">0</span> Operativos</div>
+      <div class="oper-summary-item" style="color:#E18719"><span id="operCountDeg">0</span> Degradados</div>
+      <div class="oper-summary-item" style="color:#fca5a5"><span id="operCountFs">0</span> Fuera de Servicio</div>
+      <div class="oper-summary-item" style="opacity:.6"><span id="operCountTotal">45</span> Total</div>
+      <div class="oper-summary-note">Datos guardados en navegador</div>
     </div>
-    <div class="sp-info" id="spInfo"></div>
-    <div class="sp-stats" id="spStats"></div>
-    <div class="sp-list-title">Tarjetas abiertas</div>
-    <div class="sp-list" id="spList"></div>
+    <div class="oper-header">Haz clic en un chip para moverlo a la otra columna. El estado se refleja en el mapa en tiempo real.</div>
+    <div class="oper-columns">
+      <div class="oper-col">
+        <div class="oper-col-head green">
+          <span class="count-badge" style="color:#287819" id="operBadgeOp">0</span>
+          SI - Pueden operar
+        </div>
+        <div class="oper-col-sub">Clic en un chip para sacarlo de servicio</div>
+        <div class="oper-chips" id="chipsOp"></div>
+      </div>
+      <div class="oper-divider"></div>
+      <div class="oper-col">
+        <div class="oper-col-head red">
+          <span class="count-badge" style="color:#A52323" id="operBadgeFs">0</span>
+          NO - Fuera de servicio
+        </div>
+        <div class="oper-col-sub">Clic en un chip para reactivarlo</div>
+        <div class="oper-chips" id="chipsFs"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -209,58 +284,71 @@ table.data-table tr:hover td{background:#f9f8fb}
   <span id="footerGen"></span>
 </div>
 
+<!-- Modal para motivo de fuera de servicio -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Sacar de servicio</h3>
+    <p id="modalDesc">Escribe el motivo por el cual este equipo esta fuera de servicio:</p>
+    <textarea id="modalReason" placeholder="Ej: Motor danado, esperando refaccion..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" id="modalCancel">Cancelar</button>
+      <button class="modal-btn confirm" id="modalConfirm">Sacar de servicio</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
 
 // ============================================================
-//  COORDENADAS DE EQUIPOS (del JSON que generaste)
+//  COORDENADAS Y CATALOGO
 // ============================================================
 var COORDS = {
-  "Pal 1":{"x":71.55,"y":26.5,"tipo":"Paletizadoras"},
-  "Pal 2":{"x":67.05,"y":26.69,"tipo":"Paletizadoras"},
-  "Pal 3":{"x":73.24,"y":49.81,"tipo":"Paletizadoras"},
-  "Pal 4":{"x":50.9,"y":26.6,"tipo":"Paletizadoras"},
-  "Pal 5":{"x":48.24,"y":26.5,"tipo":"Paletizadoras"},
-  "Pal 6A":{"x":55.55,"y":26.5,"tipo":"Paletizadoras"},
-  "Pal 6B":{"x":36.74,"y":26.5,"tipo":"Paletizadoras"},
-  "Pal 7A":{"x":63.95,"y":26.6,"tipo":"Paletizadoras"},
-  "Pal 7B":{"x":58.94,"y":26.6,"tipo":"Paletizadoras"},
-  "Pal 8":{"x":40.87,"y":66.15,"tipo":"Paletizadoras"},
-  "Pal 9A":{"x":43.3,"y":26.71,"tipo":"Paletizadoras"},
-  "Pal 9B":{"x":31.8,"y":26.61,"tipo":"Paletizadoras"},
-  "Pal 10":{"x":21.47,"y":66.22,"tipo":"Paletizadoras"},
-  "Pal 11 GenZ":{"x":35.27,"y":66.22,"tipo":"Paletizadoras"},
-  "Pal 11 PPL":{"x":58.5,"y":66.52,"tipo":"Paletizadoras"},
-  "Pal 11 PPU":{"x":63.95,"y":66.42,"tipo":"Paletizadoras"},
-  "Pal 11 OT":{"x":52.37,"y":66.22,"tipo":"Paletizadoras"},
-  "Pal 12":{"x":46.84,"y":66.22,"tipo":"Paletizadoras"},
-  "Pal 13":{"x":70,"y":66.32,"tipo":"Paletizadoras"},
-  "Pal 14":{"x":28.41,"y":66.22,"tipo":"Paletizadoras"},
-  "W1":{"x":83.32,"y":6.89,"tipo":"Wrappers"},
-  "W2":{"x":86.34,"y":15.96,"tipo":"Wrappers"},
-  "W3":{"x":83.1,"y":22.69,"tipo":"Wrappers"},
-  "W5":{"x":81.92,"y":61.81,"tipo":"Wrappers"},
-  "W6":{"x":89.07,"y":68.55,"tipo":"Wrappers"},
-  "W7":{"x":83.69,"y":77.52,"tipo":"Wrappers"},
-  "W8":{"x":88.11,"y":89.48,"tipo":"Wrappers"},
-  "SP-1 y 2":{"x":64.14,"y":8.55,"tipo":"Espirales"},
-  "SP-3":{"x":85.53,"y":44.06,"tipo":"Espirales"},
-  "SP-4 y 6A":{"x":48.07,"y":10.69,"tipo":"Espirales"},
-  "SP-5 y 9A":{"x":40.62,"y":9.52,"tipo":"Espirales"},
-  "SP-6B":{"x":27.05,"y":12.06,"tipo":"Espirales"},
-  "SP-7A y 7B":{"x":55.96,"y":8.84,"tipo":"Espirales"},
-  "SP-8":{"x":37.96,"y":88.8,"tipo":"Espirales"},
-  "SP-9B":{"x":23.88,"y":10.67,"tipo":"Espirales"},
-  "SP-10":{"x":18.7,"y":48.51,"tipo":"Espirales"},
-  "SP-10 FZ":{"x":2.73,"y":64.9,"tipo":"Espirales"},
-  "SP-11 OT":{"x":49.48,"y":88.6,"tipo":"Espirales"},
-  "SP-11 PPL":{"x":58.26,"y":91.04,"tipo":"Espirales"},
-  "SP-11 PPU":{"x":61.28,"y":88.8,"tipo":"Espirales"},
-  "SP-GENZ":{"x":35.03,"y":85.29,"tipo":"Espirales"},
-  "SP-12":{"x":46.76,"y":90.85,"tipo":"Espirales"},
-  "SP-13":{"x":69.84,"y":91.43,"tipo":"Espirales"},
-  "SP-14":{"x":20.35,"y":45.87,"tipo":"Espirales"},
-  "SP-14 FZ":{"x":2.8,"y":67.63,"tipo":"Espirales"}
+  "Pal 1":{"x":71.55,"y":26.5,"tipo":"Paletizadoras","nombre":"Paletizadora 1"},
+  "Pal 2":{"x":67.05,"y":26.69,"tipo":"Paletizadoras","nombre":"Paletizadora 2"},
+  "Pal 3":{"x":73.24,"y":49.81,"tipo":"Paletizadoras","nombre":"Paletizadora 3"},
+  "Pal 4":{"x":50.9,"y":26.6,"tipo":"Paletizadoras","nombre":"Paletizadora 4"},
+  "Pal 5":{"x":48.24,"y":26.5,"tipo":"Paletizadoras","nombre":"Paletizadora 5"},
+  "Pal 6A":{"x":55.55,"y":26.5,"tipo":"Paletizadoras","nombre":"Paletizadora 6A"},
+  "Pal 6B":{"x":36.74,"y":26.5,"tipo":"Paletizadoras","nombre":"Paletizadora 6B"},
+  "Pal 7A":{"x":63.95,"y":26.6,"tipo":"Paletizadoras","nombre":"Paletizadora 7A"},
+  "Pal 7B":{"x":58.94,"y":26.6,"tipo":"Paletizadoras","nombre":"Paletizadora 7B"},
+  "Pal 8":{"x":40.87,"y":66.15,"tipo":"Paletizadoras","nombre":"Paletizadora 8"},
+  "Pal 9A":{"x":43.3,"y":26.71,"tipo":"Paletizadoras","nombre":"Paletizadora 9A"},
+  "Pal 9B":{"x":31.8,"y":26.61,"tipo":"Paletizadoras","nombre":"Paletizadora 9B"},
+  "Pal 10":{"x":21.47,"y":66.22,"tipo":"Paletizadoras","nombre":"Paletizadora 10"},
+  "Pal 11 GenZ":{"x":35.27,"y":66.22,"tipo":"Paletizadoras","nombre":"Paletizadora 11 GenZ"},
+  "Pal 11 PPL":{"x":58.5,"y":66.52,"tipo":"Paletizadoras","nombre":"Paletizadora 11 PPL"},
+  "Pal 11 PPU":{"x":63.95,"y":66.42,"tipo":"Paletizadoras","nombre":"Paletizadora 11 PPU"},
+  "Pal 11 OT":{"x":52.37,"y":66.22,"tipo":"Paletizadoras","nombre":"Paletizadora 11 OT"},
+  "Pal 12":{"x":46.84,"y":66.22,"tipo":"Paletizadoras","nombre":"Paletizadora 12"},
+  "Pal 13":{"x":70,"y":66.32,"tipo":"Paletizadoras","nombre":"Paletizadora 13"},
+  "Pal 14":{"x":28.41,"y":66.22,"tipo":"Paletizadoras","nombre":"Paletizadora 14"},
+  "W1":{"x":83.32,"y":6.89,"tipo":"Wrappers","nombre":"Wrapper 1"},
+  "W2":{"x":86.34,"y":15.96,"tipo":"Wrappers","nombre":"Wrapper 2"},
+  "W3":{"x":83.1,"y":22.69,"tipo":"Wrappers","nombre":"Wrapper 3"},
+  "W5":{"x":81.92,"y":61.81,"tipo":"Wrappers","nombre":"Wrapper 5"},
+  "W6":{"x":89.07,"y":68.55,"tipo":"Wrappers","nombre":"Wrapper 6"},
+  "W7":{"x":83.69,"y":77.52,"tipo":"Wrappers","nombre":"Wrapper 7"},
+  "W8":{"x":88.11,"y":89.48,"tipo":"Wrappers","nombre":"Wrapper 8"},
+  "SP-1 y 2":{"x":64.14,"y":8.55,"tipo":"Espirales","nombre":"Espiral 1 y 2"},
+  "SP-3":{"x":85.53,"y":44.06,"tipo":"Espirales","nombre":"Espiral 3"},
+  "SP-4 y 6A":{"x":48.07,"y":10.69,"tipo":"Espirales","nombre":"Espiral 4 y 6A"},
+  "SP-5 y 9A":{"x":40.62,"y":9.52,"tipo":"Espirales","nombre":"Espiral 5 y 9A"},
+  "SP-6B":{"x":27.05,"y":12.06,"tipo":"Espirales","nombre":"Espiral 6B"},
+  "SP-7A y 7B":{"x":55.96,"y":8.84,"tipo":"Espirales","nombre":"Espiral 7A y 7B"},
+  "SP-8":{"x":37.96,"y":88.8,"tipo":"Espirales","nombre":"Espiral 8"},
+  "SP-9B":{"x":23.88,"y":10.67,"tipo":"Espirales","nombre":"Espiral 9B"},
+  "SP-10":{"x":18.7,"y":48.51,"tipo":"Espirales","nombre":"Espiral 10"},
+  "SP-10 FZ":{"x":2.73,"y":64.9,"tipo":"Espirales","nombre":"Espiral 10 FZ"},
+  "SP-11 OT":{"x":49.48,"y":88.6,"tipo":"Espirales","nombre":"Espiral 11 OT"},
+  "SP-11 PPL":{"x":58.26,"y":91.04,"tipo":"Espirales","nombre":"Espiral 11 PPL"},
+  "SP-11 PPU":{"x":61.28,"y":88.8,"tipo":"Espirales","nombre":"Espiral 11 PPU"},
+  "SP-GENZ":{"x":35.03,"y":85.29,"tipo":"Espirales","nombre":"Espiral GenZ"},
+  "SP-12":{"x":46.76,"y":90.85,"tipo":"Espirales","nombre":"Espiral 12"},
+  "SP-13":{"x":69.84,"y":91.43,"tipo":"Espirales","nombre":"Espiral 13"},
+  "SP-14":{"x":20.35,"y":45.87,"tipo":"Espirales","nombre":"Espiral 14"},
+  "SP-14 FZ":{"x":2.8,"y":67.63,"tipo":"Espirales","nombre":"Espiral 14 FZ"}
 };
 
 // ============================================================
@@ -269,42 +357,89 @@ var COORDS = {
 var DATA = null;
 var tarjetasPorEquipo = {};
 var abiertasPorEquipo = {};
-var selectedEquipo = null;
+var operStatus = {}; // {equipo: {status:"op"|"fs", reason:""}}
+var currentZoom = 1;
+var pendingChip = null;
+
+// ============================================================
+//  LOCALSTORAGE - OPERATIVIDAD
+// ============================================================
+function loadOperStatus(){
+  try {
+    var saved = localStorage.getItem("sal_oper_status");
+    if(saved) operStatus = JSON.parse(saved);
+  } catch(e){}
+  // Asegurar que todos los equipos tengan estatus
+  for(var eq in COORDS){
+    if(!operStatus[eq]) operStatus[eq] = {status:"op", reason:""};
+  }
+}
+
+function saveOperStatus(){
+  try {
+    localStorage.setItem("sal_oper_status", JSON.stringify(operStatus));
+  } catch(e){}
+}
+
+function getEquipStatus(eq){
+  if(operStatus[eq] && operStatus[eq].status === "fs") return "fs";
+  var ab = abiertasPorEquipo[eq];
+  if(ab && ab.length > 0) return "deg";
+  return "op";
+}
+
+function getStatusText(st){
+  if(st === "op") return "Operativo";
+  if(st === "deg") return "Degradado";
+  return "Fuera de Servicio";
+}
+
+function getFullName(eq){
+  return COORDS[eq] ? COORDS[eq].nombre : eq;
+}
 
 // ============================================================
 //  CARGAR DATOS
 // ============================================================
 function cargarDatos(){
+  loadOperStatus();
   fetch("data/tarjetas.json")
     .then(function(r){ return r.json(); })
     .then(function(data){
       DATA = data;
+      // Set default date range
+      setDefaultDates();
       procesarDatos();
-      renderKPIs();
-      renderMarcadores();
-      renderTabla();
+      renderAll();
       document.getElementById("lastUpdate").textContent = "Actualizado: " + data.resumen.generado;
-      document.getElementById("footerGen").textContent = "Datos: " + data.resumen.archivo + " | Generado: " + data.resumen.generado;
+      document.getElementById("footerGen").textContent = "Datos: " + data.resumen.archivo + " | " + data.resumen.generado;
     })
     .catch(function(err){
-      console.error("Error cargando datos:", err);
+      console.error("Error:", err);
       document.getElementById("lastUpdate").textContent = "Error al cargar datos";
-      // Render markers without data (all green)
       renderMarcadores();
+      renderOperChips();
     });
+}
+
+function setDefaultDates(){
+  if(!DATA) return;
+  var hoy = new Date();
+  var hace30 = new Date(hoy);
+  hace30.setDate(hace30.getDate() - 30);
+  document.getElementById("fechaHasta").value = hoy.toISOString().split("T")[0];
+  document.getElementById("fechaDesde").value = hace30.toISOString().split("T")[0];
 }
 
 function procesarDatos(){
   tarjetasPorEquipo = {};
   abiertasPorEquipo = {};
   var cerrados = ["cerrado","cerrada","resuelto","resuelta","closed"];
-
   for(var i = 0; i < DATA.tarjetas.length; i++){
     var t = DATA.tarjetas[i];
     var eq = t.equipoMapa;
     if(!tarjetasPorEquipo[eq]) tarjetasPorEquipo[eq] = [];
     tarjetasPorEquipo[eq].push(t);
-
     if(cerrados.indexOf(t.estado.toLowerCase()) === -1){
       if(!abiertasPorEquipo[eq]) abiertasPorEquipo[eq] = [];
       abiertasPorEquipo[eq].push(t);
@@ -312,78 +447,77 @@ function procesarDatos(){
   }
 }
 
-function getStatus(nombre){
-  var abiertas = abiertasPorEquipo[nombre];
-  if(!abiertas || abiertas.length === 0) return "op";
-  if(abiertas.length <= 3) return "deg";
-  return "fs";
-}
-
-function getStatusText(st){
-  if(st === "op") return "Operativo";
-  if(st === "deg") return "Degradado";
-  return "Fuera de servicio";
-}
-
-// ============================================================
-//  RENDER KPIs
-// ============================================================
-function renderKPIs(){
-  if(!DATA) return;
-  var r = DATA.resumen;
-  document.getElementById("kAbiertas").textContent = r.tarjetasAbiertas;
-  document.getElementById("kCerradas").textContent = r.tarjetasCerradas.toLocaleString();
-
-  // Antiguedad promedio de abiertas
-  var cerrados = ["cerrado","cerrada","resuelto","resuelta","closed"];
-  var totalAnt = 0, countAnt = 0;
+function getFilteredTarjetas(){
+  if(!DATA) return {abiertas:[], cerradas:[], todas:[]};
+  var desde = document.getElementById("fechaDesde").value;
+  var hasta = document.getElementById("fechaHasta").value;
+  var cerradosEstados = ["cerrado","cerrada","resuelto","resuelta","closed"];
+  var abiertas = [], cerradas = [];
   for(var i = 0; i < DATA.tarjetas.length; i++){
     var t = DATA.tarjetas[i];
-    if(cerrados.indexOf(t.estado.toLowerCase()) === -1 && t.antiguedadDias > 0){
-      totalAnt += t.antiguedadDias;
-      countAnt++;
-    }
+    var fi = t.fechaInclusion;
+    if(desde && fi && fi < desde) continue;
+    if(hasta && fi && fi > hasta) continue;
+    if(cerradosEstados.indexOf(t.estado.toLowerCase()) === -1) abiertas.push(t);
+    else cerradas.push(t);
   }
-  var promAnt = countAnt > 0 ? Math.round(totalAnt / countAnt) : 0;
-  document.getElementById("kAntiguedad").textContent = promAnt;
+  return {abiertas: abiertas, cerradas: cerradas, todas: abiertas.concat(cerradas)};
+}
 
-  // Equipos con tarjetas abiertas
-  document.getElementById("kEquipos").textContent = Object.keys(abiertasPorEquipo).length;
-
-  // Fuera de servicio
-  var fueraCount = 0;
-  for(var eq in COORDS){
-    if(getStatus(eq) === "fs") fueraCount++;
-  }
-  document.getElementById("kFuera").textContent = fueraCount;
-
-  // Tasa de cierre
-  var tasa = r.tarjetasTotal > 0 ? Math.round((r.tarjetasCerradas / r.tarjetasTotal) * 100) : 0;
-  document.getElementById("kTasa").textContent = tasa + "%";
+function renderAll(){
+  renderKPIs();
+  renderMarcadores();
+  renderOperChips();
+  renderTabla();
 }
 
 // ============================================================
-//  RENDER MARCADORES EN MAPA
+//  KPIs
+// ============================================================
+function renderKPIs(){
+  var f = getFilteredTarjetas();
+  document.getElementById("kAbiertas").textContent = f.abiertas.length;
+  document.getElementById("kCerradas").textContent = f.cerradas.length.toLocaleString();
+
+  // Antiguedad promedio de abiertas
+  var totalAnt = 0, countAnt = 0;
+  for(var i = 0; i < f.abiertas.length; i++){
+    if(f.abiertas[i].antiguedadDias > 0){ totalAnt += f.abiertas[i].antiguedadDias; countAnt++; }
+  }
+  document.getElementById("kAntiguedad").textContent = countAnt > 0 ? Math.round(totalAnt / countAnt) : 0;
+
+  // Operatividad counts
+  var ops = 0, degs = 0, fss = 0;
+  for(var eq in COORDS){
+    var st = getEquipStatus(eq);
+    if(st === "op") ops++;
+    else if(st === "deg") degs++;
+    else fss++;
+  }
+  document.getElementById("kOperativos").textContent = ops;
+  document.getElementById("kDegradados").textContent = degs;
+  document.getElementById("kFuera").textContent = fss;
+}
+
+// ============================================================
+//  MAPA - MARCADORES
 // ============================================================
 function renderMarcadores(){
   var wrapper = document.getElementById("mapWrapper");
-  // Limpiar marcadores anteriores
   var old = wrapper.querySelectorAll(".mk");
   for(var o = 0; o < old.length; o++) old[o].remove();
 
-  for(var nombre in COORDS){
-    var c = COORDS[nombre];
-    var st = getStatus(nombre);
-    var abiertas = abiertasPorEquipo[nombre] ? abiertasPorEquipo[nombre].length : 0;
-
-    var tipo = c.tipo;
+  for(var eq in COORDS){
+    var c = COORDS[eq];
+    var st = getEquipStatus(eq);
+    var abiertas = abiertasPorEquipo[eq] ? abiertasPorEquipo[eq].length : 0;
     var dotClass = st === "op" ? "dot-op" : st === "deg" ? "dot-deg" : "dot-fs";
-    var lblClass = tipo === "Paletizadoras" ? "lbl-pal" : tipo === "Wrappers" ? "lbl-wr" : "lbl-sp";
-    var shapeClass = tipo === "Paletizadoras" ? "pal" : "";
+    var lblClass = c.tipo === "Paletizadoras" ? "lbl-pal" : c.tipo === "Wrappers" ? "lbl-wr" : "lbl-sp";
+    var shapeClass = c.tipo === "Paletizadoras" ? "pal" : "";
 
     var mk = document.createElement("div");
     mk.className = "mk";
-    mk.setAttribute("data-equipo", nombre);
+    mk.setAttribute("data-equipo", eq);
     mk.style.left = c.x + "%";
     mk.style.top = c.y + "%";
 
@@ -393,7 +527,7 @@ function renderMarcadores(){
 
     var lbl = document.createElement("div");
     lbl.className = "mk-lbl " + lblClass;
-    lbl.textContent = nombre;
+    lbl.textContent = eq;
     mk.appendChild(lbl);
 
     if(abiertas > 0){
@@ -403,45 +537,60 @@ function renderMarcadores(){
       mk.appendChild(badge);
     }
 
-    mk.addEventListener("click", (function(n){ return function(){ openPanel(n); }; })(nombre));
+    mk.addEventListener("click", (function(n){ return function(){ openPanel(n); }; })(eq));
     wrapper.appendChild(mk);
   }
 }
 
 // ============================================================
+//  ZOOM
+// ============================================================
+document.getElementById("zoomIn").addEventListener("click", function(){
+  currentZoom = Math.min(currentZoom + 0.2, 3);
+  applyZoom();
+});
+document.getElementById("zoomOut").addEventListener("click", function(){
+  currentZoom = Math.max(currentZoom - 0.2, 0.4);
+  applyZoom();
+});
+document.getElementById("zoomFit").addEventListener("click", function(){
+  currentZoom = 1;
+  var wrapper = document.getElementById("mapWrapper");
+  wrapper.style.transform = "none";
+  wrapper.style.width = "100%";
+});
+
+function applyZoom(){
+  var wrapper = document.getElementById("mapWrapper");
+  wrapper.style.width = (currentZoom * 100) + "%";
+  wrapper.style.transform = "none";
+}
+
+// ============================================================
 //  SIDE PANEL
 // ============================================================
-function openPanel(nombre){
+function openPanel(eq){
   var panel = document.getElementById("sidePanel");
-  var c = COORDS[nombre];
+  var c = COORDS[eq];
   if(!c) return;
-
-  // Deselect previous
   var prev = document.querySelector(".mk.selected");
   if(prev) prev.classList.remove("selected");
-
-  // Select new
-  var mk = document.querySelector('.mk[data-equipo="' + nombre + '"]');
+  var mk = document.querySelector('.mk[data-equipo="' + eq + '"]');
   if(mk) mk.classList.add("selected");
 
-  selectedEquipo = nombre;
-  var st = getStatus(nombre);
-  var tipo = c.tipo;
-  var abiertas = abiertasPorEquipo[nombre] || [];
-  var todas = tarjetasPorEquipo[nombre] || [];
+  var st = getEquipStatus(eq);
+  var abiertas = abiertasPorEquipo[eq] || [];
+  var todas = tarjetasPorEquipo[eq] || [];
+  var cerradas = todas.length - abiertas.length;
 
-  // Title
-  document.getElementById("spTitle").textContent = nombre;
-
-  // Info tags
-  var tipoClass = tipo === "Paletizadoras" ? "tipo-pal" : tipo === "Wrappers" ? "tipo-wr" : "tipo-sp";
+  document.getElementById("spTitle").textContent = c.nombre;
+  var tipoClass = c.tipo === "Paletizadoras" ? "tipo-pal" : c.tipo === "Wrappers" ? "tipo-wr" : "tipo-sp";
   var stClass = st === "op" ? "st-op" : st === "deg" ? "st-deg" : "st-fs";
   document.getElementById("spInfo").innerHTML =
-    '<span class="sp-tag ' + tipoClass + '">' + tipo + '</span>' +
+    '<span class="sp-tag ' + tipoClass + '">' + c.tipo + '</span>' +
     '<span class="sp-tag ' + stClass + '">' + getStatusText(st) + '</span>';
 
-  // Stats
-  var cerradas = todas.length - abiertas.length;
+  // Stats: abiertas y cerradas
   var promAnt = 0;
   if(abiertas.length > 0){
     var sumAnt = 0;
@@ -451,34 +600,24 @@ function openPanel(nombre){
   document.getElementById("spStats").innerHTML =
     '<div class="sp-stat"><div class="num" style="color:#A52323">' + abiertas.length + '</div><div class="txt">Abiertas</div></div>' +
     '<div class="sp-stat"><div class="num" style="color:#287819">' + cerradas + '</div><div class="txt">Cerradas</div></div>' +
-    '<div class="sp-stat"><div class="num">' + promAnt + '</div><div class="txt">Dias prom.</div></div>' +
-    '<div class="sp-stat"><div class="num">' + todas.length + '</div><div class="txt">Total</div></div>';
+    '<div class="sp-stat"><div class="num">' + promAnt + '</div><div class="txt">Dias Prom.</div></div>';
 
-  // List of open tarjetas
   var list = document.getElementById("spList");
   if(abiertas.length === 0){
     list.innerHTML = '<div class="sp-empty">Sin tarjetas abiertas</div>';
   } else {
-    // Sort by antiguedad descending
     abiertas.sort(function(a, b){ return b.antiguedadDias - a.antiguedadDias; });
     var html = "";
     for(var j = 0; j < abiertas.length; j++){
       var t = abiertas[j];
-      var priClass = "";
-      var priLower = t.prioridad.toLowerCase();
-      if(priLower.indexOf("alta") > -1 || priLower.indexOf("high") > -1 || priLower === "a") priClass = "alta";
-      else if(priLower.indexOf("media") > -1 || priLower.indexOf("medium") > -1 || priLower === "b") priClass = "media";
-      else priClass = "baja";
-
       html += '<div class="tarjeta-item">';
-      html += '<div class="tj-top"><span class="tj-folio">#' + t.folio + '</span><span class="tj-pri ' + priClass + '">' + t.prioridad + '</span></div>';
+      html += '<div class="tj-top"><span class="tj-folio">#' + t.folio + '</span><span class="tj-pri">' + t.prioridad + '</span></div>';
       html += '<div class="tj-desc">' + (t.defecto || t.descripcion || "Sin descripcion") + '</div>';
       html += '<div class="tj-meta"><span>' + t.antiguedadDias + ' dias</span><span>' + t.estado + '</span><span>' + t.fechaInclusion + '</span></div>';
       html += '</div>';
     }
     list.innerHTML = html;
   }
-
   panel.classList.remove("closed");
 }
 
@@ -486,11 +625,104 @@ document.getElementById("spClose").addEventListener("click", function(){
   document.getElementById("sidePanel").classList.add("closed");
   var prev = document.querySelector(".mk.selected");
   if(prev) prev.classList.remove("selected");
-  selectedEquipo = null;
 });
 
 // ============================================================
-//  TABLA DE TARJETAS
+//  OPERATIVIDAD - CHIPS
+// ============================================================
+function renderOperChips(){
+  var chipsOp = document.getElementById("chipsOp");
+  var chipsFs = document.getElementById("chipsFs");
+  chipsOp.innerHTML = "";
+  chipsFs.innerHTML = "";
+
+  var countOp = 0, countFs = 0, countDeg = 0;
+
+  // Sort equipment by name
+  var equipos = Object.keys(COORDS).sort();
+
+  for(var i = 0; i < equipos.length; i++){
+    var eq = equipos[i];
+    var info = COORDS[eq];
+    var isFs = operStatus[eq] && operStatus[eq].status === "fs";
+    var reason = operStatus[eq] ? operStatus[eq].reason : "";
+    var hasAbiertas = abiertasPorEquipo[eq] && abiertasPorEquipo[eq].length > 0;
+
+    var chip = document.createElement("div");
+    chip.className = "chip " + (isFs ? "fs" : "op");
+    chip.setAttribute("data-equipo", eq);
+
+    var dot = document.createElement("span");
+    dot.className = "chip-dot";
+    chip.appendChild(dot);
+
+    var name = document.createTextNode(info.nombre);
+    chip.appendChild(name);
+
+    if(isFs && reason){
+      var reasonSpan = document.createElement("span");
+      reasonSpan.className = "chip-reason";
+      reasonSpan.textContent = " - " + reason;
+      chip.appendChild(reasonSpan);
+    }
+
+    if(isFs){
+      chip.addEventListener("click", (function(e){ return function(){ reactivarEquipo(e); }; })(eq));
+      chipsFs.appendChild(chip);
+      countFs++;
+    } else {
+      chip.addEventListener("click", (function(e){ return function(){ sacarDeServicio(e); }; })(eq));
+      chipsOp.appendChild(chip);
+      countOp++;
+      if(hasAbiertas) countDeg++;
+    }
+  }
+
+  document.getElementById("operBadgeOp").textContent = countOp;
+  document.getElementById("operBadgeFs").textContent = countFs;
+  document.getElementById("operCountOp").textContent = countOp - countDeg;
+  document.getElementById("operCountDeg").textContent = countDeg;
+  document.getElementById("operCountFs").textContent = countFs;
+  document.getElementById("operCountTotal").textContent = equipos.length;
+}
+
+function sacarDeServicio(eq){
+  pendingChip = eq;
+  document.getElementById("modalTitle").textContent = "Sacar de servicio: " + getFullName(eq);
+  document.getElementById("modalDesc").textContent = "Escribe el motivo por el cual este equipo esta fuera de servicio:";
+  document.getElementById("modalReason").value = "";
+  var btn = document.getElementById("modalConfirm");
+  btn.className = "modal-btn confirm";
+  btn.textContent = "Sacar de servicio";
+  btn.onclick = function(){
+    var reason = document.getElementById("modalReason").value.trim();
+    operStatus[pendingChip] = {status: "fs", reason: reason};
+    saveOperStatus();
+    closeModal();
+    renderAll();
+  };
+  document.getElementById("modalOverlay").classList.add("show");
+  document.getElementById("modalReason").focus();
+}
+
+function reactivarEquipo(eq){
+  operStatus[eq] = {status: "op", reason: ""};
+  saveOperStatus();
+  renderAll();
+}
+
+function closeModal(){
+  document.getElementById("modalOverlay").classList.remove("show");
+  pendingChip = null;
+}
+
+document.getElementById("modalCancel").addEventListener("click", closeModal);
+document.getElementById("modalOverlay").addEventListener("click", function(e){
+  if(e.target === this) closeModal();
+});
+
+// ============================================================
+//  TABLA
 // ============================================================
 function renderTabla(){
   if(!DATA) return;
@@ -504,22 +736,33 @@ function populateFilters(){
     var t = DATA.tarjetas[i];
     if(t.estado) estados[t.estado] = true;
     if(t.tipoEquipo) tipos[t.tipoEquipo] = true;
-    if(t.equipoMapa) equipos[t.equipoMapa] = true;
+    if(t.equipoMapa && COORDS[t.equipoMapa]) equipos[COORDS[t.equipoMapa].nombre] = t.equipoMapa;
     if(t.prioridad) prioridades[t.prioridad] = true;
   }
   fillSelect("filtroEstado", estados, "Todos los estados");
   fillSelect("filtroTipo", tipos, "Todos los tipos");
-  fillSelect("filtroEquipo", equipos, "Todos los equipos");
+  fillSelectMap("filtroEquipo", equipos, "Todos los equipos");
   fillSelect("filtroPrioridad", prioridades, "Todas las prioridades");
 }
 
 function fillSelect(id, obj, defaultText){
   var sel = document.getElementById(id);
+  var current = sel.value;
   sel.innerHTML = '<option value="">' + defaultText + '</option>';
-  var keys = Object.keys(obj).sort();
-  for(var i = 0; i < keys.length; i++){
-    sel.innerHTML += '<option value="' + keys[i] + '">' + keys[i] + '</option>';
-  }
+  Object.keys(obj).sort().forEach(function(k){
+    sel.innerHTML += '<option value="' + k + '">' + k + '</option>';
+  });
+  sel.value = current;
+}
+
+function fillSelectMap(id, obj, defaultText){
+  var sel = document.getElementById(id);
+  var current = sel.value;
+  sel.innerHTML = '<option value="">' + defaultText + '</option>';
+  Object.keys(obj).sort().forEach(function(nombre){
+    sel.innerHTML += '<option value="' + obj[nombre] + '">' + nombre + '</option>';
+  });
+  sel.value = current;
 }
 
 function filtrarTabla(){
@@ -529,6 +772,8 @@ function filtrarTabla(){
   var fEquipo = document.getElementById("filtroEquipo").value;
   var fPri = document.getElementById("filtroPrioridad").value;
   var fBuscar = document.getElementById("filtroBuscar").value.toLowerCase();
+  var desde = document.getElementById("fechaDesde").value;
+  var hasta = document.getElementById("fechaHasta").value;
 
   var tbody = document.getElementById("tableBody");
   var html = "";
@@ -540,76 +785,27 @@ function filtrarTabla(){
     if(fTipo && t.tipoEquipo !== fTipo) continue;
     if(fEquipo && t.equipoMapa !== fEquipo) continue;
     if(fPri && t.prioridad !== fPri) continue;
+    if(desde && t.fechaInclusion && t.fechaInclusion < desde) continue;
+    if(hasta && t.fechaInclusion && t.fechaInclusion > hasta) continue;
     if(fBuscar){
-      var searchStr = (t.folio + " " + t.defecto + " " + t.descripcion + " " + t.equipoMapa).toLowerCase();
-      if(searchStr.indexOf(fBuscar) === -1) continue;
+      var s = (t.folio + " " + t.defecto + " " + t.descripcion + " " + t.equipoMapa).toLowerCase();
+      if(s.indexOf(fBuscar) === -1) continue;
     }
 
-    var cerrados = ["cerrado","cerrada","resuelto","resuelta","closed"];
-    var dotColor = cerrados.indexOf(t.estado.toLowerCase()) > -1 ? "#287819" : "#E18719";
-
+    var nombre = COORDS[t.equipoMapa] ? COORDS[t.equipoMapa].nombre : t.equipoMapa;
     html += "<tr>";
     html += "<td><strong>" + t.folio + "</strong></td>";
-    html += "<td>" + t.equipoMapa + "</td>";
+    html += "<td>" + nombre + "</td>";
     html += "<td>" + t.tipoEquipo + "</td>";
-    html += "<td>" + (t.defecto || "-") + "</td>";
+    html += '<td class="wrap">' + (t.defecto || "-") + "</td>";
     html += "<td>" + t.prioridad + "</td>";
-    html += '<td><span class="status-dot" style="background:' + dotColor + '"></span>' + t.estado + "</td>";
+    html += "<td>" + t.estado + "</td>";
     html += "<td>" + t.fechaInclusion + "</td>";
     html += "<td>" + t.antiguedadDias + " dias</td>";
-    html += "<td>" + (t.descripcion || "-").substring(0, 80) + "</td>";
+    html += '<td class="wrap">' + (t.descripcion || "-") + "</td>";
     html += "</tr>";
     count++;
-    if(count >= 500) break; // Limitar para performance
+    if(count >= 500) break;
   }
 
-  if(count === 0){
-    html = '<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px">No se encontraron tarjetas con esos filtros</td></tr>';
-  }
-
-  tbody.innerHTML = html;
-}
-
-// Filter event listeners
-["filtroEstado","filtroTipo","filtroEquipo","filtroPrioridad"].forEach(function(id){
-  document.getElementById(id).addEventListener("change", filtrarTabla);
-});
-document.getElementById("filtroBuscar").addEventListener("input", filtrarTabla);
-
-// ============================================================
-//  TABS
-// ============================================================
-var tabs = document.querySelectorAll(".tab");
-tabs.forEach(function(tab){
-  tab.addEventListener("click", function(){
-    tabs.forEach(function(t){ t.classList.remove("active"); });
-    tab.classList.add("active");
-    var target = tab.getAttribute("data-tab");
-    document.getElementById("mapTab").classList.toggle("active", target === "map");
-    document.getElementById("tableTab").classList.toggle("active", target === "table");
-  });
-});
-
-// ============================================================
-//  LABEL TOGGLE
-// ============================================================
-document.getElementById("btnShow").addEventListener("click", function(){
-  document.getElementById("mapWrapper").classList.add("show-labels");
-  this.classList.add("active");
-  document.getElementById("btnHide").classList.remove("active");
-});
-document.getElementById("btnHide").addEventListener("click", function(){
-  document.getElementById("mapWrapper").classList.remove("show-labels");
-  this.classList.add("active");
-  document.getElementById("btnShow").classList.remove("active");
-});
-
-// ============================================================
-//  INIT
-// ============================================================
-cargarDatos();
-
-})();
-</script>
-</body>
-</html>
+  if(count === 0) html = '<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px">No se encontraron tarjetas con esos filtros
