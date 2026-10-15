@@ -246,11 +246,14 @@ var C={
 var DATA=null,tPorEq={},aPorEq={},opSt={},zoom=1,pending=null;
 
 function normD(s){
-if(!s||typeof s!=="string")return"";s=s.trim().split(" ");
-if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.substring(0,10);
-if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){var p=s.split("/"),a=parseInt(p),b=parseInt(p),y=p;
+if(!s||typeof s!=="string")return"";
+var clean=s.trim();
+var spaceIdx=clean.indexOf(" ");
+if(spaceIdx>0)clean=clean.substring(0,spaceIdx);
+if(/^\d{4}-\d{2}-\d{2}/.test(clean))return clean.substring(0,10);
+if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(clean)){var p=clean.split("/"),a=parseInt(p),b=parseInt(p),y=p;
 if(a>12)return y+"-"+(a<10?"0"+a:""+a)+"-"+(b<10?"0"+b:""+b);
-return y+"-"+(b<10?"0"+b:""+b)+"-"+(a<10?"0"+a:""+a);}return s;}
+return y+"-"+(b<10?"0"+b:""+b)+"-"+(a<10?"0"+a:""+a);}return clean;}
 
 function loadOp(){try{var s=localStorage.getItem("sal_op");if(s)opSt=JSON.parse(s)}catch(e){}for(var e in C)if(!opSt[e])opSt[e]={s:"op",r:""}}
 function saveOp(){try{localStorage.setItem("sal_op",JSON.stringify(opSt))}catch(e){}}
