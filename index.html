@@ -2,1454 +2,566 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Status Equipos - PT Paletizado | SAL</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* ============================================
-       0. RESET & BASE
-       ============================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 14px; }
-    body {
-      font-family: Calibri, Arial, sans-serif;
-      background: #F3F4F6;
-      color: #3D3D3D;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Status de equipos | Paletizado - Planta Salinas</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    /* ============================================
-       1. HEADER
-       ============================================ */
-    .header {
-      background: #4F2170;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      height: 46px;
-      font-family: 'MDLZ BITE TYPE', Arial, sans-serif;
-    }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-    }
-    .header-left .divider {
-      width: 1px;
-      height: 20px;
-      background: rgba(255,255,255,0.4);
-    }
-    .header-left .plant {
-      font-weight: 400;
-      opacity: 0.85;
-    }
-    .header-center {
-      font-size: 1.05rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-    .header-right {
-      font-size: 0.85rem;
-      opacity: 0.85;
-    }
+/* ===== BASE ===== */
+body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-    /* ============================================
-       2. TABS
-       ============================================ */
-    .tabs {
-      display: flex;
-      background: #fff;
-      border-bottom: 2px solid #E5E7EB;
-      padding: 0 20px;
-    }
-    .tab-btn {
-      padding: 10px 24px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #6B7280;
-      border: none;
-      background: none;
-      border-bottom: 3px solid transparent;
-      transition: all 0.2s;
-      font-family: Calibri, Arial, sans-serif;
-    }
-    .tab-btn:hover { color: #4F2170; }
-    .tab-btn.active {
-      color: #4F2170;
-      border-bottom-color: #4F2170;
-      background: rgba(79,33,112,0.06);
-    }
+/* ===== HEADER ===== */
+.header{background:#4F2170;color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:15px;font-weight:700;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
+.header .plant{font-size:11px;opacity:.85;margin-left:8px}
+.header .info{font-size:11px;opacity:.7}
 
-    /* ============================================
-       3. KPI BAR
-       ============================================ */
-    .kpi-bar {
-      display: flex;
-      align-items: center;
-      background: #fff;
-      padding: 10px 20px;
-      gap: 8px;
-      border-bottom: 1px solid #E5E7EB;
-      flex-wrap: wrap;
-    }
-    .kpi-group {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .kpi-separator {
-      width: 1px;
-      height: 36px;
-      background: #D1D5DB;
-      margin: 0 10px;
-    }
-    .kpi-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 60px;
-    }
-    .kpi-label {
-      font-size: 0.7rem;
-      color: #6B7280;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      margin-bottom: 2px;
-    }
-    .kpi-value {
-      font-size: 1.4rem;
-      font-weight: 700;
-    }
-    /* Color pills for BT/RT/YT */
-    .kpi-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .kpi-pill .pill-tag {
-      padding: 1px 8px;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-    }
-    .pill-bt { background: #2D6EAA; }
-    .pill-rt { background: #A52323; }
-    .pill-yt { background: #D4A017; }
-    .kpi-value.color-bt { color: #2D6EAA; }
-    .kpi-value.color-rt { color: #A52323; }
-    .kpi-value.color-yt { color: #D4A017; }
-    /* Status dots */
-    .kpi-dot {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .dot-green { background: #287819; }
-    .dot-orange { background: #E18719; }
-    .dot-red { background: #A52323; }
-    .kpi-value.color-green { color: #287819; }
-    .kpi-value.color-orange { color: #E18719; }
-    .kpi-value.color-red { color: #A52323; }
-    /* Date filters */
-    .kpi-dates {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-left: auto;
-    }
-    .kpi-dates label {
-      font-size: 0.75rem;
-      color: #6B7280;
-    }
-    .kpi-dates input[type="date"] {
-      padding: 4px 8px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-family: Calibri, Arial, sans-serif;
-      color: #3D3D3D;
-    }
+/* ===== TABS ===== */
+.tabs{display:flex;background:#3a1854;padding:0 20px}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.tab:hover{color:rgba(255,255,255,.8)}
+.tab.active{color:#fff;border-bottom-color:#E18719}
 
-    /* ============================================
-       4. TAB CONTENT (general)
-       ============================================ */
-    .tab-content { display: none; padding: 16px 20px; }
-    .tab-content.active { display: block; }
+/* ===== KPI BAR ===== */
+.kpi-bar{display:flex;gap:5px;padding:10px 16px;background:#fff;border-bottom:1px solid #e8e5ec;flex-wrap:wrap;align-items:center}
+.kc{flex:1;min-width:78px;padding:8px 4px;background:#f9f8fb;border-radius:5px;border:1px solid #e8e5ec;text-align:center}
+.kc .v{font-size:22px;font-weight:700;color:#4F2170}
+.kc .l{font-size:10px;color:#888;text-transform:uppercase;margin-top:2px}
+.kc.bt .v{color:#2D6EAA}
+.kc.rt .v{color:#A52323}
+.kc.yt .v{color:#E18719}
+.kc.g .v{color:#287819}
+.kc.o .v{color:#E18719}
+.kc.r .v{color:#A52323}
+.kc-sep{width:1px;height:40px;background:#e8e5ec;margin:0 2px}
+.kc-date{display:flex;align-items:center;gap:4px;font-size:11px;color:#666;padding:0 6px}
+.kc-date label{font-size:10px;text-transform:uppercase;font-weight:600;color:#888}
+.kc-date input{padding:4px 6px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;font-family:Calibri,Arial,sans-serif;width:110px}
 
-    /* ============================================
-       5. MAPA TAB
-       ============================================ */
-    .mapa-container {
-      display: flex;
-      gap: 0;
-      height: calc(100vh - 170px);
-      min-height: 500px;
-    }
-    .mapa-main {
-      flex: 1;
-      position: relative;
-      background: #EEEDF3;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #D1D5DB;
-    }
-    .mapa-viewport {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      overflow: hidden;
-    }
-    .mapa-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      transform-origin: 0 0;
-      transition: transform 0.2s;
-    }
-    .mapa-canvas img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-      opacity: 0.35;
-    }
-    /* Markers */
-    .marker {
-      position: absolute;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.15s, box-shadow 0.15s;
-      z-index: 2;
-    }
-    .marker:hover { transform: scale(1.2); z-index: 5; }
-    .marker.selected { z-index: 10; }
-    /* Cuadrado = Paletizadora */
-    .marker-square {
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-    }
-    .marker.selected .marker-square {
-      outline: 3px dashed #4F2170;
-      outline-offset: 3px;
-    }
-    /* Circulo = Espiral */
-    .marker-circle {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-    }
-    /* Rombo = Wrapper */
-    .marker-diamond {
-      width: 22px;
-      height: 22px;
-      transform: rotate(45deg);
-      border-radius: 3px;
-    }
-    .marker-diamond-inner {
-      transform: rotate(-45deg);
-      font-size: 0.6rem;
-      color: #fff;
-      font-weight: 700;
-    }
-    /* Marker status colors */
-    .status-operativo { background: #287819; }
-    .status-degradado { background: #E18719; }
-    .status-fuera { background: #A52323; }
-    /* Badge (tickets count) */
-    .marker-badge {
-      position: absolute;
-      top: -6px;
-      right: -8px;
-      background: #4F2170;
-      color: #fff;
-      font-size: 0.6rem;
-      font-weight: 700;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #fff;
-    }
-    .marker-badge.hide { display: none; }
-    /* Marker label */
-    .marker-label {
-      position: absolute;
-      bottom: -16px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.6rem;
-      color: #3D3D3D;
-      white-space: nowrap;
-      font-weight: 600;
-      pointer-events: none;
-      text-shadow: 0 0 3px #fff, 0 0 3px #fff;
-    }
-    .marker-label.hide { display: none; }
+/* ===== TAB CONTENT ===== */
+.tab-content{display:none;flex:1;overflow:hidden}
+.tab-content.active{display:flex;flex-direction:column;overflow:auto}
 
-    /* Map controls */
-    .mapa-controls {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 20;
-    }
-    .mapa-controls button {
-      width: 34px;
-      height: 34px;
-      background: #fff;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #3D3D3D;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .mapa-controls button:hover { background: #F3F4F6; }
-    .mapa-label-toggle {
-      position: absolute;
-      bottom: 16px;
-      left: 60px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      z-index: 20;
-      background: #fff;
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: 1px solid #D1D5DB;
-      font-size: 0.8rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .mapa-label-toggle input { accent-color: #4F2170; }
+/* =========================================================
+   TAB MAPA
+   ========================================================= */
+.mapa-wrap{display:flex;flex:1;overflow:hidden}
+.mapa-main{flex:1;position:relative;overflow:hidden;background:#f9f8fb}
+.mapa-main img{width:100%;height:100%;object-fit:contain}
+.marker{position:absolute;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:2px solid rgba(255,255,255,.8);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.marker:hover{transform:scale(1.15);z-index:10}
+.marker.pal{border-radius:6px}
+.marker.wrapper{border-radius:50%}
+.marker.espiral{border-radius:2px;transform:rotate(45deg)}
+.marker.espiral span{transform:rotate(-45deg)}
+.marker.espiral:hover{transform:rotate(45deg) scale(1.15)}
+.marker-badge{position:absolute;top:-6px;right:-6px;background:#4F2170;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}
+.marker-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#3D3D3D;white-space:nowrap;font-weight:600}
+.marker.status-operativo{background:#287819}
+.marker.status-degradado{background:#E18719}
+.marker.status-fuera{background:#A52323}
 
-    /* Side panel */
-    .side-panel {
-      width: 0;
-      overflow: hidden;
-      background: #fff;
-      border-left: 1px solid #E5E7EB;
-      transition: width 0.25s ease;
-      display: flex;
-      flex-direction: column;
-    }
-    .side-panel.open { width: 320px; }
-    .side-panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 16px;
-      border-bottom: 1px solid #E5E7EB;
-    }
-    .side-panel-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #3D3D3D;
-    }
-    .side-panel-status {
-      padding: 2px 10px;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .side-panel-close {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #6B7280;
-      padding: 0 4px;
-    }
-    .side-panel-count {
-      padding: 10px 16px;
-      font-size: 0.85rem;
-      color: #6B7280;
-      font-weight: 600;
-    }
-    .side-panel-tickets {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 16px 16px;
-    }
-    .ticket-item {
-      padding: 10px 0;
-      border-bottom: 1px solid #F3F4F6;
-    }
-    .ticket-item:last-child { border-bottom: none; }
-    .ticket-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    .ticket-folio {
-      font-size: 0.8rem;
-      color: #4F2170;
-      font-weight: 600;
-    }
-    .ticket-color-tag {
-      padding: 1px 8px;
-      border-radius: 8px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    .tag-bt { background: #2D6EAA; }
-    .tag-rt { background: #A52323; }
-    .tag-yt { background: #D4A017; }
-    .ticket-age {
-      font-size: 0.7rem;
-      color: #9CA3AF;
-    }
-    .ticket-desc {
-      font-size: 0.8rem;
-      color: #4B5563;
-      line-height: 1.3;
-    }
-    .side-panel-footer {
-      padding: 12px 16px;
-      border-top: 1px solid #E5E7EB;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .side-panel-footer a {
-      color: #4F2170;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .side-panel-footer a:hover { text-decoration: underline; }
-    .side-panel-footer .update-time {
-      font-size: 0.7rem;
-      color: #9CA3AF;
-      font-style: italic;
-    }
+/* Mapa — Panel derecho */
+.mapa-panel{width:320px;background:#fff;border-left:1px solid #e8e5ec;display:flex;flex-direction:column;overflow:hidden}
+.mapa-panel-header{padding:14px 16px;border-bottom:1px solid #e8e5ec}
+.mapa-panel-header h3{font-size:14px;color:#4F2170;margin-bottom:4px}
+.mapa-panel-header .mp-meta{font-size:11px;color:#888;margin-bottom:6px}
+.mapa-panel-header .mp-status{display:inline-block;font-size:11px;padding:3px 10px;border-radius:10px;color:#fff;font-weight:600}
+.mapa-panel-body{flex:1;overflow-y:auto;padding:12px 16px}
+.mapa-panel-body h4{font-size:12px;color:#888;margin-bottom:8px;text-transform:uppercase}
+.ticket-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f3f3f3;font-size:12px}
+.ticket-dot{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.ticket-dot.bt{background:#2D6EAA}
+.ticket-dot.rt{background:#A52323}
+.ticket-dot.yt{background:#E18719}
+.ticket-info .ti-id{font-weight:700;color:#4F2170}
+.ticket-info .ti-desc{color:#666;margin-top:2px}
+.mapa-panel-footer{padding:10px 16px;border-top:1px solid #e8e5ec;text-align:center}
+.mapa-panel-footer a{font-size:12px;color:#4F2170;text-decoration:none;font-weight:600}
+.mapa-panel-footer .mp-updated{font-size:10px;color:#aaa;margin-top:4px}
 
-    /* ============================================
-       6. TARJETAS TAB
-       ============================================ */
-    .filters-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      background: #fff;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      border: 1px solid #E5E7EB;
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .filter-group label {
-      font-size: 0.7rem;
-      color: #6B7280;
-      font-weight: 600;
-    }
-    .filter-group select,
-    .filter-group input[type="text"] {
-      padding: 6px 10px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-family: Calibri, Arial, sans-serif;
-      color: #3D3D3D;
-      background: #fff;
-      min-width: 120px;
-    }
-    .search-input {
-      flex: 1;
-      min-width: 180px;
-      position: relative;
-    }
-    .search-input input {
-      width: 100%;
-      padding: 6px 10px 6px 32px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-family: Calibri, Arial, sans-serif;
-    }
-    .search-input i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9CA3AF;
-      font-size: 0.85rem;
-    }
+/* Mapa — Leyenda inferior */
+.mapa-legend{display:flex;gap:16px;padding:8px 16px;background:#fff;border-top:1px solid #e8e5ec;font-size:11px;color:#666;align-items:center}
+.mapa-legend-item{display:flex;align-items:center;gap:4px}
+.mapa-legend-dot{width:14px;height:14px;border:1.5px solid rgba(255,255,255,.8)}
+.mapa-legend-dot.pal{border-radius:4px;background:#287819}
+.mapa-legend-dot.wrapper{border-radius:50%;background:#287819}
+.mapa-legend-dot.espiral{border-radius:2px;background:#287819;transform:rotate(45deg);width:12px;height:12px}
+.mapa-labels-toggle{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:#666}
 
-    /* Charts grid */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .chart-card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .chart-card-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #3D3D3D;
-      margin-bottom: 12px;
-    }
-    .chart-wrapper {
-      position: relative;
-      width: 100%;
-      height: 220px;
-    }
-    .chart-wrapper canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
+/* =========================================================
+   TAB TARJETAS
+   ========================================================= */
 
-    /* Arthur vs Sunrise comparison card */
-    .comparison-card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .comparison-card-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #3D3D3D;
-      margin-bottom: 12px;
-    }
-    .comparison-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    .comparison-table th {
-      padding: 6px 10px;
-      text-align: center;
-      font-weight: 700;
-    }
-    .comparison-table th.arthur { color: #4F2170; }
-    .comparison-table th.sunrise { color: #E18719; }
-    .comparison-table td {
-      padding: 5px 10px;
-      border-top: 1px solid #F3F4F6;
-    }
-    .comparison-table td:first-child {
-      color: #6B7280;
-      font-weight: 600;
-    }
-    .comparison-table td:not(:first-child) {
-      text-align: center;
-      font-weight: 700;
-    }
+/* Barra de filtros */
+.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid #e8e5ec;flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:4px}
+.filter-group label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase}
+.filter-group select{padding:5px 8px;border:1px solid #d5d0dc;border-radius:4px;font-size:12px;font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#fff}
+.filter-spacer{margin-left:auto}
 
-    /* Data table */
-    .data-table-container {
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      overflow-x: auto;
-    }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    .data-table thead th {
-      background: #4F2170;
-      color: #fff;
-      padding: 10px 12px;
-      text-align: left;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      user-select: none;
-      position: sticky;
-      top: 0;
-    }
-    .data-table thead th:hover { background: #3D1A5C; }
-    .data-table thead th .sort-icon {
-      margin-left: 4px;
-      font-size: 0.65rem;
-      opacity: 0.6;
-    }
-    .data-table thead th.sorted .sort-icon { opacity: 1; }
-    .data-table tbody tr { border-bottom: 1px solid #F3F4F6; }
-    .data-table tbody tr:nth-child(even) { background: #F9FAFB; }
-    .data-table tbody tr:hover { background: #F3F0F8; }
-    .data-table tbody td {
-      padding: 8px 12px;
-      vertical-align: top;
-    }
-    .data-table tbody td.desc-col {
-      max-width: 220px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    /* Status pills in table */
-    .status-pill {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    .pill-abierta { background: #A52323; }
-    .pill-resuelta { background: #287819; }
-    .pill-cmms { background: #4F2170; }
-    /* Priority pills */
-    .priority-pill {
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .priority-critica { color: #A52323; }
-    .priority-alta { color: #E18719; }
-    .priority-media { color: #2D6EAA; }
-    .priority-baja { color: #6B7280; }
+/* Grilla de gráficas */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px}
+.chart-card{background:#fff;border-radius:8px;border:1px solid #e8e5ec;padding:14px;display:flex;flex-direction:column}
+.chart-card h3{font-size:13px;color:#4F2170;margin-bottom:10px;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
+.chart-card .chart-wrap{flex:1;position:relative;min-height:180px}
+.chart-card canvas{width:100%!important;height:100%!important}
 
-    /* Download button */
-    .download-bar {
-      display: flex;
-      justify-content: flex-end;
-      padding: 12px 0;
-    }
-    .btn-download {
-      background: #287819;
-      color: #fff;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: Calibri, Arial, sans-serif;
-      transition: background 0.2s;
-    }
-    .btn-download:hover { background: #1F5E13; }
+/* Tabla de tarjetas con scroll interno */
+.table-section{margin:0 16px 12px;background:#fff;border-radius:8px;border:1px solid #e8e5ec;display:flex;flex-direction:column;min-height:260px;max-height:360px}
+.table-toolbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e5ec;flex-wrap:wrap}
+.table-toolbar h3{font-size:13px;color:#4F2170;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
+.table-toolbar .tbl-count{font-size:11px;color:#888;margin-left:4px}
+.table-toolbar .tbl-search{margin-left:auto;position:relative}
+.table-toolbar .tbl-search input{padding:6px 10px 6px 30px;border:1px solid #d5d0dc;border-radius:4px;font-size:12px;width:220px;font-family:Calibri,Arial,sans-serif}
+.table-toolbar .tbl-search i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#aaa;font-size:12px}
+.table-toolbar .btn-export{padding:5px 12px;background:#4F2170;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer;font-family:Calibri,Arial,sans-serif;font-weight:600;margin-left:8px}
+.table-toolbar .btn-export:hover{background:#3a1854}
+.table-scroll{flex:1;overflow-y:auto;overflow-x:auto}
 
-    /* ============================================
-       7. OPERATIVIDAD TAB
-       ============================================ */
-    .oper-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      min-height: calc(100vh - 200px);
-    }
-    /* Left column */
-    .oper-left { display: flex; flex-direction: column; gap: 16px; }
+/* Tabla de datos */
+table.data-table{width:100%;border-collapse:collapse;font-size:12px}
+table.data-table thead{position:sticky;top:0;z-index:5}
+table.data-table th{background:#4F2170;color:#fff;padding:8px 10px;text-align:left;font-weight:600;white-space:nowrap;position:relative}
+table.data-table th .th-wrap{display:flex;align-items:center;gap:6px}
+table.data-table th .col-sort{cursor:pointer;opacity:.7;font-size:10px}
+table.data-table th .col-sort:hover{opacity:1}
+table.data-table th .col-filter-btn{cursor:pointer;opacity:.6;font-size:10px}
+table.data-table th .col-filter-btn:hover{opacity:1}
+table.data-table th .col-filter-btn.active{color:#E18719;opacity:1}
+table.data-table td{padding:7px 10px;border-bottom:1px solid #f3f3f3}
+table.data-table tbody tr:hover{background:#f9f8fb}
 
-    /* Donut card */
-    .oper-donut-card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .oper-donut-card .chart-card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #3D3D3D;
-      margin-bottom: 10px;
-    }
-    .oper-donut-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .oper-donut-chart {
-      width: 180px;
-      height: 180px;
-      position: relative;
-    }
-    .oper-donut-chart canvas { width: 100% !important; height: 100% !important; }
-    .oper-donut-legend { display: flex; flex-direction: column; gap: 8px; }
-    .oper-legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-    }
-    .oper-legend-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .oper-legend-count {
-      font-weight: 700;
-      margin-left: auto;
-      min-width: 24px;
-      text-align: right;
-    }
+/* Filtro desplegable por columna (tipo Excel) */
+.col-filter-drop{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #e8e5ec;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);padding:10px;min-width:200px;z-index:20;color:#3D3D3D;font-weight:400}
+.col-filter-drop.show{display:block}
+.col-filter-drop input[type="text"],.col-filter-drop input[type="number"]{width:100%;padding:5px 8px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;margin-bottom:6px;font-family:Calibri,Arial,sans-serif}
+.col-filter-drop select{width:100%;padding:5px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;margin-bottom:6px}
+.cfd-options{max-height:150px;overflow-y:auto;margin-bottom:6px}
+.cfd-options label{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;cursor:pointer}
+.cfd-actions{display:flex;gap:6px;justify-content:flex-end}
+.cfd-actions button{padding:4px 10px;border:none;border-radius:4px;font-size:11px;cursor:pointer;font-family:Calibri,Arial,sans-serif}
+.cfd-actions .btn-apply{background:#4F2170;color:#fff}
+.cfd-actions .btn-apply:hover{background:#3a1854}
+.cfd-actions .btn-clear{background:#f3f3f3;color:#666}
 
-    /* Accordion sections */
-    .oper-accordion {
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #E5E7EB;
-      overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .accordion-section { border-bottom: 1px solid #E5E7EB; }
-    .accordion-section:last-child { border-bottom: none; }
-    .accordion-header {
-      display: flex;
-      align-items: center;
-      padding: 12px 16px;
-      cursor: pointer;
-      user-select: none;
-      gap: 10px;
-      transition: background 0.15s;
-    }
-    .accordion-header:hover { background: #F9FAFB; }
-    .accordion-header .accent-bar {
-      width: 4px;
-      height: 24px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-    .accent-green { background: #287819; }
-    .accent-orange { background: #E18719; }
-    .accent-red { background: #A52323; }
-    .accordion-header .section-icon {
-      font-size: 0.85rem;
-      width: 20px;
-      text-align: center;
-    }
-    .accordion-header .section-title {
-      font-weight: 700;
-      font-size: 0.9rem;
-      flex: 1;
-    }
-    .section-title.green-text { color: #287819; }
-    .section-title.orange-text { color: #E18719; }
-    .section-title.red-text { color: #A52323; }
-    .accordion-header .chevron {
-      font-size: 0.75rem;
-      color: #9CA3AF;
-      transition: transform 0.2s;
-    }
-    .accordion-header.open .chevron { transform: rotate(180deg); }
-    .accordion-body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      padding: 0 16px;
-    }
-    .accordion-body.open {
-      max-height: 600px;
-      padding: 0 16px 16px;
-    }
-    /* Equipment chips */
-    .chips-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding-top: 4px;
-    }
-    .equip-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: 1px solid transparent;
-    }
-    .equip-chip:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
-    .chip-operativo {
-      background: #E8F5E9;
-      color: #1B5E20;
-      border-color: #C8E6C9;
-    }
-    .chip-degradado {
-      background: #FFF3E0;
-      color: #E65100;
-      border-color: #FFE0B2;
-    }
-    .chip-fuera {
-      background: #FFEBEE;
-      color: #B71C1C;
-      border-color: #FFCDD2;
-    }
-    .equip-chip .chip-action {
-      font-size: 0.7rem;
-      opacity: 0.5;
-      transition: opacity 0.15s;
-    }
-    .equip-chip:hover .chip-action { opacity: 1; }
+/* Pills de estado */
+.status-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff}
+.pill-abierta{background:#A52323}
+.pill-resuelta{background:#287819}
+.pill-cmms{background:#2D6EAA}
+.pill-proceso{background:#E18719}
 
-    /* Right column */
-    .oper-right { display: flex; flex-direction: column; gap: 16px; }
+/* =========================================================
+   TAB OPERATIVIDAD
+   ========================================================= */
+.oper-wrap{display:flex;flex:1;gap:12px;padding:12px 16px;overflow:hidden}
+.oper-left{width:320px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex-shrink:0}
+.oper-right{flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.oper-card{background:#fff;border-radius:8px;border:1px solid #e8e5ec;padding:14px}
+.oper-card h3{font-size:13px;color:#4F2170;margin-bottom:10px;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
 
-    /* Time out of service table */
-    .oper-table-card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-    .oper-table-card .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #3D3D3D;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .oper-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    .oper-table thead th {
-      background: #F3E5F5;
-      color: #4F2170;
-      padding: 8px 10px;
-      text-align: left;
-      font-weight: 700;
-      font-size: 0.75rem;
-    }
-    .oper-table tbody td {
-      padding: 7px 10px;
-      border-bottom: 1px solid #F3F4F6;
-    }
-    .oper-table tbody tr:nth-child(even) { background: #F9FAFB; }
-    .oper-table .storage-note {
-      font-size: 0.7rem;
-      color: #9CA3AF;
-      font-style: italic;
-      padding-top: 8px;
-    }
+/* Dona de operatividad */
+.oper-donut-wrap{display:flex;align-items:center;gap:16px}
+.oper-donut-chart{width:140px;height:140px;flex-shrink:0}
+.oper-legend-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px}
+.oper-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.oper-legend-count{margin-left:auto;font-weight:700;font-size:14px}
 
-    /* Impact by line */
-    .oper-impact-card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #E5E7EB;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      flex: 1;
-    }
-    .oper-impact-card .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #3D3D3D;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .impact-chart-wrapper {
-      height: 160px;
-      position: relative;
-    }
-    .impact-chart-wrapper canvas { width: 100% !important; height: 100% !important; }
-    /* Line summary cards */
-    .line-summary {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .line-card {
-      padding: 8px 12px;
-      border-radius: 6px;
-      background: #F9FAFB;
-      border: 1px solid #E5E7EB;
-      border-top: 3px solid #287819;
-      text-align: center;
-    }
-    .line-card .line-name {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #3D3D3D;
-    }
-    .line-card .line-equip {
-      font-size: 0.7rem;
-      color: #6B7280;
-    }
-    .line-card .line-pct {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #287819;
-      margin-top: 2px;
-    }
+/* Acordeón */
+.accordion-section{border:1px solid #e8e5ec;border-radius:6px;margin-bottom:6px;overflow:hidden}
+.accordion-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9f8fb;cursor:pointer;font-size:12px;font-weight:600;user-select:none;transition:background .15s}
+.accordion-header:hover{background:#f0edf5}
+.accordion-header::after{content:'\f078';font-family:'Font Awesome 6 Free';font-weight:900;font-size:10px;color:#888;transition:transform .2s}
+.accordion-header.open::after{transform:rotate(180deg)}
+.accordion-body{display:none;padding:8px 12px}
+.accordion-body.open{display:flex;flex-wrap:wrap;gap:6px}
+.equip-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.equip-chip:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.chip-operativo{background:#e8f5e3;color:#287819;border-color:#287819}
+.chip-degradado{background:#fef3e0;color:#E18719;border-color:#E18719}
+.chip-fuera{background:#fde8e8;color:#A52323;border-color:#A52323}
+.chip-action{font-size:9px;opacity:.5;margin-left:2px}
 
-    /* ============================================
-       8. MODAL
-       ============================================ */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.show {
-      display: flex;
-    }
-    .modal {
-      background: #fff;
-      border-radius: 10px;
-      width: 420px;
-      max-width: 90vw;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .modal-header {
-      background: #4F2170;
-      color: #fff;
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .modal-header h3 {
-      font-size: 1rem;
-      font-weight: 700;
-    }
-    .modal-close {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 1.2rem;
-      cursor: pointer;
-      opacity: 0.8;
-    }
-    .modal-close:hover { opacity: 1; }
-    .modal-body { padding: 20px; }
-    .modal-body .equip-name {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #3D3D3D;
-      margin-bottom: 14px;
-    }
-    .modal-body .status-change {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .modal-body .status-change .arrow {
-      color: #9CA3AF;
-      font-size: 1rem;
-    }
-    .modal-body .status-select {
-      padding: 6px 12px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-family: Calibri, Arial, sans-serif;
-    }
-    .modal-body .motivo-label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #3D3D3D;
-      margin-bottom: 6px;
-    }
-    .modal-body textarea {
-      width: 100%;
-      min-height: 80px;
-      padding: 10px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-family: Calibri, Arial, sans-serif;
-      font-size: 0.85rem;
-      resize: vertical;
-      color: #3D3D3D;
-    }
-    .modal-body textarea:focus {
-      outline: 2px solid #4F2170;
-      border-color: #4F2170;
-    }
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      padding: 14px 20px;
-      border-top: 1px solid #E5E7EB;
-    }
-    .btn-cancel {
-      padding: 8px 20px;
-      border: 1px solid #D1D5DB;
-      background: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      color: #3D3D3D;
-      font-family: Calibri, Arial, sans-serif;
-    }
-    .btn-cancel:hover { background: #F3F4F6; }
-    .btn-confirm {
-      padding: 8px 20px;
-      border: none;
-      background: #4F2170;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      font-family: Calibri, Arial, sans-serif;
-    }
-    .btn-confirm:hover { background: #3D1A5C; }
+/* Tabla tiempo fuera de servicio */
+.oper-time-table{width:100%;border-collapse:collapse;font-size:12px}
+.oper-time-table th{background:#f9f8fb;padding:8px 10px;text-align:left;font-weight:600;color:#888;text-transform:uppercase;font-size:10px;border-bottom:1px solid #e8e5ec}
+.oper-time-table td{padding:7px 10px;border-bottom:1px solid #f3f3f3}
+.oper-note{font-size:10px;color:#aaa;margin-top:8px;text-align:center}
 
-    /* ============================================
-       9. UTILITIES
-       ============================================ */
-    .text-center { text-align: center; }
-    .font-bold { font-weight: 700; }
-    .mt-8 { margin-top: 8px; }
-    .mt-16 { margin-top: 16px; }
-    .hide { display: none !important; }
-  </style>
+/* Heatmap de 14 líneas */
+.heatmap-grid{display:grid;grid-template-columns:60px repeat(4,1fr);gap:2px;font-size:11px}
+.hm-header{background:#4F2170;color:#fff;padding:6px 8px;text-align:center;font-weight:600;font-size:10px;border-radius:3px}
+.hm-line-label{background:#f9f8fb;padding:6px 8px;font-weight:700;color:#4F2170;border-radius:3px;display:flex;align-items:center}
+.hm-cell{padding:6px 8px;border-radius:3px;text-align:center;font-weight:600;font-size:10px;color:#fff;cursor:default;transition:transform .1s}
+.hm-cell:hover{transform:scale(1.05)}
+.hm-cell.op{background:#287819}
+.hm-cell.deg{background:#E18719}
+.hm-cell.fs{background:#A52323}
+.hm-cell.na{background:#e8e5ec;color:#aaa}
+.heatmap-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:#666;align-items:center;justify-content:center}
+.heatmap-legend .hm-leg-dot{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:3px}
+
+/* Scorecard Arthur vs Sunrise */
+.scorecard-row{display:flex;gap:12px}
+.scorecard-card{flex:1;background:#fff;border-radius:8px;border:1px solid #e8e5ec;padding:16px;text-align:center;border-top:4px solid #4F2170}
+.scorecard-card h4{font-size:14px;color:#4F2170;margin-bottom:12px;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
+.sc-big{font-size:32px;font-weight:700}
+.sc-label{font-size:11px;color:#888;text-transform:uppercase;margin-top:2px}
+.sc-stats{display:flex;justify-content:center;gap:20px;margin-top:12px}
+.sc-stat{text-align:center}
+.sc-stat .sc-val{font-size:18px;font-weight:700}
+.sc-stat .sc-lbl{font-size:10px;color:#888;text-transform:uppercase}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:10px;width:420px;max-width:90vw;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e8e5ec}
+.modal-header h3{font-size:15px;color:#4F2170;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
+.modal-close{background:none;border:none;font-size:18px;color:#888;cursor:pointer}
+.modal-close:hover{color:#4F2170}
+.modal-body{padding:20px}
+.modal-body .mb-equip{font-size:14px;font-weight:700;color:#3D3D3D;margin-bottom:16px}
+.modal-body .mb-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.modal-body .mb-row label{font-size:12px;color:#888;min-width:80px;text-transform:uppercase;font-weight:600}
+.modal-body .mb-row select{flex:1;padding:8px 10px;border:1px solid #d5d0dc;border-radius:4px;font-size:13px;font-family:Calibri,Arial,sans-serif}
+.modal-body .mb-arrow{font-size:16px;color:#4F2170}
+.modal-body textarea{width:100%;padding:8px 10px;border:1px solid #d5d0dc;border-radius:6px;font-size:13px;font-family:Calibri,Arial,sans-serif;resize:vertical;min-height:60px;margin-top:4px}
+.modal-body .mb-lbl{font-size:12px;color:#888;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #e8e5ec}
+.modal-footer button{padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:
+
+/* (continuación del CSS — el cursor estaba en .modal-footer button) */
+  Calibri,Arial,sans-serif}
+.modal-footer .btn-cancel{background:#f3f3f3;color:#666}
+.modal-footer .btn-cancel:hover{background:#e8e5ec}
+.modal-footer .btn-confirm{background:#4F2170;color:#fff}
+.modal-footer .btn-confirm:hover{background:#3a1854}
+
+/* ===== UTILITIES ===== */
+.hidden{display:none!important}
+.text-center{text-align:center}
+.text-muted{color:#9CA3AF;font-size:12px}
+</style>
 </head>
 <body>
 
-  <!-- ==================== HEADER ==================== -->
-  <div class="header">
-    <div class="header-left">
-      <span>Mondelēz</span>
-      <div class="divider"></div>
-      <span class="plant">Salinas Plant</span>
-    </div>
-    <div class="header-center">Dashboard de Status de Equipos — Área PT Paletizado</div>
-    <div class="header-right" id="headerDate">15/10/2026 08:32</div>
+<!-- =============== HEADER =============== -->
+<header class="header">
+  <div style="display:flex;align-items:center;gap:10px">
+    <h1>Mondelēz <span class="plant">| Salinas Plant</span></h1>
   </div>
-
-  <!-- ==================== TABS ==================== -->
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="mapa"><i class="fa-solid fa-map"></i>&nbsp; Mapa</button>
-    <button class="tab-btn" data-tab="tarjetas"><i class="fa-solid fa-table-list"></i>&nbsp; Tarjetas</button>
-    <button class="tab-btn" data-tab="operatividad"><i class="fa-solid fa-gears"></i>&nbsp; Operatividad</button>
+  <div>
+    <span style="font-size:13px;font-weight:600">Dashboard de Status de Equipos — Área PT Paletizado</span>
+    <span class="info" id="headerDate" style="margin-left:10px"></span>
   </div>
+</header>
 
-  <!-- ==================== KPI BAR ==================== -->
-  <div class="kpi-bar">
-    <!-- Group 1: Tarjetas summary -->
-    <div class="kpi-group">
-      <div class="kpi-item">
-        <span class="kpi-label">Abiertas</span>
-        <span class="kpi-value" id="kpiAbiertas">0</span>
-      </div>
-      <div class="kpi-item">
-        <span class="kpi-label">Cerradas</span>
-        <span class="kpi-value" id="kpiCerradas">0</span>
-      </div>
-      <div class="kpi-item">
-        <span class="kpi-label">Antig. Prom</span>
-        <span class="kpi-value" id="kpiAntig">0d</span>
-      </div>
+<!-- =============== TABS =============== -->
+<nav class="tabs">
+  <div class="tab active" data-tab="mapa"><i class="fa-solid fa-map" style="margin-right:5px"></i> Mapa</div>
+  <div class="tab" data-tab="tarjetas"><i class="fa-solid fa-tags" style="margin-right:5px"></i> Tarjetas</div>
+  <div class="tab" data-tab="operatividad"><i class="fa-solid fa-gauge-high" style="margin-right:5px"></i> Operatividad</div>
+</nav>
+
+<!-- =============== KPI BAR =============== -->
+<div class="kpi-bar">
+  <div class="kc"><div class="v" id="kpiAbiertas">0</div><div class="l">Abiertas</div></div>
+  <div class="kc"><div class="v" id="kpiCerradas">0</div><div class="l">Cerradas</div></div>
+  <div class="kc"><div class="v" id="kpiAntig">0d</div><div class="l">Antig. Prom</div></div>
+  <div class="kc-sep"></div>
+  <div class="kc bt"><div class="v" id="kpiBT">0</div><div class="l">BT</div></div>
+  <div class="kc rt"><div class="v" id="kpiRT">0</div><div class="l">RT</div></div>
+  <div class="kc yt"><div class="v" id="kpiYT">0</div><div class="l">YT</div></div>
+  <div class="kc-sep"></div>
+  <div class="kc g"><div class="v" id="kpiOps">0</div><div class="l">Operativos</div></div>
+  <div class="kc o"><div class="v" id="kpiDeg">0</div><div class="l">Degradados</div></div>
+  <div class="kc r"><div class="v" id="kpiFS">0</div><div class="l">Fuera Serv.</div></div>
+  <div class="kc-sep"></div>
+  <div class="kc-date">
+    <div><label>Desde</label><input type="date" id="filtDesde"></div>
+    <div><label>Hasta</label><input type="date" id="filtHasta"></div>
+  </div>
+</div>
+
+<!-- =============== TAB: MAPA =============== -->
+<div class="tab-content active" id="tabMapa">
+  <div class="mapa-wrap">
+    <div class="mapa-main" id="mapaContainer">
+      <img src="pltz-layout.png" alt="Layout Paletizado" id="mapaImg">
+      <!-- Markers se insertan vía JS -->
     </div>
-
-    <div class="kpi-separator"></div>
-
-    <!-- Group 2: Tag classification (BT/RT/YT) -->
-    <div class="kpi-group">
-      <div class="kpi-item">
-        <div class="kpi-pill">
-          <span class="pill-tag pill-bt">BT</span>
-          <span class="kpi-value color-bt" id="kpiBT">0</span>
-        </div>
+    <div class="mapa-panel" id="mapaPanel">
+      <div class="mapa-panel-header">
+        <h3 id="mpTitle">Selecciona un equipo</h3>
+        <div class="mp-meta" id="mpMeta"></div>
+        <span class="mp-status" id="mpStatus" style="display:none"></span>
       </div>
-      <div class="kpi-item">
-        <div class="kpi-pill">
-          <span class="pill-tag pill-rt">RT</span>
-          <span class="kpi-value color-rt" id="kpiRT">0</span>
-        </div>
+      <div class="mapa-panel-body" id="mpBody">
+        <p class="text-muted text-center" style="margin-top:40px">Haz clic en un marcador del mapa para ver sus tarjetas abiertas</p>
       </div>
-      <div class="kpi-item">
-        <div class="kpi-pill">
-          <span class="pill-tag pill-yt">YT</span>
-          <span class="kpi-value color-yt" id="kpiYT">0</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-separator"></div>
-
-    <!-- Group 3: Operational status -->
-    <div class="kpi-group">
-      <div class="kpi-item">
-        <div class="kpi-dot">
-          <span class="dot dot-green"></span>
-          <div>
-            <span class="kpi-label">Operativos</span>
-            <span class="kpi-value color-green" id="kpiOperativos">0</span>
-          </div>
-        </div>
-      </div>
-      <div class="kpi-item">
-        <div class="kpi-dot">
-          <span class="dot dot-orange"></span>
-          <div>
-            <span class="kpi-label">Degradados</span>
-            <span class="kpi-value color-orange" id="kpiDegradados">0</span>
-          </div>
-        </div>
-      </div>
-      <div class="kpi-item">
-        <div class="kpi-dot">
-          <span class="dot dot-red"></span>
-          <div>
-            <span class="kpi-label">Fuera Serv.</span>
-            <span class="kpi-value color-red" id="kpiFuera">0</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-separator"></div>
-
-    <!-- Date filters -->
-    <div class="kpi-dates">
-      <div>
-        <label for="filtroDesde">Desde</label>
-        <input type="date" id="filtroDesde">
-      </div>
-      <div>
-        <label for="filtroHasta">Hasta</label>
-        <input type="date" id="filtroHasta">
+      <div class="mapa-panel-footer">
+        <a href="#" id="mpVerTodas" style="display:none">Ver todas →</a>
+        <div class="mp-updated" id="mpUpdated"></div>
       </div>
     </div>
   </div>
+  <div class="mapa-legend">
+    <div class="mapa-legend-item"><div class="mapa-legend-dot pal"></div> Paletizadora</div>
+    <div class="mapa-legend-item"><div class="mapa-legend-dot wrapper"></div> Wrapper</div>
+    <div class="mapa-legend-item"><div class="mapa-legend-dot espiral"></div> Espiral</div>
+    <div class="mapa-labels-toggle">
+      <input type="checkbox" id="chkLabels" checked> <label for="chkLabels">Mostrar etiquetas</label>
+    </div>
+  </div>
+</div>
 
-  <!-- ============================================================
-       TAB: MAPA
-       ============================================================ -->
-  <div class="tab-content active" id="tab-mapa">
-    <div class="mapa-container">
-      <div class="mapa-main">
-        <div class="mapa-viewport" id="mapaViewport">
-          <div class="mapa-canvas" id="mapaCanvas">
-            <img src="pltz-layout.png" alt="Layout PT Paletizado" id="mapaImg">
-            <!-- Markers injected by JS -->
-          </div>
-        </div>
-        <!-- Zoom controls -->
-        <div class="mapa-controls">
-          <button id="btnZoomIn" title="Acercar"><i class="fa-solid fa-plus"></i></button>
-          <button id="btnZoomOut" title="Alejar"><i class="fa-solid fa-minus"></i></button>
-          <button id="btnZoomFit" title="Ajustar">Fit</button>
-        </div>
-        <label class="mapa-label-toggle">
-          <input type="checkbox" id="toggleLabels" checked> Mostrar etiquetas
-        </label>
-      </div>
-      <!-- Side panel -->
-      <div class="side-panel" id="sidePanel">
-        <div class="side-panel-header">
-          <div>
-            <div class="side-panel-title" id="panelTitle">—</div>
-            <span class="side-panel-status" id="panelStatus"></span>
-          </div>
-          <button class="side-panel-close" id="panelClose">&times;</button>
-        </div>
-        <div class="side-panel-count" id="panelCount">Tarjetas Abiertas: 0</div>
-        <div class="side-panel-tickets" id="panelTickets">
-          <!-- Ticket items injected by JS -->
-        </div>
-        <div class="side-panel-footer">
-          <a id="panelVerTodas">Ver todas &rarr;</a>
-          <span class="update-time" id="panelUpdate"></span>
-        </div>
-      </div>
+<!-- =============== TAB: TARJETAS =============== -->
+<div class="tab-content" id="tabTarjetas">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>Proyecto</label>
+      <select id="filtProyecto"><option value="">Todos</option><option value="arthur">Arthur</option><option value="sunrise">Sunrise</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Grupo</label>
+      <select id="filtGrupo"><option value="">Todos</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Color</label>
+      <select id="filtColor"><option value="">Todos</option><option value="BT">BT (Azul)</option><option value="RT">RT (Rojo)</option><option value="YT">YT (Amarillo)</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Estado</label>
+      <select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select>
     </div>
   </div>
 
-  <!-- ============================================================
-       TAB: TARJETAS
-       ============================================================ -->
-  <div class="tab-content" id="tab-tarjetas">
-    <!-- Filters -->
-    <div class="filters-row">
-      <div class="filter-group">
-        <label for="filterGrupo">Grupo</label>
-        <select id="filterGrupo">
-          <option value="todos">Todos</option>
-          <option value="Arthur">Arthur</option>
-          <option value="Sunrise">Sunrise</option>
-        </select>
+  <div style="flex:1;overflow-y:auto;padding-bottom:12px">
+    <!-- Gráficas row 1 -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Tarjetas por Color</h3>
+        <div class="chart-wrap"><canvas id="chartDonut"></canvas></div>
       </div>
-      <div class="filter-group">
-        <label for="filterColor">Color</label>
-        <select id="filterColor">
-          <option value="todos">Todos</option>
-          <option value="BT">BT (Azul)</option>
-          <option value="RT">RT (Rojo)</option>
-          <option value="YT">YT (Amarillo)</option>
-        </select>
+      <div class="chart-card">
+        <h3>Tendencia Apertura vs Cierre</h3>
+        <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
-      <div class="filter-group">
-        <label for="filterEstado">Estado</label>
-        <select id="filterEstado">
-          <option value="todos">Todos</option>
-          <option value="Abierta">Abierta</option>
-          <option value="Resuelta">Resuelta</option>
-          <option value="CMMS">CMMS</option>
-        </select>
+    </div>
+    <!-- Gráficas row 2 -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Top 10 Equipos Problemáticos</h3>
+        <div class="chart-wrap"><canvas id="chartTop10"></canvas></div>
       </div>
-      <div class="filter-group search-input">
-        <label>&nbsp;</label>
-        <div style="position:relative;">
+      <div class="chart-card">
+        <h3>Distribución de Antigüedad</h3>
+        <div class="chart-wrap"><canvas id="chartAntig"></canvas></div>
+      </div>
+    </div>
+    <!-- Gráficas row 3 -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Tasa de Cierre Mensual</h3>
+        <div class="chart-wrap"><canvas id="chartCierre"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Tasa de Cierre por Grupo</h3>
+        <div class="chart-wrap"><canvas id="chartGrupos"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Tabla de tarjetas con scroll interno -->
+    <div class="table-section">
+      <div class="table-toolbar">
+        <h3>Detalle de Tarjetas</h3>
+        <span class="tbl-count" id="tblCount"></span>
+        <div class="tbl-search">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="filterBuscar" placeholder="Buscar folio, equipo, descripción...">
+          <input type="text" id="tblSearch" placeholder="Buscar folio, equipo, descripción...">
         </div>
+        <button class="btn-export" id="btnExport"><i class="fa-solid fa-download" style="margin-right:4px"></i>Descargar Excel</button>
       </div>
-    </div>
-
-    <!-- Charts row 1 -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-card-title">Tarjetas por Color</div>
-        <div class="chart-wrapper"><canvas id="chartDona"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Tendencia Apertura vs Cierre</div>
-        <div class="chart-wrapper"><canvas id="chartTendencia"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Top 10 Equipos Problemáticos</div>
-        <div class="chart-wrapper"><canvas id="chartTop10"></canvas></div>
-      </div>
-    </div>
-
-    <!-- Charts row 2 -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-card-title">Distribución de Antigüedad</div>
-        <div class="chart-wrapper"><canvas id="chartAntiguedad"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Tasa de Cierre Mensual</div>
-        <div class="chart-wrapper"><canvas id="chartCierre"></canvas></div>
-      </div>
-      <div class="comparison-card">
-        <div class="comparison-card-title">Arthur vs Sunrise</div>
-        <table class="comparison-table">
+      <div class="table-scroll">
+        <table class="data-table" id="tarjetasTable">
           <thead>
             <tr>
-              <th></th>
-              <th class="arthur">Arthur</th>
-              <th class="sunrise">Sunrise</th>
+              <th>
+                <div class="th-wrap">Folio <i class="fa-solid fa-sort col-sort" data-col="folio"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="folio"></i></div>
+                <div class="col-filter-drop" data-col="folio"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Equipo <i class="fa-solid fa-sort col-sort" data-col="equipo"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="equipo"></i></div>
+                <div class="col-filter-drop" data-col="equipo"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Color <i class="fa-solid fa-sort col-sort" data-col="color"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="color"></i></div>
+                <div class="col-filter-drop" data-col="color"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Defecto <i class="fa-solid fa-sort col-sort" data-col="defecto"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="defecto"></i></div>
+                <div class="col-filter-drop" data-col="defecto"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Prioridad <i class="fa-solid fa-sort col-sort" data-col="prioridad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="prioridad"></i></div>
+                <div class="col-filter-drop" data-col="prioridad"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Estado <i class="fa-solid fa-sort col-sort" data-col="estado"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="estado"></i></div>
+                <div class="col-filter-drop" data-col="estado"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Fecha <i class="fa-solid fa-sort col-sort" data-col="fecha"></i></div>
+              </th>
+              <th>
+                <div class="th-wrap">Antigüedad <i class="fa-solid fa-sort col-sort" data-col="antiguedad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="antiguedad"></i></div>
+                <div class="col-filter-drop" data-col="antiguedad"></div>
+              </th>
+              <th>
+                <div class="th-wrap">Descripción</div>
+              </th>
             </tr>
           </thead>
-          <tbody id="comparisonBody">
-            <!-- Rows injected by JS -->
-          </tbody>
+          <tbody id="tarjetasTbody"></tbody>
         </table>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Download button -->
-    <div class="download-bar">
-      <button class="btn-download" id="btnDownload">
-        <i class="fa-solid fa-download"></i> Descargar Excel
-      </button>
+<!-- =============== TAB: OPERATIVIDAD =============== -->
+<div class="tab-content" id="tabOperatividad">
+  <div class="oper-wrap">
+
+    <!-- Columna izquierda -->
+    <div class="oper-left">
+      <!-- Dona -->
+      <div class="oper-card">
+        <h3>Operatividad de Equipos</h3>
+        <div class="oper-donut-wrap">
+          <div class="oper-donut-chart"><canvas id="chartOperDonut"></canvas></div>
+          <div id="operDonutLegend"></div>
+        </div>
+      </div>
+      <!-- Acordeón -->
+      <div class="oper-card" style="flex:1;overflow-y:auto">
+        <div class="accordion-section">
+          <div class="accordion-header open" data-section="operativos">
+            <span id="accTitleOperativos">Operativos (0)</span>
+          </div>
+          <div class="accordion-body open" id="accBodyOperativos">
+            <div id="chipsOperativos"></div>
+          </div>
+        </div>
+        <div class="accordion-section">
+          <div class="accordion-header" data-section="degradados">
+            <span id="accTitleDegradados">Degradados (0)</span>
+          </div>
+          <div class="accordion-body" id="accBodyDegradados">
+            <div id="chipsDegradados"></div>
+          </div>
+        </div>
+        <div class="accordion-section">
+          <div class="accordion-header" data-section="fuera">
+            <span id="accTitleFuera">Fuera de Servicio (0)</span>
+          </div>
+          <div class="accordion-body" id="accBodyFuera">
+            <div id="chipsFuera"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Data table -->
-    <div class="data-table-container">
-      <table class="data-table" id="tablaTarjetas">
-        <thead>
-          <tr>
-            <th data-col="folio">Folio <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="equipoMapa">Equipo <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="categoria">Categoría <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="tipoDefecto">Defecto <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="prioridad">Prioridad <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="estado">Estado <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="fechaInclusion">Fecha Inclusión <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="antiguedadDias">Antigüedad <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-            <th data-col="descripcion">Descripción <span class="sort-icon"><i class="fa-solid fa-sort"></i></span></th>
-          </tr>
-        </thead>
-        <tbody id="tablaTarjetasBody">
-          <!-- Rows injected by JS -->
-        </tbody>
-      </table>
+    <!-- Columna derecha -->
+    <div class="oper-right">
+      <!-- Tabla tiempo fuera de servicio -->
+      <div class="oper-card">
+        <h3>Tiempo Fuera de Servicio</h3>
+        <table class="oper-time-table">
+          <thead>
+            <tr><th>Equipo</th><th>Estado</th><th>Desde</th><th>Tiempo</th><th>Motivo</th></tr>
+          </thead>
+          <tbody id="operTimeTable"></tbody>
+        </table>
+        <div class="oper-note">Datos guardados en navegador (localStorage)</div>
+      </div>
+
+      <!-- Heatmap de 14 líneas -->
+      <div class="oper-card">
+        <h3>Mapa de Operatividad por Línea</h3>
+        <div class="heatmap-grid" id="heatmapGrid">
+          <!-- Se renderiza desde JS -->
+        </div>
+        <div class="heatmap-legend">
+          <span><span class="hm-leg-dot" style="background:#287819"></span> Operativo</span>
+          <span><span class="hm-leg-dot" style="background:#E18719"></span> Degradado</span>
+          <span><span class="hm-leg-dot" style="background:#A52323"></span> Fuera Serv.</span>
+          <span><span class="hm-leg-dot" style="background:#e8e5ec"></span> N/A</span>
+        </div>
+      </div>
+
+      <!-- Scorecard Arthur vs Sunrise -->
+      <div class="scorecard-row" id="scorecardRow">
+        <div class="scorecard-card" id="scArthur">
+          <h4>Arthur</h4>
+          <div class="sc-big" id="scArthurPct" style="color:#287819">—</div>
+          <div class="sc-label">operatividad</div>
+          <div class="sc-stats">
+            <div class="sc-stat"><div class="sc-val" id="scArthurOps" style="color:#287819">0</div><div class="sc-lbl">Operativos</div></div>
+            <div class="sc-stat"><div class="sc-val" id="scArthurDeg" style="color:#E18719">0</div><div class="sc-lbl">Degradados</div></div>
+            <div class="sc-stat"><div class="sc-val" id="scArthurFS" style="color:#A52323">0</div><div class="sc-lbl">Fuera Serv.</div></div>
+          </div>
+        </div>
+        <div class="scorecard-card" id="scSunrise">
+          <h4>Sunrise</h4>
+          <div class="sc-big" id="scSunrisePct" style="color:#287819">—</div>
+          <div class="sc-label">operatividad</div>
+          <div class="sc-stats">
+            <div class="sc-stat"><div class="sc-val" id="scSunriseOps" style="color:#287819">0</div><div class="sc-lbl">Operativos</div></div>
+            <div class="sc-stat"><div class="sc-val" id="scSunriseDeg" style="color:#E18719">0</div><div class="sc-lbl">Degradados</div></div>
+            <div class="sc-stat"><div class="sc-val" id="scSunriseFS" style="color:#A52323">0</div><div class="sc-lbl">Fuera Serv.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- =============== MODAL CAMBIO DE ESTADO =============== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Cambiar Estado</h3>
+      <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-equip" id="modalEquipName"></div>
+      <div class="mb-row">
+        <label>Actual</label>
+        <span class="status-pill" id="modalFromStatus"></span>
+        <span class="mb-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+        <label>Nuevo</label>
+        <select id="modalToStatus"></select>
+      </div>
+      <div class="mb-lbl">Motivo del cambio</div>
+      <textarea id="modalMotivo" placeholder="Describe el motivo del cambio de estado..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="modalCancelBtn">Cancelar</button>
+      <button class="btn-confirm" id="modalConfirmBtn">Confirmar</button>
     </div>
   </div>
+</div>
 
-  <!-- ============================================================
-       TAB: OPERATIVIDAD
-       ============================================================ -->
-  <div class="tab-content" id="tab-operatividad">
-    <div class="oper-container">
-      <!-- Left column -->
-      <div class="oper-left">
-        <!-- Donut -->
-        <div class="oper-donut-card">
-          <div class="chart-card-title">Operatividad de Equipos</div>
-          <div class="oper-donut-wrapper">
-            <div class="oper-donut-chart"><canvas id="chartOperDonut"></canvas></div>
-            <div class="oper-donut-legend" id="operDonutLegend">
-              <!-- Legend items injected by JS -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Accordion -->
-        <div class="oper-accordion" id="operAccordion">
-          <!-- Section: Operativos -->
-          <div class="accordion-section">
-            <div class="accordion-header open" data-section="operativos">
-              <div class="accent-bar accent-green"></div>
-              <span class="section-icon">✓</span>
-              <span class="section-title green-text" id="accTitleOperativos">Operativos (0)</span>
-              <i class="fa-solid fa-chevron-down chevron"></i>
-            </div>
-            <div class="accordion-body open" id="accBodyOperativos">
-              <div class="chips-grid" id="chipsOperativos">
-                <!-- Chips injected by JS -->
-              </div>
-            </div>
-          </div>
-          <!-- Section: Degradados -->
-          <div class="accordion-section">
-            <div class="accordion-header" data-section="degradados">
-              <div class="accent-bar accent-orange"></div>
-              <span class="section-icon">⚠</span>
-              <span class="section-title orange-text" id="accTitleDegradados">Degradados (0)</span>
-              <i class="fa-solid fa-chevron-down chevron"></i>
-            </div>
-            <div class="accordion-body" id="accBodyDegradados">
-              <div class="chips-grid" id="chipsDegradados"></div>
-            </div>
-          </div>
-          <!-- Section: Fuera de Servicio -->
-          <div class="accordion-section">
-            <div class="accordion-header" data-section="fuera">
-              <div class="accent-bar accent-red"></div>
-              <span class="section-icon">✕</span>
-              <span class="section-title red-text" id="accTitleFuera">Fuera de Servicio (0)</span>
-              <i class="fa-solid fa-chevron-down chevron"></i>
-            </div>
-            <div class="accordion-body" id="accBodyFuera">
-              <div class="chips-grid" id="chipsFuera"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right column -->
-      <div class="oper-right">
-        <!-- Tiempo fuera de servicio -->
-        <div class="oper-table-card">
-          <div class="card-title"><i class="fa-regular fa-clock"></i> Tiempo Fuera de Servicio</div>
-          <table class="oper-table">
-            <thead>
-              <tr>
-                <th>Equipo</th>
-                <th>Estado</th>
-                <th>Desde</th>
-                <th>Tiempo</th>
-                <th>Motivo</th>
-              </tr>
-            </thead>
-            <tbody id="operTimeTable">
-              <!-- Rows injected by JS -->
-            </tbody>
-          </table>
-          <div class="storage-note">Datos guardados en navegador (localStorage)</div>
-        </div>
-
-        <!-- Impacto por línea -->
-        <div class="oper-impact-card">
-          <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Impacto por Línea</div>
-          <div class="impact-chart-wrapper"><canvas id="chartImpacto"></canvas></div>
-          <div class="line-summary" id="lineSummary">
-            <!-- Line cards injected by JS -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL ==================== -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="modalTitle">Cambiar Estado</h3>
-        <button class="modal-close" id="modalClose">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="equip-name" id="modalEquipName">—</div>
-        <div class="status-change">
-          <span class="status-pill" id="modalFromStatus">—</span>
-          <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
-          <select class="status-select" id="modalToStatus">
-            <option value="operativo">Operativo</option>
-            <option value="degradado">Degradado</option>
-            <option value="fuera">Fuera de Servicio</option>
-          </select>
-        </div>
-        <label class="motivo-label" for="modalMotivo">Motivo:</label>
-        <textarea id="modalMotivo" placeholder="Describe el motivo del cambio de estado..."></textarea>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" id="modalCancelBtn">Cancelar</button>
-        <button class="btn-confirm" id="modalConfirmBtn">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== SCRIPTS ==================== -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js"></script>
+<!-- =============== SCRIPTS =============== -->
+<script src="app.js"></script>
 </body>
 </html>
 
