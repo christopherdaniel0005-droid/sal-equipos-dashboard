@@ -253,6 +253,31 @@ function getTagColor(cat){
   return "";
 }
 
+// Determinar si una tarjeta está ABIERTA
+// Abierta = CMMS o Pendiente
+function esAbierta(estado){
+  if(!estado) return false;
+  var e = estado.toLowerCase().trim();
+  return e === "cmms" || e === "pendiente";
+}
+
+// Determinar si una tarjeta está CERRADA
+// Cerrada = Resuelta
+function esCerrada(estado){
+  if(!estado) return false;
+  var e = estado.toLowerCase().trim();
+  return e === "resuelta";
+}
+
+// Determinar si una tarjeta se debe IGNORAR
+// Ignorar = Cancelada
+function esCancelada(estado){
+  if(!estado) return false;
+  var e = estado.toLowerCase().trim();
+  return e === "cancelada";
+}
+
+
 // ============================================================
 // 5. LOCALSTORAGE — Estado operativo de equipos
 // ============================================================
@@ -315,10 +340,6 @@ function contarEstados(){
   });
   return {operativos: ops, degradados: deg, fuera: fs, total: EQUIPOS.length};
 }
-
-// ============================================================
-// 6. CARGA DE DATOS — tarjetas.json
-// ============================================================
 
 // ============================================================
 // 6. CARGA DE DATOS — tarjetas.json (CORREGIDO)
@@ -428,8 +449,9 @@ document.addEventListener("DOMContentLoaded", inicializarApp);
 
 // ── B2-P2: KPIs dinámicos + Mapa ──
 
+
 // ============================================================
-// 7. KPIs DINÁMICOS
+// 7. KPIs DINÁMICOS (CORREGIDO)
 // ============================================================
 function renderKPIs(){
   var abiertas = 0, cerradas = 0, sumDias = 0, countDias = 0;
@@ -439,6 +461,9 @@ function renderKPIs(){
   var hasta = document.getElementById("filtHasta").value;
 
   tarjetasData.forEach(function(t){
+    // Ignorar canceladas
+    if(esCancelada(t._estado)) return;
+
     // Filtro por rango de fecha si está definido
     if(desde || hasta){
       var fi = t._fechaInc;
@@ -453,23 +478,19 @@ function renderKPIs(){
       }
     }
 
-    var estado = (t._estado || "").toLowerCase();
-    if(estado === "abierta" || estado === "abierto" || estado === "open"){
+    if(esAbierta(t._estado)){
       abiertas++;
       if(t._dias > 0){
         sumDias += t._dias;
         countDias++;
       }
-    } else {
-      cerradas++;
-    }
-
-    // Color del tag (solo abiertas)
-    if(estado === "abierta" || estado === "abierto" || estado === "open"){
+      // Color del tag (solo abiertas)
       var c = t._color;
       if(c === "BT") bt++;
       else if(c === "RT") rt++;
       else if(c === "YT") yt++;
+    } else if(esCerrada(t._estado)){
+      cerradas++;
     }
   });
 
@@ -506,6 +527,8 @@ function renderKPIs(){
   }
 }
 
+
+
 // Listener para filtros de fecha
 document.addEventListener("DOMContentLoaded", function(){
   var fd = document.getElementById("filtDesde");
@@ -514,79 +537,14 @@ document.addEventListener("DOMContentLoaded", function(){
   if(fh) fh.addEventListener("change", function(){ renderKPIs(); if(typeof renderTarjetas === "function") renderTarjetas(); });
 });
 
-// ============================================================
-// 8. MAPA — Renderizado de marcadores
-// ============================================================
-var mapaSeleccionado = null;
 
-function initMapa(){
-  renderMarcadores();
-  initMapaLabels();
-}
-
-function renderMarcadores(){
-  var container = document.getElementById("mapaContainer");
-  // Limpiar marcadores existentes
-  var existentes = container.querySelectorAll(".marker");
-  existentes.forEach(function(m){ m.remove(); });
-
-  EQUIPOS_MAPA.forEach(function(eq){
-    var coord = MAPA_COORDS[eq.id];
-    if(!coord) return;
-
-    var st = equipStatus[eq.id] || "operativo";
-    var stClass = "status-" + st;
-
-    // Contar tarjetas abiertas para este equipo
-    var tarjAbiertas = contarTarjetasEquipo(eq.id);
-
-    // Crear marcador
-    var marker = document.createElement("div");
-    marker.className = "marker " + eq.tipo + " " + stClass;
-    marker.style.left = coord.x + "%";
-    marker.style.top = coord.y + "%";
-    marker.setAttribute("data-equipo", eq.id);
-    marker.title = eq.id + " — " + eq.nombre;
-
-    // Contenido del marcador
-    var label = eq.id.replace("Pal ","P").replace("Wrapper ","W").replace("SP-","S");
-    if(eq.tipo === "espiral"){
-      marker.innerHTML = '<span>' + label + '</span>';
-    } else {
-      marker.textContent = label;
-    }
-
-    // Badge con número de tarjetas
-    if(tarjAbiertas > 0){
-      var badge = document.createElement("div");
-      badge.className = "marker-badge";
-      badge.textContent = tarjAbiertas;
-      marker.appendChild(badge);
-    }
-
-    // Etiqueta inferior
-    var lblEl = document.createElement("div");
-    lblEl.className = "marker-label";
-    lblEl.textContent = eq.id;
-    marker.appendChild(lblEl);
-
-    // Click handler
-    marker.addEventListener("click", function(){
-      seleccionarEquipoMapa(eq.id);
-    });
-
-    container.appendChild(marker);
-  });
-}
-
+// Reemplazar contarTarjetasEquipo en sección 8
 function contarTarjetasEquipo(equipId){
   var count = 0;
   tarjetasData.forEach(function(t){
-    var est = (t._estado || "").toLowerCase();
-    if(est !== "abierta" && est !== "abierto" && est !== "open") return;
+    if(!esAbierta(t._estado)) return;
     var te = (t._equipo || "").toLowerCase();
     var eid = equipId.toLowerCase();
-    // Matching flexible: buscar si el equipo del JSON contiene el id
     if(te.indexOf(eid) > -1 || eid.indexOf(te) > -1 || matchEquipoTarjeta(te, eid)){
       count++;
     }
@@ -594,99 +552,21 @@ function contarTarjetasEquipo(equipId){
   return count;
 }
 
-function matchEquipoTarjeta(tarjetaEquipo, inventarioId){
-  // Normalizar para matching
-  var te = tarjetaEquipo.replace(/\s+/g,"").toLowerCase();
-  var ie = inventarioId.replace(/\s+/g,"").toLowerCase();
-  // Intentar match parcial
-  if(te.indexOf(ie) > -1 || ie.indexOf(te) > -1) return true;
-  // Match por número de paletizadora
-  var mTe = te.match(/(\d+)/);
-  var mIe = ie.match(/pal(\d+)/);
-  if(mTe && mIe && mTe[1] === mIe[1]) return true;
-  return false;
-}
-
-// ============================================================
-// 9. MAPA — Panel lateral derecho
-// ============================================================
-function seleccionarEquipoMapa(equipId){
-  mapaSeleccionado = equipId;
-  var eq = getEquipo(equipId);
-  if(!eq) return;
-
-  // Resaltar marcador activo
-  var markers = document.querySelectorAll(".marker");
-  markers.forEach(function(m){
-    m.style.outline = m.getAttribute("data-equipo") === equipId ? "3px solid #4F2170" : "none";
-  });
-
-  var st = equipStatus[equipId] || "operativo";
-
-  // Header
-  document.getElementById("mpTitle").textContent = eq.id;
-  var metaText = eq.nombre;
-  if(eq.brand && eq.brand !== "-") metaText += " — " + eq.brand;
-  metaText += " | " + eq.proyecto.charAt(0).toUpperCase() + eq.proyecto.slice(1);
-  if(eq.linea) metaText += " | Línea " + eq.linea;
-  document.getElementById("mpMeta").textContent = metaText;
-
-  var statusEl = document.getElementById("mpStatus");
-  statusEl.style.display = "inline-block";
-  statusEl.textContent = st === "operativo" ? "Operativo" : st === "degradado" ? "Degradado" : "Fuera de Servicio";
-  statusEl.style.background = st === "operativo" ? "#287819" : st === "degradado" ? "#E18719" : "#A52323";
-
-  // Body — tarjetas abiertas de este equipo
-  var body = document.getElementById("mpBody");
-  body.innerHTML = "";
-
-  var tarjetas = obtenerTarjetasEquipo(equipId);
-
-  if(tarjetas.length === 0){
-    body.innerHTML = '<p class="text-muted text-center" style="margin-top:20px">Sin tarjetas abiertas</p>';
-  } else {
-    var h4 = document.createElement("h4");
-    h4.textContent = "Tarjetas Abiertas (" + tarjetas.length + ")";
-    body.appendChild(h4);
-
-    tarjetas.forEach(function(t){
-      var item = document.createElement("div");
-      item.className = "ticket-item";
-
-      var dotClass = "bt";
-      if(t._color === "RT") dotClass = "rt";
-      else if(t._color === "YT") dotClass = "yt";
-
-      item.innerHTML = '<div class="ticket-dot ' + dotClass + '"></div>' +
-        '<div class="ticket-info">' +
-          '<div class="ti-id">' + t._folio + '</div>' +
-          '<div class="ti-desc">' + (t._descripcion || t._defecto || "Sin descripción") + '</div>' +
-        '</div>';
-      body.appendChild(item);
-    });
-  }
-
-  // Footer
-  document.getElementById("mpVerTodas").style.display = tarjetas.length > 0 ? "inline" : "none";
-  document.getElementById("mpUpdated").textContent = "Última actualización: hoy " +
-    String(new Date().getHours()).padStart(2,"0") + ":" + String(new Date().getMinutes()).padStart(2,"0");
-}
-
+// Reemplazar obtenerTarjetasEquipo en sección 9
 function obtenerTarjetasEquipo(equipId){
   var resultado = [];
   tarjetasData.forEach(function(t){
-    var est = (t._estado || "").toLowerCase();
-    if(est !== "abierta" && est !== "abierto" && est !== "open") return;
+    if(!esAbierta(t._estado)) return;
     var te = (t._equipo || "").toLowerCase();
     var eid = equipId.toLowerCase();
     if(te.indexOf(eid) > -1 || eid.indexOf(te) > -1 || matchEquipoTarjeta(te, eid)){
       resultado.push(t);
     }
   });
-  // Ordenar por antigüedad desc
   resultado.sort(function(a,b){ return b._dias - a._dias; });
   return resultado;
 }
+
 
 // ============================================================
 // 10. MAPA — Toggle etiquetas
@@ -883,14 +763,14 @@ function renderTarjetas(){
   renderTablaTarjetas();
 }
 
+
 // ============================================================
-// 16. GRÁFICA 1 — Dona: Tarjetas por Color
+// 16. GRÁFICA 1 — Dona: Tarjetas por Color (CORREGIDO)
 // ============================================================
 function renderChartDonut(){
   var bt=0, rt=0, yt=0;
   tarjetasFiltradas.forEach(function(t){
-    var est = (t._estado||"").toLowerCase();
-    if(est==="abierta"||est==="abierto"||est==="open"){
+    if(esAbierta(t._estado)){
       if(t._color==="BT") bt++;
       else if(t._color==="RT") rt++;
       else if(t._color==="YT") yt++;
@@ -922,12 +802,12 @@ function renderChartDonut(){
 }
 
 // ============================================================
-// 17. GRÁFICA 2 — Tendencia Apertura vs Cierre
+// 17. GRÁFICA 2 — Tendencia Apertura vs Cierre (CORREGIDO)
 // ============================================================
 function renderChartTrend(){
-  // Agrupar por mes
   var meses = {};
   tarjetasFiltradas.forEach(function(t){
+    if(esCancelada(t._estado)) return;
     var fi = t._fechaInc;
     if(!fi) return;
     var mesKey;
@@ -938,9 +818,8 @@ function renderChartTrend(){
       mesKey = fi.substring(0,7);
     }
     if(!meses[mesKey]) meses[mesKey] = {abiertas:0, cerradas:0};
-    var est = (t._estado||"").toLowerCase();
-    if(est==="abierta"||est==="abierto"||est==="open") meses[mesKey].abiertas++;
-    else meses[mesKey].cerradas++;
+    if(esAbierta(t._estado)) meses[mesKey].abiertas++;
+    else if(esCerrada(t._estado)) meses[mesKey].cerradas++;
   });
 
   var keys = Object.keys(meses).sort();
@@ -976,13 +855,12 @@ function renderChartTrend(){
 }
 
 // ============================================================
-// 18. GRÁFICA 3 — Top 10 Equipos Problemáticos
+// 18. GRÁFICA 3 — Top 10 Equipos Problemáticos (CORREGIDO)
 // ============================================================
 function renderChartTop10(){
   var counts = {};
   tarjetasFiltradas.forEach(function(t){
-    var est = (t._estado||"").toLowerCase();
-    if(est!=="abierta"&&est!=="abierto"&&est!=="open") return;
+    if(!esAbierta(t._estado)) return;
     var eq = t._equipo || "Sin equipo";
     counts[eq] = (counts[eq]||0) + 1;
   });
@@ -1016,13 +894,12 @@ function renderChartTop10(){
 }
 
 // ============================================================
-// 19. GRÁFICA 4 — Distribución de Antigüedad
+// 19. GRÁFICA 4 — Distribución de Antigüedad (CORREGIDO)
 // ============================================================
 function renderChartAntig(){
   var buckets = {"0-7d":0,"8-15d":0,"16-30d":0,"30+d":0};
   tarjetasFiltradas.forEach(function(t){
-    var est = (t._estado||"").toLowerCase();
-    if(est!=="abierta"&&est!=="abierto"&&est!=="open") return;
+    if(!esAbierta(t._estado)) return;
     var d = t._dias;
     if(d <= 7) buckets["0-7d"]++;
     else if(d <= 15) buckets["8-15d"]++;
@@ -1055,11 +932,12 @@ function renderChartAntig(){
 }
 
 // ============================================================
-// 20. GRÁFICA 5 — Tasa de Cierre Mensual
+// 20. GRÁFICA 5 — Tasa de Cierre Mensual (CORREGIDO)
 // ============================================================
 function renderChartCierre(){
   var meses = {};
   tarjetasFiltradas.forEach(function(t){
+    if(esCancelada(t._estado)) return;
     var fi = t._fechaInc;
     if(!fi) return;
     var mesKey;
@@ -1071,8 +949,7 @@ function renderChartCierre(){
     }
     if(!meses[mesKey]) meses[mesKey] = {total:0,cerradas:0};
     meses[mesKey].total++;
-    var est = (t._estado||"").toLowerCase();
-    if(est!=="abierta"&&est!=="abierto"&&est!=="open") meses[mesKey].cerradas++;
+    if(esCerrada(t._estado)) meses[mesKey].cerradas++;
   });
 
   var keys = Object.keys(meses).sort();
@@ -1094,26 +971,8 @@ function renderChartCierre(){
     data:{
       labels:labels,
       datasets:[
-        {
-          label:"Cerradas",
-          data:dataCerr,
-          backgroundColor:"#4F2170",
-          borderRadius:4,
-          yAxisID:"y",
-          order:2
-        },
-        {
-          label:"% Cierre",
-          data:dataPct,
-          type:"line",
-          borderColor:"#E18719",
-          backgroundColor:"transparent",
-          pointBackgroundColor:"#E18719",
-          pointRadius:4,
-          tension:.3,
-          yAxisID:"y1",
-          order:1
-        }
+        {label:"Cerradas",data:dataCerr,backgroundColor:"#4F2170",borderRadius:4,yAxisID:"y",order:2},
+        {label:"% Cierre",data:dataPct,type:"line",borderColor:"#E18719",backgroundColor:"transparent",pointBackgroundColor:"#E18719",pointRadius:4,tension:.3,yAxisID:"y1",order:1}
       ]
     },
     options:{
@@ -1129,17 +988,17 @@ function renderChartCierre(){
 }
 
 // ============================================================
-// 21. GRÁFICA 6 — Tasa de Cierre por Grupo
+// 21. GRÁFICA 6 — Tasa de Cierre por Grupo (CORREGIDO)
 // ============================================================
 function renderChartGrupos(){
   var grupos = {};
   tarjetasFiltradas.forEach(function(t){
+    if(esCancelada(t._estado)) return;
     var g = t._grupo || "Sin grupo";
     if(!grupos[g]) grupos[g] = {abiertas:0,cerradas:0,total:0};
     grupos[g].total++;
-    var est = (t._estado||"").toLowerCase();
-    if(est==="abierta"||est==="abierto"||est==="open") grupos[g].abiertas++;
-    else grupos[g].cerradas++;
+    if(esAbierta(t._estado)) grupos[g].abiertas++;
+    else if(esCerrada(t._estado)) grupos[g].cerradas++;
   });
 
   var keys = Object.keys(grupos).sort();
@@ -1174,6 +1033,7 @@ function renderChartGrupos(){
     }
   });
 }
+
 
 // ============================================================
 // 22. TABLA DE TARJETAS — Render con scroll
