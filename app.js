@@ -319,32 +319,91 @@ function contarEstados(){
 // ============================================================
 // 6. CARGA DE DATOS — tarjetas.json
 // ============================================================
+
+// ============================================================
+// 6. CARGA DE DATOS — tarjetas.json (CORREGIDO)
+// ============================================================
 function cargarTarjetas(callback){
   fetch("data/tarjetas.json")
     .then(function(r){ return r.json(); })
     .then(function(data){
-      tarjetasData = Array.isArray(data) ? data : [];
-      // Enriquecer cada tarjeta con campos calculados
-      tarjetasData.forEach(function(t){
-        t._grupo = extraerGrupo(t.Equipo || t.equipo || "");
-        t._color = getTagColor(t.Categoria || t.categoria || "");
-        t._fechaInc = t["Fecha Inclusión"] || t["Fecha Inclusion"] || t.fechaInclusion || t.fecha || "";
-        t._dias = diasDesde(t._fechaInc);
-        t._estado = t.Estado || t.estado || "";
-        t._folio = t.Folio || t.folio || "";
-        t._equipo = t.Equipo || t.equipo || "";
-        t._defecto = t.Defecto || t.defecto || "";
-        t._prioridad = t.Prioridad || t.prioridad || "";
-        t._descripcion = t.Descripción || t.Descripcion || t.descripcion || "";
+      // El JSON tiene estructura { resumen: {...}, tarjetas: [...] }
+      var raw = [];
+      if(data && Array.isArray(data.tarjetas)){
+        raw = data.tarjetas;
+      } else if(Array.isArray(data)){
+        raw = data;
+      }
+
+      // Guardar resumen si existe
+      if(data && data.resumen){
+        window._jsonResumen = data.resumen;
+      }
+
+      // Enriquecer cada tarjeta con campos normalizados
+      tarjetasData = raw.map(function(t){
+        // Normalizar fecha (puede venir como "15/10/2026 00:09:00" o "2026-10-15")
+        var fechaRaw = t.fechaInclusion || t["Fecha Inclusión"] || t["Fecha Inclusion"] || t.fecha || "";
+        // Quitar parte de hora si viene "DD/MM/YYYY HH:MM:SS"
+        var fechaLimpia = fechaRaw.split(" ")[0];
+
+        // Extraer grupo de ubicacion (ej: "PALETIZADO - LINEA 11 OREO" → no aplica)
+        // o de equipoMapa si tiene patron de grupo
+        var grupo = extraerGrupo(t.ubicacion || t.equipoMapa || "");
+
+        // Color del tag desde categoria
+        var color = getTagColor(t.categoria || "");
+
+        // Estado normalizado
+        var estado = t.estado || "";
+
+        // Antigüedad: usar el campo pre-calculado si existe, sino calcular
+        var dias = (typeof t.antiguedadDias === "number") ? t.antiguedadDias : diasDesde(fechaLimpia);
+
+        return {
+          // Campos originales (preservar todo)
+          _raw: t,
+
+          // Campos normalizados para el dashboard
+          _folio:        t.folio || "",
+          _equipo:       t.equipoMapa || "",
+          _equipoFull:   t.equipoSolvace || "",
+          _categoria:    t.categoria || "",
+          _color:        color,
+          _defecto:      t.tipoDefecto || t.defecto || "",
+          _prioridad:    t.prioridad || "",
+          _estado:       estado,
+          _fechaInc:     fechaLimpia,
+          _fechaRes:     t.fechaResolucion || "",
+          _dias:         dias,
+          _descripcion:  t.descripcion || t.defecto || "",
+          _ubicacion:    t.ubicacion || "",
+          _proyecto:     (t.proyecto || "").toLowerCase(),
+          _brand:        t.brand || "",
+          _tipoEquipo:   t.tipoEquipo || "",
+          _encontrado:   t.encontradoPor || "",
+          _resuelto:     t.resueltoPor || "",
+          _tiempoRes:    t.tiempoResolucionMin || 0,
+          _grupo:        grupo,
+          _fuente:       t.fuente || ""
+        };
       });
+
+      console.log("✅ Tarjetas cargadas:", tarjetasData.length, "registros");
+      if(window._jsonResumen){
+        console.log("📊 Resumen JSON:", window._jsonResumen);
+      }
+
       if(callback) callback();
     })
     .catch(function(err){
-      console.warn("No se pudo cargar tarjetas.json:", err);
+      console.error("❌ Error cargando tarjetas.json:", err);
       tarjetasData = [];
       if(callback) callback();
     });
 }
+
+
 
 // Inicializar estados y luego cargar data
 function inicializarApp(){
@@ -729,6 +788,10 @@ function bindFiltrosTarjetas(){
 // ============================================================
 // 14. TARJETAS — Filtrado maestro
 // ============================================================
+
+// ============================================================
+// 14. TARJETAS — Filtrado maestro (CORREGIDO)
+// ============================================================
 function filtrarTarjetas(){
   var proy   = document.getElementById("filtProyecto").value.toLowerCase();
   var grupo  = document.getElementById("filtGrupo").value;
@@ -752,22 +815,20 @@ function filtrarTarjetas(){
         if(hasta && fechaISO > hasta) return false;
       }
     }
-    // Filtro proyecto
-    if(proy){
-      var eqId = t._equipo || "";
-      var eq = buscarEquipoPorNombreTarjeta(eqId);
-      if(eq && eq.proyecto !== proy) return false;
-      if(!eq && proy) return false;
-    }
+    // Filtro proyecto — ahora viene directo del JSON
+    if(proy && t._proyecto !== proy) return false;
     // Filtro grupo
     if(grupo && t._grupo !== grupo) return false;
     // Filtro color
     if(color && t._color !== color) return false;
     // Filtro estado
-    if(estado && (t._estado || "").toLowerCase() !== estado) return false;
+    if(estado){
+      var estNorm = (t._estado || "").toLowerCase();
+      if(estNorm !== estado) return false;
+    }
     // Búsqueda global
     if(search){
-      var haystack = [t._folio, t._equipo, t._descripcion, t._defecto, t._prioridad, t._estado].join(" ").toLowerCase();
+      var haystack = [t._folio, t._equipo, t._descripcion, t._defecto, t._prioridad, t._estado, t._brand, t._ubicacion].join(" ").toLowerCase();
       if(haystack.indexOf(search) === -1) return false;
     }
     // Filtros de columna tipo Excel
@@ -782,6 +843,8 @@ function filtrarTarjetas(){
 
   return tarjetasFiltradas;
 }
+
+
 
 function buscarEquipoPorNombreTarjeta(nombreTarjeta){
   if(!nombreTarjeta) return null;
