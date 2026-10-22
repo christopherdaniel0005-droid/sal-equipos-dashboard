@@ -1,1254 +1,1511 @@
 
 /* ===========================================================
-   app.js — Dashboard Status Equipos PT Paletizado (SAL)
-   Parte 1: Core, datos, filtros, KPIs, Mapa
+   app.js — v2
+   Dashboard de Status de Equipos — PT Paletizado SAL
+   B2-P1: Inventario maestro (67 equipos) + utilidades
    =========================================================== */
+"use strict";
 
 // ============================================================
-// 1. INVENTARIO COMPLETO DE EQUIPOS (45)
+// 1. INVENTARIO MAESTRO — 67 equipos
 // ============================================================
 var EQUIPOS = [
-  // 20 Paletizadoras
-  {id:"Pal 1",nombre:"Paletizadora 1",tipo:"Paletizadoras",brand:"Ritz",proyecto:"Arthur",linea:"A",x:75.5,y:12.5},
-  {id:"Pal 2",nombre:"Paletizadora 2",tipo:"Paletizadoras",brand:"CA!",proyecto:"Arthur",linea:"A",x:69.2,y:12.5},
-  {id:"Pal 3",nombre:"Paletizadora 3 Oreo",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"A",x:62.8,y:12.5},
-  {id:"Pal 4",nombre:"Paletizadora 4",tipo:"Paletizadoras",brand:"Ritz",proyecto:"Arthur",linea:"A",x:56.5,y:12.5},
-  {id:"Pal 5",nombre:"Paletizadora 5",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Arthur",linea:"A",x:50.1,y:12.5},
-  {id:"Pal 6A",nombre:"Paletizadora 6A",tipo:"Paletizadoras",brand:"Chips Ahoy",proyecto:"Arthur",linea:"B",x:75.5,y:35.0},
-  {id:"Pal 6B",nombre:"Paletizadora 6B",tipo:"Paletizadoras",brand:"Gamesa",proyecto:"Arthur",linea:"B",x:69.2,y:35.0},
-  {id:"Pal 7A",nombre:"Paletizadora 7A",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Arthur",linea:"B",x:62.8,y:35.0},
-  {id:"Pal 7B",nombre:"Paletizadora 7B",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Arthur",linea:"B",x:56.5,y:35.0},
-  {id:"Pal 8",nombre:"Paletizadora 8",tipo:"Paletizadoras",brand:"Barcel",proyecto:"Sunrise",linea:"B",x:50.1,y:35.0},
-  {id:"Pal 9",nombre:"Paletizadora 9",tipo:"Paletizadoras",brand:"Barcel",proyecto:"Sunrise",linea:"A",x:43.8,y:12.5},
-  {id:"Pal 10",nombre:"Paletizadora 10",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:75.5,y:60.0},
-  {id:"Pal 11 OT",nombre:"Paletizadora 11 OT",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:69.2,y:60.0},
-  {id:"Pal 11 CK",nombre:"Paletizadora 11 CK",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:62.8,y:60.0},
-  {id:"Pal 12",nombre:"Paletizadora 12",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:56.5,y:60.0},
-  {id:"Pal 13",nombre:"Paletizadora 13",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:75.5,y:82.0},
-  {id:"Pal 14",nombre:"Paletizadora 14",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:69.2,y:82.0},
-  {id:"Pal 15",nombre:"Paletizadora 15",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:62.8,y:82.0},
-  {id:"Pal 16",nombre:"Paletizadora 16",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:56.5,y:82.0},
-  {id:"Pal 5A",nombre:"Paletizadora 5A",tipo:"Paletizadoras",brand:"Oreo",proyecto:"Arthur",linea:"A",x:43.8,y:20.0},
+  // ── Paletizadoras (20) ──
+  {id:"Pal 1",       tipo:"pal", solvace:"10322569", nombre:"Paletizadora Ritz 1",        brand:"Ritz",      proyecto:"arthur",  linea:1},
+  {id:"Pal 2",       tipo:"pal", solvace:"10322929", nombre:"Paletizadora Chips Ahoy! 2", brand:"CA!",       proyecto:"arthur",  linea:2},
+  {id:"Pal 3",       tipo:"pal", solvace:"10322975", nombre:"Paletizadora Oreo 3",        brand:"Oreo",      proyecto:"sunrise", linea:3},
+  {id:"Pal 4",       tipo:"pal", solvace:"10323196", nombre:"Paletizadora Ritz 4",        brand:"Ritz",      proyecto:"arthur",  linea:4},
+  {id:"Pal 5",       tipo:"pal", solvace:"10323244", nombre:"Paletizadora Belvita 5",     brand:"Belvita",   proyecto:"arthur",  linea:5},
+  {id:"Pal 6A",      tipo:"pal", solvace:"10323324", nombre:"Paletizadora Oreo 6A",       brand:"Oreo",      proyecto:"arthur",  linea:6},
+  {id:"Pal 6B",      tipo:"pal", solvace:"10323323", nombre:"Paletizadora Oreo 6B",       brand:"Oreo",      proyecto:"arthur",  linea:6},
+  {id:"Pal 7A",      tipo:"pal", solvace:"10323392", nombre:"Paletizadora Mini Oreo 7A",  brand:"Mini Oreo", proyecto:"arthur",  linea:7},
+  {id:"Pal 7B",      tipo:"pal", solvace:"10323393", nombre:"Paletizadora Mini Oreo 7B",  brand:"Mini Oreo", proyecto:"arthur",  linea:7},
+  {id:"Pal 8",       tipo:"pal", solvace:"10324423", nombre:"Paletizadora Ritz 8",        brand:"Ritz",      proyecto:"sunrise", linea:8},
+  {id:"Pal 9A",      tipo:"pal", solvace:"10324914", nombre:"Paletizadora Oreo 9A",       brand:"Oreo",      proyecto:"arthur",  linea:9},
+  {id:"Pal 9B",      tipo:"pal", solvace:"10324913", nombre:"Paletizadora Oreo 9B",       brand:"Oreo",      proyecto:"arthur",  linea:9},
+  {id:"Pal 10",      tipo:"pal", solvace:"10325123", nombre:"Paletizadora Ritz 10",       brand:"Ritz",      proyecto:"sunrise", linea:10},
+  {id:"Pal 11 GenZ", tipo:"pal", solvace:"10325178", nombre:"Paletizadora Oreo 11 GenZ",  brand:"Oreo",      proyecto:"sunrise", linea:11},
+  {id:"Pal 11 PPL",  tipo:"pal", solvace:"10325176", nombre:"Paletizadora Oreo 11 PPL",   brand:"Oreo",      proyecto:"sunrise", linea:11},
+  {id:"Pal 11 PPU",  tipo:"pal", solvace:"10325177", nombre:"Paletizadora Oreo 11 PPU",   brand:"Oreo",      proyecto:"sunrise", linea:11},
+  {id:"Pal 11 OT",   tipo:"pal", solvace:"10325175", nombre:"Paletizadora Oreo 11 OT",    brand:"Oreo",      proyecto:"sunrise", linea:11},
+  {id:"Pal 12",      tipo:"pal", solvace:"10336334", nombre:"Paletizadora Graham 12",     brand:"Graham",    proyecto:"sunrise", linea:12},
+  {id:"Pal 13",      tipo:"pal", solvace:"10336335", nombre:"Paletizadora Oreo 13",       brand:"Oreo",      proyecto:"sunrise", linea:13},
+  {id:"Pal 14",      tipo:"pal", solvace:"10336336", nombre:"Paletizadora Oreo 14",       brand:"Oreo",      proyecto:"sunrise", linea:14},
 
-  // 7 Wrappers
-  {id:"W1",nombre:"Wrapper 1",tipo:"Wrappers",brand:"Ritz / Oreo / CA!",proyecto:"Arthur",linea:"A",x:85.0,y:15.0},
-  {id:"W2",nombre:"Wrapper 2",tipo:"Wrappers",brand:"Ritz / Oreo / CA!",proyecto:"Arthur",linea:"A",x:85.0,y:22.0},
-  {id:"W3",nombre:"Wrapper 3",tipo:"Wrappers",brand:"Ritz / Oreo / CA!",proyecto:"Arthur",linea:"A",x:85.0,y:29.0},
-  {id:"W5",nombre:"Wrapper 5",tipo:"Wrappers",brand:"Barcel",proyecto:"Sunrise",linea:"B",x:85.0,y:38.0},
-  {id:"W6",nombre:"Wrapper 6",tipo:"Wrappers",brand:"Oreo",proyecto:"Sunrise",linea:"B",x:85.0,y:45.0},
-  {id:"W7",nombre:"Wrapper 7",tipo:"Wrappers",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:85.0,y:63.0},
-  {id:"W8",nombre:"Wrapper 8",tipo:"Wrappers",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:85.0,y:85.0},
+  // ── Wrappers (7) ──
+  {id:"Wrapper 1", tipo:"wrapper", solvace:"10121166", nombre:"Wrapper 1", brand:"-", proyecto:"arthur",  linea:null},
+  {id:"Wrapper 2", tipo:"wrapper", solvace:"10121167", nombre:"Wrapper 2", brand:"-", proyecto:"arthur",  linea:null},
+  {id:"Wrapper 3", tipo:"wrapper", solvace:"10121168", nombre:"Wrapper 3", brand:"-", proyecto:"arthur",  linea:null},
+  {id:"Wrapper 5", tipo:"wrapper", solvace:"10190640", nombre:"Wrapper 5", brand:"-", proyecto:"sunrise", linea:null},
+  {id:"Wrapper 6", tipo:"wrapper", solvace:"10190641", nombre:"Wrapper 6", brand:"-", proyecto:"sunrise", linea:null},
+  {id:"Wrapper 7", tipo:"wrapper", solvace:"10190642", nombre:"Wrapper 7", brand:"-", proyecto:"sunrise", linea:null},
+  {id:"Wrapper 8", tipo:"wrapper", solvace:"10320527", nombre:"Wrapper 8", brand:"-", proyecto:"sunrise", linea:null},
 
-  // 18 Espirales
-  {id:"SP-1 y 2",nombre:"Espiral 1 y 2",tipo:"Espirales",brand:"Ritz",proyecto:"Arthur",linea:"A",x:64.14,y:20.83},
-  {id:"SP-3",nombre:"Espiral 3",tipo:"Espirales",brand:"CA!",proyecto:"Arthur",linea:"A",x:85.53,y:8.5},
-  {id:"SP-4 y 6A",nombre:"Espiral 4 y 6A",tipo:"Espirales",brand:"Chips Ahoy",proyecto:"Arthur",linea:"B",x:48.07,y:38.0},
-  {id:"SP-5 y 9A",nombre:"Espiral 5 y 9A",tipo:"Espirales",brand:"Barcel",proyecto:"Sunrise",linea:"B",x:40.62,y:38.0},
-  {id:"SP-6B",nombre:"Espiral 6B",tipo:"Espirales",brand:"Gamesa",proyecto:"Arthur",linea:"B",x:27.05,y:35.0},
-  {id:"SP-7A y 7B",nombre:"Espiral 7A y 7B",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"B",x:55.96,y:42.0},
-  {id:"SP-8",nombre:"Espiral 8",tipo:"Espirales",brand:"Barcel",proyecto:"Sunrise",linea:"B",x:37.96,y:42.0},
-  {id:"SP-9B",nombre:"Espiral 9B",tipo:"Espirales",brand:"Barcel",proyecto:"Sunrise",linea:"A",x:23.88,y:15.0},
-  {id:"SP-10",nombre:"Espiral 10",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:18.7,y:63.0},
-  {id:"SP-10 FZ",nombre:"Espiral 10 FZ",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:2.73,y:63.0},
-  {id:"SP-11 OT",nombre:"Espiral 11 OT",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:18.7,y:55.0},
-  {id:"SP-11 CK",nombre:"Espiral 11 CK",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:10.0,y:55.0},
-  {id:"SP-12",nombre:"Espiral 12",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"C",x:18.7,y:70.0},
-  {id:"SP-13",nombre:"Espiral 13",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:18.7,y:85.0},
-  {id:"SP-14",nombre:"Espiral 14",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:10.0,y:85.0},
-  {id:"SP-15",nombre:"Espiral 15",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:18.7,y:78.0},
-  {id:"SP-16",nombre:"Espiral 16",tipo:"Espirales",brand:"Oreo",proyecto:"Sunrise",linea:"D",x:10.0,y:78.0},
-  {id:"SP-5A",nombre:"Espiral 5A",tipo:"Espirales",brand:"Oreo",proyecto:"Arthur",linea:"A",x:30.0,y:20.0}
+  // ── Espirales (18) ──
+  {id:"SP-1 y 2",   tipo:"espiral", solvace:"-", nombre:"Espiral 1 y 2",    brand:"-", proyecto:"arthur",  linea:1},
+  {id:"SP-3",       tipo:"espiral", solvace:"-", nombre:"Espiral 3",        brand:"-", proyecto:"sunrise", linea:3},
+  {id:"SP-4 y 6A",  tipo:"espiral", solvace:"-", nombre:"Espiral 4 y 6A",   brand:"-", proyecto:"arthur",  linea:4},
+  {id:"SP-5 y 9A",  tipo:"espiral", solvace:"-", nombre:"Espiral 5 y 9A",   brand:"-", proyecto:"arthur",  linea:5},
+  {id:"SP-6B",      tipo:"espiral", solvace:"-", nombre:"Espiral 6B",       brand:"-", proyecto:"arthur",  linea:6},
+  {id:"SP-7A y 7B", tipo:"espiral", solvace:"-", nombre:"Espiral 7A y 7B",  brand:"-", proyecto:"arthur",  linea:7},
+  {id:"SP-8",       tipo:"espiral", solvace:"-", nombre:"Espiral 8",        brand:"-", proyecto:"sunrise", linea:8},
+  {id:"SP-9B",      tipo:"espiral", solvace:"-", nombre:"Espiral 9B",       brand:"-", proyecto:"arthur",  linea:9},
+  {id:"SP-10",      tipo:"espiral", solvace:"-", nombre:"Espiral 10",       brand:"-", proyecto:"sunrise", linea:10},
+  {id:"SP-10 FZ",   tipo:"espiral", solvace:"-", nombre:"Espiral 10 FZ",    brand:"-", proyecto:"arthur",  linea:10},
+  {id:"SP-11 OT",   tipo:"espiral", solvace:"-", nombre:"Espiral 11 OT",    brand:"-", proyecto:"sunrise", linea:11},
+  {id:"SP-11 PPL",  tipo:"espiral", solvace:"-", nombre:"Espiral 11 PPL",   brand:"-", proyecto:"sunrise", linea:11},
+  {id:"SP-11 PPU",  tipo:"espiral", solvace:"-", nombre:"Espiral 11 PPU",   brand:"-", proyecto:"sunrise", linea:11},
+  {id:"SP-GENZ",    tipo:"espiral", solvace:"-", nombre:"Espiral GenZ",     brand:"-", proyecto:"sunrise", linea:11},
+  {id:"SP-12",      tipo:"espiral", solvace:"-", nombre:"Espiral 12",       brand:"-", proyecto:"sunrise", linea:12},
+  {id:"SP-13",      tipo:"espiral", solvace:"-", nombre:"Espiral 13",       brand:"-", proyecto:"sunrise", linea:13},
+  {id:"SP-14",      tipo:"espiral", solvace:"-", nombre:"Espiral 14",       brand:"-", proyecto:"sunrise", linea:14},
+  {id:"SP-14 FZ",   tipo:"espiral", solvace:"-", nombre:"Espiral 14 FZ",    brand:"-", proyecto:"arthur",  linea:14},
+
+  // ── Case Conveyors (20) ──
+  {id:"CC-1",       tipo:"cc", solvace:"10322568", nombre:"Case Conveyor Ritz 1",          brand:"Ritz",      proyecto:"arthur",  linea:1,  asociado:"Pal 1"},
+  {id:"CC-2",       tipo:"cc", solvace:"10322928", nombre:"Case Conveyor Chips Ahoy 2",    brand:"Chips Ahoy",proyecto:"arthur",  linea:2,  asociado:"Pal 2"},
+  {id:"CC-3",       tipo:"cc", solvace:"10322974", nombre:"Case Conveyor Oreo 3",          brand:"Oreo",      proyecto:"sunrise", linea:3,  asociado:"Pal 3"},
+  {id:"CC-4",       tipo:"cc", solvace:"10323195", nombre:"Case Conveyor Ritz 4",          brand:"Ritz",      proyecto:"arthur",  linea:4,  asociado:"Pal 4"},
+  {id:"CC-5",       tipo:"cc", solvace:"10323243", nombre:"Case Conveyor Belvita 5",       brand:"Belvita",   proyecto:"arthur",  linea:5,  asociado:"Pal 5"},
+  {id:"CC-6A",      tipo:"cc", solvace:"10323322", nombre:"Case Conveyor Oreo 6A",         brand:"Oreo",      proyecto:"arthur",  linea:6,  asociado:"Pal 6A"},
+  {id:"CC-6B",      tipo:"cc", solvace:"10323321", nombre:"Case Conveyor Oreo 6B",         brand:"Oreo",      proyecto:"arthur",  linea:6,  asociado:"Pal 6B"},
+  {id:"CC-7A",      tipo:"cc", solvace:"10323390", nombre:"Case Conveyor Mini Oreo A",     brand:"Mini Oreo", proyecto:"arthur",  linea:7,  asociado:"Pal 7A"},
+  {id:"CC-7B",      tipo:"cc", solvace:"10323391", nombre:"Case Conveyor Mini Oreo B",     brand:"Mini Oreo", proyecto:"arthur",  linea:7,  asociado:"Pal 7B"},
+  {id:"CC-8",       tipo:"cc", solvace:"10324422", nombre:"Case Conveyor Ritz 8",          brand:"Ritz",      proyecto:"sunrise", linea:8,  asociado:"Pal 8"},
+  {id:"CC-9A",      tipo:"cc", solvace:"10324912", nombre:"Case Conveyor Oreo 9A",         brand:"Oreo",      proyecto:"arthur",  linea:9,  asociado:"Pal 9A"},
+  {id:"CC-9B",      tipo:"cc", solvace:"10324911", nombre:"Case Conveyor Oreo 9B",         brand:"Oreo",      proyecto:"arthur",  linea:9,  asociado:"Pal 9B"},
+  {id:"CC-10",      tipo:"cc", solvace:"10324462", nombre:"Case Conveyor Ritz 10",         brand:"Ritz",      proyecto:"sunrise", linea:10, asociado:"Pal 10"},
+  {id:"CC-11 GenZ", tipo:"cc", solvace:"10325174", nombre:"Case Conveyor Oreo 11 GenZ",    brand:"Oreo",      proyecto:"sunrise", linea:11, asociado:"Pal 11 GenZ"},
+  {id:"CC-11 PPL",  tipo:"cc", solvace:"10325172", nombre:"Case Conveyor Oreo 11 PPL",     brand:"Oreo",      proyecto:"sunrise", linea:11, asociado:"Pal 11 PPL"},
+  {id:"CC-11 PPU",  tipo:"cc", solvace:"10325173", nombre:"Case Conveyor Oreo 11 PPU",     brand:"Oreo",      proyecto:"sunrise", linea:11, asociado:"Pal 11 PPU"},
+  {id:"CC-11 OT",   tipo:"cc", solvace:"10325171", nombre:"Case Conveyor Oreo 11 OT",      brand:"Oreo",      proyecto:"sunrise", linea:11, asociado:"Pal 11 OT"},
+  {id:"CC-12",      tipo:"cc", solvace:"10334032", nombre:"Case Conveyor Graham 12",       brand:"Graham",    proyecto:"sunrise", linea:12, asociado:"Pal 12"},
+  {id:"CC-13",      tipo:"cc", solvace:"10328680", nombre:"Case Conveyor OT 13",           brand:"Oreo",      proyecto:"sunrise", linea:13, asociado:"Pal 13"},
+  {id:"CC-14",      tipo:"cc", solvace:"10336033", nombre:"Case Conveyor Oreo 14",         brand:"Oreo",      proyecto:"sunrise", linea:14, asociado:"Pal 14"},
+
+  // ── Pallet Conveyors (2) ──
+  {id:"PC-Arthur",  tipo:"pc", solvace:"10331366", nombre:"Pallet Conveyor Arthur",  brand:"-", proyecto:"arthur",  linea:null, asociado:"Proyecto Arthur"},
+  {id:"PC-Sunrise", tipo:"pc", solvace:"10331367", nombre:"Pallet Conveyor Sunrise", brand:"-", proyecto:"sunrise", linea:null, asociado:"Proyecto Sunrise"}
 ];
 
-// Lines configuration
+// ============================================================
+// 2. MAPA DE LÍNEAS — qué líneas existen y a qué proyecto
+// ============================================================
 var LINEAS = {
-  "A": {nombre:"Línea A", equipos:[]},
-  "B": {nombre:"Línea B", equipos:[]},
-  "C": {nombre:"Línea C", equipos:[]},
-  "D": {nombre:"Línea D", equipos:[]}
-};
-EQUIPOS.forEach(function(e){ if(LINEAS[e.linea]) LINEAS[e.linea].equipos.push(e.id); });
-
-// ============================================================
-// 2. GLOBAL STATE
-// ============================================================
-var STATE = {
-  tarjetas: [],
-  filtered: [],
-  equipStatus: {},
-  selectedEquip: null,
-  mapZoom: 1,
-  sortCol: null,
-  sortAsc: true,
-  // Chart instances (for destroy/recreate)
-  charts: {}
+  1:  {proyecto:"arthur"},
+  2:  {proyecto:"arthur"},
+  3:  {proyecto:"sunrise"},
+  4:  {proyecto:"arthur"},
+  5:  {proyecto:"arthur"},
+  6:  {proyecto:"arthur"},
+  7:  {proyecto:"arthur"},
+  8:  {proyecto:"sunrise"},
+  9:  {proyecto:"arthur"},
+  10: {proyecto:"sunrise"},
+  11: {proyecto:"sunrise"},
+  12: {proyecto:"sunrise"},
+  13: {proyecto:"sunrise"},
+  14: {proyecto:"sunrise"}
 };
 
 // ============================================================
-// 3. UTILITY FUNCTIONS
+// 3. COORDENADAS DEL MAPA — posiciones x%, y%
+//    (placeholder — se recalcularán con Christopher)
 // ============================================================
+var MAPA_COORDS = {
+  // Paletizadoras
+  "Pal 1":       {x:10, y:18},
+  "Pal 2":       {x:17, y:18},
+  "Pal 3":       {x:24, y:18},
+  "Pal 4":       {x:31, y:18},
+  "Pal 5":       {x:38, y:18},
+  "Pal 6A":      {x:10, y:35},
+  "Pal 6B":      {x:17, y:35},
+  "Pal 7A":      {x:24, y:35},
+  "Pal 7B":      {x:31, y:35},
+  "Pal 8":       {x:38, y:35},
+  "Pal 9A":      {x:45, y:35},
+  "Pal 9B":      {x:52, y:35},
+  "Pal 10":      {x:10, y:62},
+  "Pal 11 GenZ": {x:17, y:62},
+  "Pal 11 PPL":  {x:24, y:62},
+  "Pal 11 PPU":  {x:31, y:62},
+  "Pal 11 OT":   {x:38, y:62},
+  "Pal 12":      {x:10, y:78},
+  "Pal 13":      {x:17, y:78},
+  "Pal 14":      {x:24, y:78},
+  // Wrappers
+  "Wrapper 1":   {x:57, y:18},
+  "Wrapper 2":   {x:63, y:18},
+  "Wrapper 3":   {x:69, y:18},
+  "Wrapper 5":   {x:57, y:62},
+  "Wrapper 6":   {x:63, y:62},
+  "Wrapper 7":   {x:69, y:62},
+  "Wrapper 8":   {x:75, y:62},
+  // Espirales
+  "SP-1 y 2":    {x:10, y:8},
+  "SP-3":        {x:24, y:8},
+  "SP-4 y 6A":   {x:31, y:8},
+  "SP-5 y 9A":   {x:38, y:8},
+  "SP-6B":       {x:17, y:45},
+  "SP-7A y 7B":  {x:24, y:45},
+  "SP-8":        {x:38, y:45},
+  "SP-9B":       {x:52, y:45},
+  "SP-10":       {x:10, y:52},
+  "SP-10 FZ":    {x:17, y:52},
+  "SP-11 OT":    {x:38, y:52},
+  "SP-11 PPL":   {x:24, y:52},
+  "SP-11 PPU":   {x:31, y:52},
+  "SP-GENZ":     {x:17, y:72},
+  "SP-12":       {x:10, y:88},
+  "SP-13":       {x:17, y:88},
+  "SP-14":       {x:24, y:88},
+  "SP-14 FZ":    {x:31, y:88}
+  // Case Conveyors y Pallet Conveyors no se muestran en el mapa
+};
 
-/** Normalize date strings to YYYY-MM-DD */
-function normD(s) {
-  if (!s || typeof s !== "string") return "";
-  var clean = s.trim();
-  var spaceIdx = clean.indexOf(" ");
-  if (spaceIdx > 0) clean = clean.substring(0, spaceIdx);
-  if (/^\d{4}-\d{2}-\d{2}/.test(clean)) return clean.substring(0, 10);
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(clean)) {
-    var p = clean.split("/");
-    var a = parseInt(p[0], 10);
-    var b = parseInt(p[1], 10);
-    var y = p[2];
-    if (a > 12) return y + "-" + (b < 10 ? "0" + b : "" + b) + "-" + (a < 10 ? "0" + a : "" + a);
-    return y + "-" + (b < 10 ? "0" + b : "" + b) + "-" + (a < 10 ? "0" + a : "" + a);
+// ============================================================
+// 4. UTILIDADES GLOBALES
+// ============================================================
+var tarjetasData = [];         // se carga desde tarjetas.json
+var equipStatus = {};          // estado operativo por equipo (localStorage)
+var equipStatusHistory = [];   // historial de cambios de estado (localStorage)
+
+// Lookup rápido de equipo por id
+var EQUIPO_MAP = {};
+EQUIPOS.forEach(function(e){ EQUIPO_MAP[e.id] = e; });
+
+// Obtener equipo por id
+function getEquipo(id){ return EQUIPO_MAP[id] || null; }
+
+// Equipos que se muestran en el mapa (no CC ni PC)
+var EQUIPOS_MAPA = EQUIPOS.filter(function(e){
+  return e.tipo === "pal" || e.tipo === "wrapper" || e.tipo === "espiral";
+});
+
+// Equipos de conveyors (para panel lateral)
+var EQUIPOS_CONVEYORS = EQUIPOS.filter(function(e){
+  return e.tipo === "cc" || e.tipo === "pc";
+});
+
+// Agrupar equipos por proyecto
+function equiposPorProyecto(proy){
+  return EQUIPOS.filter(function(e){ return e.proyecto === proy; });
+}
+
+// Agrupar equipos por línea
+function equiposPorLinea(num){
+  return EQUIPOS.filter(function(e){ return e.linea === num; });
+}
+
+// Calcular días desde una fecha hasta hoy
+function diasDesde(fechaStr){
+  if(!fechaStr) return 0;
+  var parts, d;
+  if(fechaStr.indexOf("/") > -1){
+    parts = fechaStr.split("/");
+    // formato DD/MM/YYYY
+    d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+  } else {
+    d = new Date(fechaStr);
   }
-  return clean;
+  if(isNaN(d.getTime())) return 0;
+  var hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  d.setHours(0,0,0,0);
+  return Math.max(0, Math.floor((hoy - d) / 86400000));
 }
 
-/** Format YYYY-MM-DD to DD/MM/YYYY for display */
-function fmtDate(iso) {
-  if (!iso || iso.length < 10) return "—";
-  var parts = iso.split("-");
-  return parts[2] + "/" + parts[1] + "/" + parts[0];
+// Formatear fecha a DD/MM/YYYY
+function fmtFecha(fechaStr){
+  if(!fechaStr) return "-";
+  var d;
+  if(fechaStr.indexOf("/") > -1){
+    return fechaStr; // ya está en formato
+  }
+  d = new Date(fechaStr);
+  if(isNaN(d.getTime())) return fechaStr;
+  var dd = String(d.getDate()).padStart(2,"0");
+  var mm = String(d.getMonth()+1).padStart(2,"0");
+  var yy = d.getFullYear();
+  return dd + "/" + mm + "/" + yy;
 }
 
-/** Get tag color prefix from categoria */
-function getColor(cat) {
-  if (!cat) return "";
-  var prefix = cat.substring(0, 2).toUpperCase();
-  if (prefix === "BT") return "BT";
-  if (prefix === "RT") return "RT";
-  if (prefix === "YT") return "YT";
+// Formatear número con separador de miles
+function fmtNum(n){
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Extraer grupo de la columna Equipo del JSON (ej: "PLTZ-C" → "C")
+function extraerGrupo(equipoStr){
+  if(!equipoStr) return "";
+  var match = equipoStr.match(/PLTZ[- ]?([A-D])/i);
+  return match ? match[1].toUpperCase() : "";
+}
+
+// Obtener color del tag: BT/RT/YT
+function getTagColor(cat){
+  if(!cat) return "";
+  var c = cat.toUpperCase();
+  if(c.indexOf("BT") > -1) return "BT";
+  if(c.indexOf("RT") > -1) return "RT";
+  if(c.indexOf("YT") > -1) return "YT";
   return "";
 }
 
-/** Days between date string and today */
-function diasDesde(isoDate) {
-  if (!isoDate) return 0;
-  var d = new Date(isoDate);
-  var hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  var diff = Math.floor((hoy - d) / 86400000);
-  return diff > 0 ? diff : 0;
-}
-
-/** Get ISO week number */
-function getWeek(d) {
-  var date = new Date(d);
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  var week1 = new Date(date.getFullYear(), 0, 4);
-  return 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-}
-
-/** Get month name in Spanish */
-var MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-function getMes(isoDate) {
-  if (!isoDate || isoDate.length < 7) return "";
-  var m = parseInt(isoDate.substring(5, 7), 10);
-  return MESES[m - 1] || "";
-}
-
 // ============================================================
-// 4. DATA LOADING
+// 5. LOCALSTORAGE — Estado operativo de equipos
 // ============================================================
-function loadData() {
-  fetch("data/tarjetas.json")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      STATE.tarjetas = (data.tarjetas || []).map(function(t) {
-        t._fechaInc = normD(t.fechaInclusion);
-        t._fechaRes = normD(t.fechaResolucion);
-        t._color = getColor(t.categoria);
-        return t;
-      });
-      if (data.resumen && data.resumen.generado) {
-        document.getElementById("headerDate").textContent = data.resumen.generado;
-      }
-      setDefaultDates();
-      loadEquipStatus();
-      applyFilters();
-    })
-    .catch(function(err) {
-      console.error("Error loading tarjetas.json:", err);
-    });
-}
-
-function setDefaultDates() {
-  var desde = document.getElementById("filtroDesde");
-  var hasta = document.getElementById("filtroHasta");
-  var hoy = new Date();
-  var year = hoy.getFullYear();
-  var mm = ("0" + (hoy.getMonth() + 1)).slice(-2);
-  var dd = ("0" + hoy.getDate()).slice(-2);
-  desde.value = year + "-01-01";
-  hasta.value = year + "-" + mm + "-" + dd;
-}
-
-// ============================================================
-// 5. EQUIPMENT STATUS (localStorage)
-// ============================================================
-var LS_KEY = "sal_equip_status";
-
-function loadEquipStatus() {
+function cargarEstados(){
   try {
-    var saved = localStorage.getItem(LS_KEY);
-    if (saved) STATE.equipStatus = JSON.parse(saved);
-  } catch(e) {}
-  EQUIPOS.forEach(function(eq) {
-    if (!STATE.equipStatus[eq.id]) {
-      STATE.equipStatus[eq.id] = { status: "operativo", motivo: "", desde: "" };
+    var saved = localStorage.getItem("sal_equip_status");
+    if(saved){
+      equipStatus = JSON.parse(saved);
+    }
+  } catch(e){ /* silenciar */ }
+  // Asegurar que todos los equipos tengan estado
+  EQUIPOS.forEach(function(eq){
+    if(!equipStatus[eq.id]){
+      equipStatus[eq.id] = "operativo";
     }
   });
 }
 
-function saveEquipStatus() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(STATE.equipStatus)); } catch(e) {}
+function guardarEstados(){
+  try {
+    localStorage.setItem("sal_equip_status", JSON.stringify(equipStatus));
+  } catch(e){ /* silenciar */ }
 }
 
-function getEquipStatus(id) {
-  return (STATE.equipStatus[id] && STATE.equipStatus[id].status) || "operativo";
+function cargarHistorial(){
+  try {
+    var saved = localStorage.getItem("sal_equip_history");
+    if(saved){
+      equipStatusHistory = JSON.parse(saved);
+    }
+  } catch(e){ /* silenciar */ }
 }
 
-function changeEquipStatus(id, newStatus, motivo) {
-  var hoy = new Date();
-  var iso = hoy.getFullYear() + "-" + ("0"+(hoy.getMonth()+1)).slice(-2) + "-" + ("0"+hoy.getDate()).slice(-2);
-  STATE.equipStatus[id] = { status: newStatus, motivo: motivo || "", desde: iso };
-  saveEquipStatus();
+function guardarHistorial(){
+  try {
+    localStorage.setItem("sal_equip_history", JSON.stringify(equipStatusHistory));
+  } catch(e){ /* silenciar */ }
 }
 
-// ============================================================
-// 6. FILTERS & KPIs
-// ============================================================
-function applyFilters() {
-  var desde = document.getElementById("filtroDesde").value;
-  var hasta = document.getElementById("filtroHasta").value;
+function registrarCambioEstado(equipId, deEstado, aEstado, motivo){
+  var registro = {
+    equipo: equipId,
+    de: deEstado,
+    a: aEstado,
+    motivo: motivo || "",
+    fecha: new Date().toISOString()
+  };
+  equipStatusHistory.push(registro);
+  guardarHistorial();
+}
 
-  STATE.filtered = STATE.tarjetas.filter(function(t) {
-    if (!t._fechaInc) return false;
-    if (desde && t._fechaInc < desde) return false;
-    if (hasta && t._fechaInc > hasta) return false;
-    return true;
+// Contar estados
+function contarEstados(){
+  var ops = 0, deg = 0, fs = 0;
+  EQUIPOS.forEach(function(eq){
+    var st = equipStatus[eq.id] || "operativo";
+    if(st === "operativo") ops++;
+    else if(st === "degradado") deg++;
+    else if(st === "fuera") fs++;
   });
-
-  updateKPIs();
-  renderMapa();
-
-  if (document.getElementById("tab-tarjetas").classList.contains("active")) {
-    applyTarjetasFilters();
-  }
-  if (document.getElementById("tab-operatividad").classList.contains("active")) {
-    renderOperatividad();
-  }
+  return {operativos: ops, degradados: deg, fuera: fs, total: EQUIPOS.length};
 }
 
-function updateKPIs() {
-  var data = STATE.filtered;
-  var abiertas = 0, cerradas = 0, bt = 0, rt = 0, yt = 0, sumAntig = 0, countAntig = 0;
+// ============================================================
+// 6. CARGA DE DATOS — tarjetas.json
+// ============================================================
+function cargarTarjetas(callback){
+  fetch("data/tarjetas.json")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      tarjetasData = Array.isArray(data) ? data : [];
+      // Enriquecer cada tarjeta con campos calculados
+      tarjetasData.forEach(function(t){
+        t._grupo = extraerGrupo(t.Equipo || t.equipo || "");
+        t._color = getTagColor(t.Categoria || t.categoria || "");
+        t._fechaInc = t["Fecha Inclusión"] || t["Fecha Inclusion"] || t.fechaInclusion || t.fecha || "";
+        t._dias = diasDesde(t._fechaInc);
+        t._estado = t.Estado || t.estado || "";
+        t._folio = t.Folio || t.folio || "";
+        t._equipo = t.Equipo || t.equipo || "";
+        t._defecto = t.Defecto || t.defecto || "";
+        t._prioridad = t.Prioridad || t.prioridad || "";
+        t._descripcion = t.Descripción || t.Descripcion || t.descripcion || "";
+      });
+      if(callback) callback();
+    })
+    .catch(function(err){
+      console.warn("No se pudo cargar tarjetas.json:", err);
+      tarjetasData = [];
+      if(callback) callback();
+    });
+}
 
-  data.forEach(function(t) {
-    var isOpen = t.estado && t.estado.toLowerCase() !== "resuelta";
-    if (isOpen) {
+// Inicializar estados y luego cargar data
+function inicializarApp(){
+  cargarEstados();
+  cargarHistorial();
+  cargarTarjetas(function(){
+    // Aquí se llamarán las funciones de render de cada tab
+    // (se definen en B2-P2, B2-P3 y Bloque 3)
+    if(typeof renderKPIs === "function") renderKPIs();
+    if(typeof initMapa === "function") initMapa();
+    if(typeof initTarjetas === "function") initTarjetas();
+    if(typeof initOperatividad === "function") initOperatividad();
+    if(typeof initTabs === "function") initTabs();
+  });
+}
+
+// Arrancar cuando el DOM esté listo
+document.addEventListener("DOMContentLoaded", inicializarApp);
+
+// ── Fin B2-P1 ──
+
+
+// ── B2-P2: KPIs dinámicos + Mapa ──
+
+// ============================================================
+// 7. KPIs DINÁMICOS
+// ============================================================
+function renderKPIs(){
+  var abiertas = 0, cerradas = 0, sumDias = 0, countDias = 0;
+  var bt = 0, rt = 0, yt = 0;
+
+  var desde = document.getElementById("filtDesde").value;
+  var hasta = document.getElementById("filtHasta").value;
+
+  tarjetasData.forEach(function(t){
+    // Filtro por rango de fecha si está definido
+    if(desde || hasta){
+      var fi = t._fechaInc;
+      if(fi){
+        var fechaISO = fi;
+        if(fi.indexOf("/") > -1){
+          var pp = fi.split("/");
+          fechaISO = pp[2] + "-" + pp[1] + "-" + pp[0];
+        }
+        if(desde && fechaISO < desde) return;
+        if(hasta && fechaISO > hasta) return;
+      }
+    }
+
+    var estado = (t._estado || "").toLowerCase();
+    if(estado === "abierta" || estado === "abierto" || estado === "open"){
       abiertas++;
-      if (t.antiguedadDias > 0) { sumAntig += t.antiguedadDias; countAntig++; }
+      if(t._dias > 0){
+        sumDias += t._dias;
+        countDias++;
+      }
     } else {
       cerradas++;
     }
-    if (t._color === "BT") bt++;
-    else if (t._color === "RT") rt++;
-    else if (t._color === "YT") yt++;
+
+    // Color del tag (solo abiertas)
+    if(estado === "abierta" || estado === "abierto" || estado === "open"){
+      var c = t._color;
+      if(c === "BT") bt++;
+      else if(c === "RT") rt++;
+      else if(c === "YT") yt++;
+    }
   });
 
-  var antigProm = countAntig > 0 ? Math.round(sumAntig / countAntig) : 0;
+  var antigProm = countDias > 0 ? Math.round(sumDias / countDias) : 0;
 
-  document.getElementById("kpiAbiertas").textContent = abiertas.toLocaleString();
-  document.getElementById("kpiCerradas").textContent = cerradas.toLocaleString();
+  document.getElementById("kpiAbiertas").textContent = fmtNum(abiertas);
+  document.getElementById("kpiCerradas").textContent = fmtNum(cerradas);
   document.getElementById("kpiAntig").textContent = antigProm + "d";
-  document.getElementById("kpiBT").textContent = bt.toLocaleString();
-  document.getElementById("kpiRT").textContent = rt.toLocaleString();
-  document.getElementById("kpiYT").textContent = yt.toLocaleString();
+  document.getElementById("kpiBT").textContent = fmtNum(bt);
+  document.getElementById("kpiRT").textContent = fmtNum(rt);
+  document.getElementById("kpiYT").textContent = fmtNum(yt);
 
-  var ops = 0, deg = 0, fs = 0;
-  EQUIPOS.forEach(function(eq) {
-    var s = getEquipStatus(eq.id);
-    if (s === "operativo") ops++;
-    else if (s === "degradado") deg++;
-    else fs++;
-  });
-  document.getElementById("kpiOperativos").textContent = ops;
-  document.getElementById("kpiDegradados").textContent = deg;
-  document.getElementById("kpiFuera").textContent = fs;
+  // Estados operativos
+  var estados = contarEstados();
+  document.getElementById("kpiOps").textContent = estados.operativos;
+  document.getElementById("kpiDeg").textContent = estados.degradados;
+  document.getElementById("kpiFS").textContent = estados.fuera;
+
+  // Fecha header
+  var ahora = new Date();
+  var dd = String(ahora.getDate()).padStart(2,"0");
+  var mm = String(ahora.getMonth()+1).padStart(2,"0");
+  var yy = ahora.getFullYear();
+  var hh = String(ahora.getHours()).padStart(2,"0");
+  var mi = String(ahora.getMinutes()).padStart(2,"0");
+  document.getElementById("headerDate").textContent = dd+"/"+mm+"/"+yy+" "+hh+":"+mi;
+
+  // Defaults de fecha si no están seteados
+  if(!document.getElementById("filtDesde").value){
+    document.getElementById("filtDesde").value = yy + "-01-01";
+  }
+  if(!document.getElementById("filtHasta").value){
+    document.getElementById("filtHasta").value = yy + "-" + mm + "-" + dd;
+  }
 }
 
+// Listener para filtros de fecha
+document.addEventListener("DOMContentLoaded", function(){
+  var fd = document.getElementById("filtDesde");
+  var fh = document.getElementById("filtHasta");
+  if(fd) fd.addEventListener("change", function(){ renderKPIs(); if(typeof renderTarjetas === "function") renderTarjetas(); });
+  if(fh) fh.addEventListener("change", function(){ renderKPIs(); if(typeof renderTarjetas === "function") renderTarjetas(); });
+});
+
 // ============================================================
-// 7. TAB NAVIGATION
+// 8. MAPA — Renderizado de marcadores
 // ============================================================
-function initTabs() {
-  var btns = document.querySelectorAll(".tab-btn");
-  btns.forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      var target = btn.getAttribute("data-tab");
-      btns.forEach(function(b) { b.classList.remove("active"); });
-      btn.classList.add("active");
-      document.querySelectorAll(".tab-content").forEach(function(tc) { tc.classList.remove("active"); });
-      document.getElementById("tab-" + target).classList.add("active");
-      if (target === "tarjetas") applyTarjetasFilters();
-      if (target === "operatividad") renderOperatividad();
-      if (target === "mapa") renderMapa();
-    });
-  });
+var mapaSeleccionado = null;
+
+function initMapa(){
+  renderMarcadores();
+  initMapaLabels();
 }
 
-// ============================================================
-// 8. MAPA TAB
-// ============================================================
-function renderMapa() {
-  var canvas = document.getElementById("mapaCanvas");
-  var old = canvas.querySelectorAll(".marker");
-  old.forEach(function(m) { m.remove(); });
+function renderMarcadores(){
+  var container = document.getElementById("mapaContainer");
+  // Limpiar marcadores existentes
+  var existentes = container.querySelectorAll(".marker");
+  existentes.forEach(function(m){ m.remove(); });
 
-  var ticketCount = {};
-  STATE.filtered.forEach(function(t) {
-    if (t.estado && t.estado.toLowerCase() !== "resuelta" && t.equipoMapa) {
-      ticketCount[t.equipoMapa] = (ticketCount[t.equipoMapa] || 0) + 1;
-    }
-  });
+  EQUIPOS_MAPA.forEach(function(eq){
+    var coord = MAPA_COORDS[eq.id];
+    if(!coord) return;
 
-  var showLabels = document.getElementById("toggleLabels").checked;
+    var st = equipStatus[eq.id] || "operativo";
+    var stClass = "status-" + st;
 
-  EQUIPOS.forEach(function(eq) {
-    var status = getEquipStatus(eq.id);
-    var count = ticketCount[eq.id] || 0;
+    // Contar tarjetas abiertas para este equipo
+    var tarjAbiertas = contarTarjetasEquipo(eq.id);
 
+    // Crear marcador
     var marker = document.createElement("div");
-    marker.className = "marker";
-    marker.style.left = eq.x + "%";
-    marker.style.top = eq.y + "%";
-    marker.setAttribute("data-equip", eq.id);
+    marker.className = "marker " + eq.tipo + " " + stClass;
+    marker.style.left = coord.x + "%";
+    marker.style.top = coord.y + "%";
+    marker.setAttribute("data-equipo", eq.id);
+    marker.title = eq.id + " — " + eq.nombre;
 
-    var statusClass = "status-" + (status === "operativo" ? "operativo" : status === "degradado" ? "degradado" : "fuera");
-    var shape;
-    if (eq.tipo === "Paletizadoras") {
-      shape = document.createElement("div");
-      shape.className = "marker-square " + statusClass;
-    } else if (eq.tipo === "Espirales") {
-      shape = document.createElement("div");
-      shape.className = "marker-circle " + statusClass;
+    // Contenido del marcador
+    var label = eq.id.replace("Pal ","P").replace("Wrapper ","W").replace("SP-","S");
+    if(eq.tipo === "espiral"){
+      marker.innerHTML = '<span>' + label + '</span>';
     } else {
-      shape = document.createElement("div");
-      shape.className = "marker-diamond " + statusClass;
-      var inner = document.createElement("div");
-      inner.className = "marker-diamond-inner";
-      shape.appendChild(inner);
+      marker.textContent = label;
     }
-    marker.appendChild(shape);
 
-    if (count > 0) {
+    // Badge con número de tarjetas
+    if(tarjAbiertas > 0){
       var badge = document.createElement("div");
       badge.className = "marker-badge";
-      badge.textContent = count;
+      badge.textContent = tarjAbiertas;
       marker.appendChild(badge);
     }
 
-    var label = document.createElement("div");
-    label.className = "marker-label" + (showLabels ? "" : " hide");
-    label.textContent = eq.id;
-    marker.appendChild(label);
+    // Etiqueta inferior
+    var lblEl = document.createElement("div");
+    lblEl.className = "marker-label";
+    lblEl.textContent = eq.id;
+    marker.appendChild(lblEl);
 
-    marker.addEventListener("click", function() { selectEquipOnMap(eq.id); });
-    canvas.appendChild(marker);
-  });
-
-  if (STATE.selectedEquip) highlightMarker(STATE.selectedEquip);
-}
-
-function selectEquipOnMap(equipId) {
-  STATE.selectedEquip = equipId;
-  highlightMarker(equipId);
-  openSidePanel(equipId);
-}
-
-function highlightMarker(equipId) {
-  document.querySelectorAll(".marker").forEach(function(m) {
-    m.classList.toggle("selected", m.getAttribute("data-equip") === equipId);
-  });
-}
-
-function openSidePanel(equipId) {
-  var eq = EQUIPOS.find(function(e) { return e.id === equipId; });
-  if (!eq) return;
-
-  var status = getEquipStatus(equipId);
-  var statusLabel = status === "operativo" ? "Operativo" : status === "degradado" ? "Degradado" : "Fuera de Servicio";
-  var statusColor = status === "operativo" ? "#287819" : status === "degradado" ? "#E18719" : "#A52323";
-
-  document.getElementById("panelTitle").textContent = eq.id + " — " + (eq.brand || "");
-  var statusEl = document.getElementById("panelStatus");
-  statusEl.textContent = statusLabel;
-  statusEl.style.background = statusColor;
-
-  var tickets = STATE.filtered.filter(function(t) {
-    return t.equipoMapa === equipId && t.estado && t.estado.toLowerCase() !== "resuelta";
-  });
-
-  document.getElementById("panelCount").textContent = "Tarjetas Abiertas: " + tickets.length;
-
-  var container = document.getElementById("panelTickets");
-  container.innerHTML = "";
-
-  tickets.forEach(function(t) {
-    var item = document.createElement("div");
-    item.className = "ticket-item";
-    var colorClass = t._color === "BT" ? "tag-bt" : t._color === "RT" ? "tag-rt" : t._color === "YT" ? "tag-yt" : "";
-    var age = t.antiguedadDias > 0 ? t.antiguedadDias + "d" : "hoy";
-    item.innerHTML =
-      '<div class="ticket-top">' +
-        '<span class="ticket-folio">' + (t.folio || "") + '</span>' +
-        '<span class="ticket-color-tag ' + colorClass + '">' + (t._color || "—") + '</span>' +
-        '<span class="ticket-age">' + age + '</span>' +
-      '</div>' +
-      '<div class="ticket-desc">' + (t.descripcion || t.defecto || "Sin descripción") + '</div>';
-    container.appendChild(item);
-  });
-
-  document.getElementById("panelUpdate").textContent = "Última actualización: hoy " +
-    ("0" + new Date().getHours()).slice(-2) + ":" + ("0" + new Date().getMinutes()).slice(-2);
-
-  document.getElementById("sidePanel").classList.add("open");
-}
-
-function closeSidePanel() {
-  document.getElementById("sidePanel").classList.remove("open");
-  STATE.selectedEquip = null;
-  document.querySelectorAll(".marker").forEach(function(m) { m.classList.remove("selected"); });
-}
-
-function verTodasTarjetas() {
-  if (!STATE.selectedEquip) return;
-  document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
-  document.querySelector('[data-tab="tarjetas"]').classList.add("active");
-  document.querySelectorAll(".tab-content").forEach(function(tc) { tc.classList.remove("active"); });
-  document.getElementById("tab-tarjetas").classList.add("active");
-  document.getElementById("filterBuscar").value = STATE.selectedEquip;
-  applyTarjetasFilters();
-}
-
-// ============================================================
-// 9. ZOOM CONTROLS
-// ============================================================
-function initZoom() {
-  var canvas = document.getElementById("mapaCanvas");
-  document.getElementById("btnZoomIn").addEventListener("click", function() {
-    STATE.mapZoom = Math.min(STATE.mapZoom + 0.2, 3);
-    canvas.style.transform = "scale(" + STATE.mapZoom + ")";
-  });
-  document.getElementById("btnZoomOut").addEventListener("click", function() {
-    STATE.mapZoom = Math.max(STATE.mapZoom - 0.2, 0.5);
-    canvas.style.transform = "scale(" + STATE.mapZoom + ")";
-  });
-  document.getElementById("btnZoomFit").addEventListener("click", function() {
-    STATE.mapZoom = 1;
-    canvas.style.transform = "scale(1)";
-  });
-}
-
-// ============================================================
-// 10. TOGGLE LABELS
-// ============================================================
-function initLabelToggle() {
-  document.getElementById("toggleLabels").addEventListener("change", function() {
-    var show = this.checked;
-    document.querySelectorAll(".marker-label").forEach(function(l) {
-      l.classList.toggle("hide", !show);
+    // Click handler
+    marker.addEventListener("click", function(){
+      seleccionarEquipoMapa(eq.id);
     });
+
+    container.appendChild(marker);
   });
 }
 
-// ============================================================
-// 11. EVENT LISTENERS & INIT
-// ============================================================
-document.addEventListener("DOMContentLoaded", function() {
-  initTabs();
-  initZoom();
-  initLabelToggle();
-  initTarjetasFilters();
-
-  document.getElementById("filtroDesde").addEventListener("change", applyFilters);
-  document.getElementById("filtroHasta").addEventListener("change", applyFilters);
-  document.getElementById("panelClose").addEventListener("click", closeSidePanel);
-  document.getElementById("panelVerTodas").addEventListener("click", verTodasTarjetas);
-
-  loadData();
-});
-
-
-/* ===========================================================
-   Parte 2: Pestaña Tarjetas — Filtros, Gráficas, Tabla, Excel
-   =========================================================== */
-
-// ============================================================
-// 12. TARJETAS FILTERS
-// ============================================================
-function initTarjetasFilters() {
-  document.getElementById("filterGrupo").addEventListener("change", applyTarjetasFilters);
-  document.getElementById("filterColor").addEventListener("change", applyTarjetasFilters);
-  document.getElementById("filterEstado").addEventListener("change", applyTarjetasFilters);
-  document.getElementById("filterBuscar").addEventListener("input", applyTarjetasFilters);
-  document.getElementById("btnDownload").addEventListener("click", downloadExcel);
-
-  // Table header sort
-  document.querySelectorAll("#tablaTarjetas thead th[data-col]").forEach(function(th) {
-    th.addEventListener("click", function() {
-      var col = th.getAttribute("data-col");
-      if (STATE.sortCol === col) {
-        STATE.sortAsc = !STATE.sortAsc;
-      } else {
-        STATE.sortCol = col;
-        STATE.sortAsc = true;
-      }
-      applyTarjetasFilters();
-    });
-  });
-}
-
-function applyTarjetasFilters() {
-  var grupo = document.getElementById("filterGrupo").value;
-  var color = document.getElementById("filterColor").value;
-  var estado = document.getElementById("filterEstado").value;
-  var buscar = document.getElementById("filterBuscar").value.toLowerCase().trim();
-
-  // Start from date-filtered set
-  var result = STATE.filtered.slice();
-
-  // Apply tarjetas-specific filters
-  if (grupo !== "todos") {
-    result = result.filter(function(t) { return t.proyecto === grupo; });
-  }
-  if (color !== "todos") {
-    result = result.filter(function(t) { return t._color === color; });
-  }
-  if (estado !== "todos") {
-    if (estado === "Abierta") {
-      result = result.filter(function(t) {
-        return t.estado && t.estado.toLowerCase() !== "resuelta" && t.estado.toUpperCase() !== "CMMS";
-      });
-    } else if (estado === "CMMS") {
-      result = result.filter(function(t) { return t.estado && t.estado.toUpperCase() === "CMMS"; });
-    } else {
-      result = result.filter(function(t) { return t.estado && t.estado.toLowerCase() === estado.toLowerCase(); });
+function contarTarjetasEquipo(equipId){
+  var count = 0;
+  tarjetasData.forEach(function(t){
+    var est = (t._estado || "").toLowerCase();
+    if(est !== "abierta" && est !== "abierto" && est !== "open") return;
+    var te = (t._equipo || "").toLowerCase();
+    var eid = equipId.toLowerCase();
+    // Matching flexible: buscar si el equipo del JSON contiene el id
+    if(te.indexOf(eid) > -1 || eid.indexOf(te) > -1 || matchEquipoTarjeta(te, eid)){
+      count++;
     }
-  }
-  if (buscar) {
-    result = result.filter(function(t) {
-      return (t.folio && t.folio.toLowerCase().indexOf(buscar) >= 0) ||
-             (t.equipoMapa && t.equipoMapa.toLowerCase().indexOf(buscar) >= 0) ||
-             (t.nombre && t.nombre.toLowerCase().indexOf(buscar) >= 0) ||
-             (t.descripcion && t.descripcion.toLowerCase().indexOf(buscar) >= 0) ||
-             (t.defecto && t.defecto.toLowerCase().indexOf(buscar) >= 0);
+  });
+  return count;
+}
+
+function matchEquipoTarjeta(tarjetaEquipo, inventarioId){
+  // Normalizar para matching
+  var te = tarjetaEquipo.replace(/\s+/g,"").toLowerCase();
+  var ie = inventarioId.replace(/\s+/g,"").toLowerCase();
+  // Intentar match parcial
+  if(te.indexOf(ie) > -1 || ie.indexOf(te) > -1) return true;
+  // Match por número de paletizadora
+  var mTe = te.match(/(\d+)/);
+  var mIe = ie.match(/pal(\d+)/);
+  if(mTe && mIe && mTe[1] === mIe[1]) return true;
+  return false;
+}
+
+// ============================================================
+// 9. MAPA — Panel lateral derecho
+// ============================================================
+function seleccionarEquipoMapa(equipId){
+  mapaSeleccionado = equipId;
+  var eq = getEquipo(equipId);
+  if(!eq) return;
+
+  // Resaltar marcador activo
+  var markers = document.querySelectorAll(".marker");
+  markers.forEach(function(m){
+    m.style.outline = m.getAttribute("data-equipo") === equipId ? "3px solid #4F2170" : "none";
+  });
+
+  var st = equipStatus[equipId] || "operativo";
+
+  // Header
+  document.getElementById("mpTitle").textContent = eq.id;
+  var metaText = eq.nombre;
+  if(eq.brand && eq.brand !== "-") metaText += " — " + eq.brand;
+  metaText += " | " + eq.proyecto.charAt(0).toUpperCase() + eq.proyecto.slice(1);
+  if(eq.linea) metaText += " | Línea " + eq.linea;
+  document.getElementById("mpMeta").textContent = metaText;
+
+  var statusEl = document.getElementById("mpStatus");
+  statusEl.style.display = "inline-block";
+  statusEl.textContent = st === "operativo" ? "Operativo" : st === "degradado" ? "Degradado" : "Fuera de Servicio";
+  statusEl.style.background = st === "operativo" ? "#287819" : st === "degradado" ? "#E18719" : "#A52323";
+
+  // Body — tarjetas abiertas de este equipo
+  var body = document.getElementById("mpBody");
+  body.innerHTML = "";
+
+  var tarjetas = obtenerTarjetasEquipo(equipId);
+
+  if(tarjetas.length === 0){
+    body.innerHTML = '<p class="text-muted text-center" style="margin-top:20px">Sin tarjetas abiertas</p>';
+  } else {
+    var h4 = document.createElement("h4");
+    h4.textContent = "Tarjetas Abiertas (" + tarjetas.length + ")";
+    body.appendChild(h4);
+
+    tarjetas.forEach(function(t){
+      var item = document.createElement("div");
+      item.className = "ticket-item";
+
+      var dotClass = "bt";
+      if(t._color === "RT") dotClass = "rt";
+      else if(t._color === "YT") dotClass = "yt";
+
+      item.innerHTML = '<div class="ticket-dot ' + dotClass + '"></div>' +
+        '<div class="ticket-info">' +
+          '<div class="ti-id">' + t._folio + '</div>' +
+          '<div class="ti-desc">' + (t._descripcion || t._defecto || "Sin descripción") + '</div>' +
+        '</div>';
+      body.appendChild(item);
     });
   }
 
-  // Sort
-  if (STATE.sortCol) {
-    var col = STATE.sortCol;
-    var asc = STATE.sortAsc;
-    result.sort(function(a, b) {
-      var va = a[col], vb = b[col];
-      if (col === "antiguedadDias") {
-        va = Number(va) || 0;
-        vb = Number(vb) || 0;
-      } else if (col === "fechaInclusion") {
-        va = a._fechaInc || "";
-        vb = b._fechaInc || "";
-      } else {
-        va = (va || "").toString().toLowerCase();
-        vb = (vb || "").toString().toLowerCase();
+  // Footer
+  document.getElementById("mpVerTodas").style.display = tarjetas.length > 0 ? "inline" : "none";
+  document.getElementById("mpUpdated").textContent = "Última actualización: hoy " +
+    String(new Date().getHours()).padStart(2,"0") + ":" + String(new Date().getMinutes()).padStart(2,"0");
+}
+
+function obtenerTarjetasEquipo(equipId){
+  var resultado = [];
+  tarjetasData.forEach(function(t){
+    var est = (t._estado || "").toLowerCase();
+    if(est !== "abierta" && est !== "abierto" && est !== "open") return;
+    var te = (t._equipo || "").toLowerCase();
+    var eid = equipId.toLowerCase();
+    if(te.indexOf(eid) > -1 || eid.indexOf(te) > -1 || matchEquipoTarjeta(te, eid)){
+      resultado.push(t);
+    }
+  });
+  // Ordenar por antigüedad desc
+  resultado.sort(function(a,b){ return b._dias - a._dias; });
+  return resultado;
+}
+
+// ============================================================
+// 10. MAPA — Toggle etiquetas
+// ============================================================
+function initMapaLabels(){
+  var chk = document.getElementById("chkLabels");
+  if(!chk) return;
+  chk.addEventListener("change", function(){
+    var labels = document.querySelectorAll(".marker-label");
+    labels.forEach(function(l){
+      l.style.display = chk.checked ? "block" : "none";
+    });
+  });
+}
+
+// ============================================================
+// 11. TABS — Navegación entre pestañas
+// ============================================================
+function initTabs(){
+  var tabs = document.querySelectorAll(".tab");
+  var contents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach(function(tab){
+    tab.addEventListener("click", function(){
+      var target = tab.getAttribute("data-tab");
+
+      tabs.forEach(function(t){ t.classList.remove("active"); });
+      tab.classList.add("active");
+
+      contents.forEach(function(c){ c.classList.remove("active"); });
+
+      if(target === "mapa") document.getElementById("tabMapa").classList.add("active");
+      else if(target === "tarjetas") document.getElementById("tabTarjetas").classList.add("active");
+      else if(target === "operatividad") document.getElementById("tabOperatividad").classList.add("active");
+    });
+  });
+
+  // Link "Ver todas" → ir a tab Tarjetas
+  var verTodas = document.getElementById("mpVerTodas");
+  if(verTodas){
+    verTodas.addEventListener("click", function(e){
+      e.preventDefault();
+      // Activar tab Tarjetas
+      tabs.forEach(function(t){ t.classList.remove("active"); });
+      document.querySelector('.tab[data-tab="tarjetas"]').classList.add("active");
+      contents.forEach(function(c){ c.classList.remove("active"); });
+      document.getElementById("tabTarjetas").classList.add("active");
+    });
+  }
+}
+
+// ── Fin B2-P2 ──
+
+
+// ── B2-P3: Tab Tarjetas ──
+
+// ============================================================
+// 12. TARJETAS — Variables de estado
+// ============================================================
+var chartDonut = null, chartTrend = null, chartTop10 = null;
+var chartAntig = null, chartCierre = null, chartGrupos = null;
+var tarjetasFiltradas = [];
+var tableSortCol = null, tableSortAsc = true;
+var colFilters = {}; // filtros tipo Excel por columna
+
+// ============================================================
+// 13. TARJETAS — Inicialización
+// ============================================================
+function initTarjetas(){
+  poblarFiltroGrupos();
+  bindFiltrosTarjetas();
+  bindTablaControls();
+  renderTarjetas();
+}
+
+function poblarFiltroGrupos(){
+  var sel = document.getElementById("filtGrupo");
+  if(!sel) return;
+  var grupos = {};
+  tarjetasData.forEach(function(t){
+    if(t._grupo) grupos[t._grupo] = true;
+  });
+  var keys = Object.keys(grupos).sort();
+  keys.forEach(function(g){
+    var opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = "Grupo " + g;
+    sel.appendChild(opt);
+  });
+}
+
+function bindFiltrosTarjetas(){
+  ["filtProyecto","filtGrupo","filtColor","filtEstado"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener("change", renderTarjetas);
+  });
+}
+
+// ============================================================
+// 14. TARJETAS — Filtrado maestro
+// ============================================================
+function filtrarTarjetas(){
+  var proy   = document.getElementById("filtProyecto").value.toLowerCase();
+  var grupo  = document.getElementById("filtGrupo").value;
+  var color  = document.getElementById("filtColor").value;
+  var estado = document.getElementById("filtEstado").value.toLowerCase();
+  var desde  = document.getElementById("filtDesde").value;
+  var hasta  = document.getElementById("filtHasta").value;
+  var search = (document.getElementById("tblSearch").value || "").toLowerCase();
+
+  tarjetasFiltradas = tarjetasData.filter(function(t){
+    // Filtro fecha
+    if(desde || hasta){
+      var fi = t._fechaInc;
+      if(fi){
+        var fechaISO = fi;
+        if(fi.indexOf("/") > -1){
+          var pp = fi.split("/");
+          fechaISO = pp[2] + "-" + pp[1] + "-" + pp[0];
+        }
+        if(desde && fechaISO < desde) return false;
+        if(hasta && fechaISO > hasta) return false;
       }
-      if (va < vb) return asc ? -1 : 1;
-      if (va > vb) return asc ? 1 : -1;
+    }
+    // Filtro proyecto
+    if(proy){
+      var eqId = t._equipo || "";
+      var eq = buscarEquipoPorNombreTarjeta(eqId);
+      if(eq && eq.proyecto !== proy) return false;
+      if(!eq && proy) return false;
+    }
+    // Filtro grupo
+    if(grupo && t._grupo !== grupo) return false;
+    // Filtro color
+    if(color && t._color !== color) return false;
+    // Filtro estado
+    if(estado && (t._estado || "").toLowerCase() !== estado) return false;
+    // Búsqueda global
+    if(search){
+      var haystack = [t._folio, t._equipo, t._descripcion, t._defecto, t._prioridad, t._estado].join(" ").toLowerCase();
+      if(haystack.indexOf(search) === -1) return false;
+    }
+    // Filtros de columna tipo Excel
+    for(var col in colFilters){
+      if(colFilters[col] && colFilters[col].length > 0){
+        var val = getColValue(t, col);
+        if(colFilters[col].indexOf(val) === -1) return false;
+      }
+    }
+    return true;
+  });
+
+  return tarjetasFiltradas;
+}
+
+function buscarEquipoPorNombreTarjeta(nombreTarjeta){
+  if(!nombreTarjeta) return null;
+  var nl = nombreTarjeta.toLowerCase().replace(/\s+/g,"");
+  for(var i = 0; i < EQUIPOS.length; i++){
+    var eid = EQUIPOS[i].id.toLowerCase().replace(/\s+/g,"");
+    if(nl.indexOf(eid) > -1 || eid.indexOf(nl) > -1) return EQUIPOS[i];
+  }
+  return null;
+}
+
+function getColValue(t, col){
+  switch(col){
+    case "folio":      return t._folio || "";
+    case "equipo":     return t._equipo || "";
+    case "color":      return t._color || "";
+    case "defecto":    return t._defecto || "";
+    case "prioridad":  return t._prioridad || "";
+    case "estado":     return t._estado || "";
+    case "antiguedad": return String(t._dias);
+    default: return "";
+  }
+}
+
+// ============================================================
+// 15. TARJETAS — Render maestro
+// ============================================================
+function renderTarjetas(){
+  filtrarTarjetas();
+  renderChartDonut();
+  renderChartTrend();
+  renderChartTop10();
+  renderChartAntig();
+  renderChartCierre();
+  renderChartGrupos();
+  renderTablaTarjetas();
+}
+
+// ============================================================
+// 16. GRÁFICA 1 — Dona: Tarjetas por Color
+// ============================================================
+function renderChartDonut(){
+  var bt=0, rt=0, yt=0;
+  tarjetasFiltradas.forEach(function(t){
+    var est = (t._estado||"").toLowerCase();
+    if(est==="abierta"||est==="abierto"||est==="open"){
+      if(t._color==="BT") bt++;
+      else if(t._color==="RT") rt++;
+      else if(t._color==="YT") yt++;
+    }
+  });
+  var ctx = document.getElementById("chartDonut");
+  if(!ctx) return;
+  if(chartDonut) chartDonut.destroy();
+  chartDonut = new Chart(ctx, {
+    type:"doughnut",
+    data:{
+      labels:["BT (Azul)","RT (Rojo)","YT (Amarillo)"],
+      datasets:[{
+        data:[bt, rt, yt],
+        backgroundColor:["#2D6EAA","#A52323","#E18719"],
+        borderWidth:2,
+        borderColor:"#fff"
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11},padding:12}},
+        tooltip:{callbacks:{label:function(c){return c.label+": "+c.raw;}}}
+      },
+      cutout:"60%"
+    }
+  });
+}
+
+// ============================================================
+// 17. GRÁFICA 2 — Tendencia Apertura vs Cierre
+// ============================================================
+function renderChartTrend(){
+  // Agrupar por mes
+  var meses = {};
+  tarjetasFiltradas.forEach(function(t){
+    var fi = t._fechaInc;
+    if(!fi) return;
+    var mesKey;
+    if(fi.indexOf("/") > -1){
+      var pp = fi.split("/");
+      mesKey = pp[2]+"-"+pp[1];
+    } else {
+      mesKey = fi.substring(0,7);
+    }
+    if(!meses[mesKey]) meses[mesKey] = {abiertas:0, cerradas:0};
+    var est = (t._estado||"").toLowerCase();
+    if(est==="abierta"||est==="abierto"||est==="open") meses[mesKey].abiertas++;
+    else meses[mesKey].cerradas++;
+  });
+
+  var keys = Object.keys(meses).sort();
+  var labels = keys.map(function(k){
+    var pp = k.split("-");
+    var mNames = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    return mNames[parseInt(pp[1])-1] + " " + pp[0].substring(2);
+  });
+  var dataAb = keys.map(function(k){ return meses[k].abiertas; });
+  var dataCe = keys.map(function(k){ return meses[k].cerradas; });
+
+  var ctx = document.getElementById("chartTrend");
+  if(!ctx) return;
+  if(chartTrend) chartTrend.destroy();
+  chartTrend = new Chart(ctx, {
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[
+        {label:"Abiertas", data:dataAb, borderColor:"#A52323", backgroundColor:"rgba(165,35,35,.1)", fill:true, tension:.3, pointRadius:3},
+        {label:"Cerradas", data:dataCe, borderColor:"#287819", backgroundColor:"rgba(40,120,25,.1)", fill:true, tension:.3, pointRadius:3}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ============================================================
+// 18. GRÁFICA 3 — Top 10 Equipos Problemáticos
+// ============================================================
+function renderChartTop10(){
+  var counts = {};
+  tarjetasFiltradas.forEach(function(t){
+    var est = (t._estado||"").toLowerCase();
+    if(est!=="abierta"&&est!=="abierto"&&est!=="open") return;
+    var eq = t._equipo || "Sin equipo";
+    counts[eq] = (counts[eq]||0) + 1;
+  });
+  var sorted = Object.keys(counts).map(function(k){return{eq:k,n:counts[k]};});
+  sorted.sort(function(a,b){return b.n - a.n;});
+  var top = sorted.slice(0,10);
+
+  var ctx = document.getElementById("chartTop10");
+  if(!ctx) return;
+  if(chartTop10) chartTop10.destroy();
+  chartTop10 = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:top.map(function(t){return t.eq;}),
+      datasets:[{
+        data:top.map(function(t){return t.n;}),
+        backgroundColor:"#4F2170",
+        borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      indexAxis:"y",
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{beginAtZero:true,ticks:{font:{size:10}},grid:{color:"#f3f3f3"}},
+        y:{ticks:{font:{size:10,family:"Calibri,Arial,sans-serif"}}}
+      }
+    }
+  });
+}
+
+// ============================================================
+// 19. GRÁFICA 4 — Distribución de Antigüedad
+// ============================================================
+function renderChartAntig(){
+  var buckets = {"0-7d":0,"8-15d":0,"16-30d":0,"30+d":0};
+  tarjetasFiltradas.forEach(function(t){
+    var est = (t._estado||"").toLowerCase();
+    if(est!=="abierta"&&est!=="abierto"&&est!=="open") return;
+    var d = t._dias;
+    if(d <= 7) buckets["0-7d"]++;
+    else if(d <= 15) buckets["8-15d"]++;
+    else if(d <= 30) buckets["16-30d"]++;
+    else buckets["30+d"]++;
+  });
+
+  var ctx = document.getElementById("chartAntig");
+  if(!ctx) return;
+  if(chartAntig) chartAntig.destroy();
+  chartAntig = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:["0-7 días","8-15 días","16-30 días","30+ días"],
+      datasets:[{
+        data:[buckets["0-7d"],buckets["8-15d"],buckets["16-30d"],buckets["30+d"]],
+        backgroundColor:["#287819","#E18719","#E18719","#A52323"],
+        borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{font:{size:10}}}
+      }
+    }
+  });
+}
+
+// ============================================================
+// 20. GRÁFICA 5 — Tasa de Cierre Mensual
+// ============================================================
+function renderChartCierre(){
+  var meses = {};
+  tarjetasFiltradas.forEach(function(t){
+    var fi = t._fechaInc;
+    if(!fi) return;
+    var mesKey;
+    if(fi.indexOf("/") > -1){
+      var pp = fi.split("/");
+      mesKey = pp[2]+"-"+pp[1];
+    } else {
+      mesKey = fi.substring(0,7);
+    }
+    if(!meses[mesKey]) meses[mesKey] = {total:0,cerradas:0};
+    meses[mesKey].total++;
+    var est = (t._estado||"").toLowerCase();
+    if(est!=="abierta"&&est!=="abierto"&&est!=="open") meses[mesKey].cerradas++;
+  });
+
+  var keys = Object.keys(meses).sort();
+  var labels = keys.map(function(k){
+    var pp = k.split("-");
+    var mNames = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    return mNames[parseInt(pp[1])-1];
+  });
+  var dataCerr = keys.map(function(k){ return meses[k].cerradas; });
+  var dataPct  = keys.map(function(k){
+    return meses[k].total > 0 ? Math.round((meses[k].cerradas / meses[k].total)*1000)/10 : 0;
+  });
+
+  var ctx = document.getElementById("chartCierre");
+  if(!ctx) return;
+  if(chartCierre) chartCierre.destroy();
+  chartCierre = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:labels,
+      datasets:[
+        {
+          label:"Cerradas",
+          data:dataCerr,
+          backgroundColor:"#4F2170",
+          borderRadius:4,
+          yAxisID:"y",
+          order:2
+        },
+        {
+          label:"% Cierre",
+          data:dataPct,
+          type:"line",
+          borderColor:"#E18719",
+          backgroundColor:"transparent",
+          pointBackgroundColor:"#E18719",
+          pointRadius:4,
+          tension:.3,
+          yAxisID:"y1",
+          order:1
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{display:false}},
+        y:{beginAtZero:true,position:"left",ticks:{font:{size:10}},title:{display:true,text:"Cerradas",font:{size:10}}},
+        y1:{beginAtZero:true,max:100,position:"right",ticks:{font:{size:10},callback:function(v){return v+"%";}},title:{display:true,text:"% Cierre",font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ============================================================
+// 21. GRÁFICA 6 — Tasa de Cierre por Grupo
+// ============================================================
+function renderChartGrupos(){
+  var grupos = {};
+  tarjetasFiltradas.forEach(function(t){
+    var g = t._grupo || "Sin grupo";
+    if(!grupos[g]) grupos[g] = {abiertas:0,cerradas:0,total:0};
+    grupos[g].total++;
+    var est = (t._estado||"").toLowerCase();
+    if(est==="abierta"||est==="abierto"||est==="open") grupos[g].abiertas++;
+    else grupos[g].cerradas++;
+  });
+
+  var keys = Object.keys(grupos).sort();
+  var labels = keys.map(function(k){ return k === "Sin grupo" ? k : "Grupo "+k; });
+  var dataAb = keys.map(function(k){ return grupos[k].abiertas; });
+  var dataCe = keys.map(function(k){ return grupos[k].cerradas; });
+  var dataPct = keys.map(function(k){
+    return grupos[k].total > 0 ? Math.round((grupos[k].cerradas/grupos[k].total)*1000)/10 : 0;
+  });
+
+  var ctx = document.getElementById("chartGrupos");
+  if(!ctx) return;
+  if(chartGrupos) chartGrupos.destroy();
+  chartGrupos = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:labels,
+      datasets:[
+        {label:"Abiertas",data:dataAb,backgroundColor:"#A52323",borderRadius:4,yAxisID:"y"},
+        {label:"Cerradas",data:dataCe,backgroundColor:"#287819",borderRadius:4,yAxisID:"y"},
+        {label:"% Cierre",data:dataPct,type:"line",borderColor:"#E18719",backgroundColor:"transparent",pointBackgroundColor:"#E18719",pointRadius:5,tension:.3,yAxisID:"y1",order:0}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{display:false}},
+        y:{beginAtZero:true,stacked:false,position:"left",ticks:{font:{size:10}}},
+        y1:{beginAtZero:true,max:100,position:"right",ticks:{font:{size:10},callback:function(v){return v+"%";}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ============================================================
+// 22. TABLA DE TARJETAS — Render con scroll
+// ============================================================
+function renderTablaTarjetas(){
+  var tbody = document.getElementById("tarjetasTbody");
+  if(!tbody) return;
+
+  // Ordenar si hay columna de sort activa
+  var datos = tarjetasFiltradas.slice();
+  if(tableSortCol){
+    datos.sort(function(a,b){
+      var va = getColValue(a, tableSortCol);
+      var vb = getColValue(b, tableSortCol);
+      if(tableSortCol === "antiguedad"){
+        va = parseInt(va)||0;
+        vb = parseInt(vb)||0;
+        return tableSortAsc ? va - vb : vb - va;
+      }
+      va = va.toLowerCase();
+      vb = vb.toLowerCase();
+      if(va < vb) return tableSortAsc ? -1 : 1;
+      if(va > vb) return tableSortAsc ? 1 : -1;
       return 0;
     });
   }
 
-  renderTarjetasCharts(result);
-  renderComparison();
-  renderTarjetasTable(result);
-  updateSortIndicators();
-}
+  // Actualizar contador
+  var countEl = document.getElementById("tblCount");
+  if(countEl) countEl.textContent = "(" + datos.length + " registros)";
 
-// ============================================================
-// 13. SORT INDICATORS
-// ============================================================
-function updateSortIndicators() {
-  document.querySelectorAll("#tablaTarjetas thead th[data-col]").forEach(function(th) {
-    var col = th.getAttribute("data-col");
-    var icon = th.querySelector(".sort-icon i");
-    th.classList.remove("sorted");
-    if (icon) icon.className = "fa-solid fa-sort";
-    if (STATE.sortCol === col) {
-      th.classList.add("sorted");
-      if (icon) icon.className = STATE.sortAsc ? "fa-solid fa-sort-up" : "fa-solid fa-sort-down";
-    }
-  });
-}
-
-// ============================================================
-// 14. CHART COLORS (MDLZ palette — no BT/RT/YT colors outside
-//     tag classification)
-// ============================================================
-var C = {
-  purple: "#4F2170",
-  purpleLight: "#7B4F9A",
-  purplePale: "#C5A3D9",
-  orange: "#E18719",
-  green: "#287819",
-  brown: "#623E23",
-  gray: "#9CA3AF",
-  // Only for tag classification charts
-  bt: "#2D6EAA",
-  rt: "#A52323",
-  yt: "#D4A017"
-};
-
-// ============================================================
-// 15. RENDER ALL TARJETAS CHARTS
-// ============================================================
-function renderTarjetasCharts(data) {
-  renderChartDona(data);
-  renderChartTendencia(data);
-  renderChartTop10(data);
-  renderChartAntiguedad(data);
-  renderChartCierre(data);
-}
-
-// Destroy a chart if it already exists
-function destroyChart(key) {
-  if (STATE.charts[key]) {
-    STATE.charts[key].destroy();
-    STATE.charts[key] = null;
-  }
-}
-
-// ============================================================
-// G1: DONA — Tarjetas por Color (BT/RT/YT)
-// ============================================================
-function renderChartDona(data) {
-  destroyChart("dona");
-
-  // Count OPEN tickets by color
-  var btCount = 0, rtCount = 0, ytCount = 0;
-  data.forEach(function(t) {
-    if (t.estado && t.estado.toLowerCase() !== "resuelta") {
-      if (t._color === "BT") btCount++;
-      else if (t._color === "RT") rtCount++;
-      else if (t._color === "YT") ytCount++;
-    }
-  });
-
-  var ctx = document.getElementById("chartDona").getContext("2d");
-  STATE.charts.dona = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["BT (Azul)", "RT (Rojo)", "YT (Amarillo)"],
-      datasets: [{
-        data: [btCount, rtCount, ytCount],
-        backgroundColor: [C.bt, C.rt, C.yt],
-        borderWidth: 2,
-        borderColor: "#fff"
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: "60%",
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: { font: { family: "Calibri, Arial, sans-serif", size: 12 }, padding: 14, usePointStyle: true }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.label + ": " + ctx.parsed + " tarjetas"; }
-          }
-        }
-      }
-    },
-    plugins: [{
-      id: "donutCenter",
-      beforeDraw: function(chart) {
-        var total = btCount + rtCount + ytCount;
-        var ctx2 = chart.ctx;
-        var cx = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
-        var cy = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-        ctx2.save();
-        ctx2.font = "bold 22px Calibri, Arial, sans-serif";
-        ctx2.fillStyle = "#3D3D3D";
-        ctx2.textAlign = "center";
-        ctx2.textBaseline = "middle";
-        ctx2.fillText(total, cx, cy - 8);
-        ctx2.font = "12px Calibri, Arial, sans-serif";
-        ctx2.fillStyle = "#9CA3AF";
-        ctx2.fillText("Abiertas", cx, cy + 12);
-        ctx2.restore();
-      }
-    }]
-  });
-}
-
-// ============================================================
-// G2: TENDENCIA — Apertura vs Cierre por semana
-// ============================================================
-function renderChartTendencia(data) {
-  destroyChart("tendencia");
-
-  var weekOpen = {};
-  var weekClose = {};
-
-  data.forEach(function(t) {
-    if (!t._fechaInc) return;
-    var w = getWeek(t._fechaInc);
-    if (t.estado && t.estado.toLowerCase() !== "resuelta") {
-      weekOpen[w] = (weekOpen[w] || 0) + 1;
-    } else {
-      weekClose[w] = (weekClose[w] || 0) + 1;
-    }
-  });
-
-  // Build sorted weeks
-  var allWeeks = {};
-  Object.keys(weekOpen).forEach(function(w) { allWeeks[w] = true; });
-  Object.keys(weekClose).forEach(function(w) { allWeeks[w] = true; });
-  var weeks = Object.keys(allWeeks).map(Number).sort(function(a, b) { return a - b; });
-
-  var labels = weeks.map(function(w) { return "Sem " + w; });
-  var openData = weeks.map(function(w) { return weekOpen[w] || 0; });
-  var closeData = weeks.map(function(w) { return weekClose[w] || 0; });
-
-  var ctx = document.getElementById("chartTendencia").getContext("2d");
-  STATE.charts.tendencia = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Abiertas",
-          data: openData,
-          borderColor: C.purple,
-          backgroundColor: C.purple + "20",
-          borderWidth: 2,
-          tension: 0.3,
-          pointRadius: 2,
-          fill: false
-        },
-        {
-          label: "Cerradas",
-          data: closeData,
-          borderColor: C.green,
-          backgroundColor: C.green + "20",
-          borderWidth: 2,
-          tension: 0.3,
-          pointRadius: 2,
-          fill: false
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: {
-          position: "top",
-          labels: { font: { family: "Calibri, Arial, sans-serif", size: 11 }, usePointStyle: true, padding: 12 }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 20 },
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: true,
-          ticks: { font: { size: 11 } },
-          grid: { color: "#F3F4F6" }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================
-// G3: TOP 10 — Equipos Problemáticos (barras horizontales)
-// ============================================================
-function renderChartTop10(data) {
-  destroyChart("top10");
-
-  // Count open tickets per equipment
-  var equipCount = {};
-  data.forEach(function(t) {
-    if (t.estado && t.estado.toLowerCase() !== "resuelta" && t.equipoMapa) {
-      equipCount[t.equipoMapa] = (equipCount[t.equipoMapa] || 0) + 1;
-    }
-  });
-
-  // Sort descending and take top 10
-  var sorted = Object.keys(equipCount).map(function(k) {
-    return { name: k, count: equipCount[k] };
-  }).sort(function(a, b) { return b.count - a.count; }).slice(0, 10);
-
-  // Reverse for horizontal bar (bottom = highest)
-  sorted.reverse();
-
-  var labels = sorted.map(function(s) { return s.name; });
-  var values = sorted.map(function(s) { return s.count; });
-
-  var ctx = document.getElementById("chartTop10").getContext("2d");
-  STATE.charts.top10 = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "Tarjetas abiertas",
-        data: values,
-        backgroundColor: C.purple,
-        borderRadius: 4,
-        barThickness: 16
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: "y",
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: {
-          beginAtZero: true,
-          ticks: { font: { size: 11 } },
-          grid: { color: "#F3F4F6" }
-        },
-        y: {
-          ticks: { font: { family: "Calibri, Arial, sans-serif", size: 11 } },
-          grid: { display: false }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================
-// G4: ANTIGÜEDAD — Distribución (histograma)
-//     Uses PURPLE tones only (no BT/RT/YT colors)
-// ============================================================
-function renderChartAntiguedad(data) {
-  destroyChart("antiguedad");
-
-  var buckets = { "0-7d": 0, "8-15d": 0, "16-30d": 0, "30+d": 0 };
-
-  data.forEach(function(t) {
-    if (t.estado && t.estado.toLowerCase() !== "resuelta") {
-      var d = t.antiguedadDias || 0;
-      if (d <= 7) buckets["0-7d"]++;
-      else if (d <= 15) buckets["8-15d"]++;
-      else if (d <= 30) buckets["16-30d"]++;
-      else buckets["30+d"]++;
-    }
-  });
-
-  // Purple gradient from light to dark (more days = darker = more urgent)
-  var barColors = [C.purplePale, C.purpleLight, C.purple, "#3A1854"];
-
-  var ctx = document.getElementById("chartAntiguedad").getContext("2d");
-  STATE.charts.antiguedad = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["0-7 días", "8-15 días", "16-30 días", "30+ días"],
-      datasets: [{
-        label: "Tarjetas abiertas",
-        data: [buckets["0-7d"], buckets["8-15d"], buckets["16-30d"], buckets["30+d"]],
-        backgroundColor: barColors,
-        borderRadius: 4,
-        barThickness: 40
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.parsed.y + " tarjetas"; }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { font: { family: "Calibri, Arial, sans-serif", size: 12 } },
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: true,
-          ticks: { font: { size: 11 } },
-          grid: { color: "#F3F4F6" }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================
-// G5: TASA DE CIERRE MENSUAL — Barras + Línea %
-// ============================================================
-function renderChartCierre(data) {
-  destroyChart("cierre");
-
-  var monthOpen = {};
-  var monthClose = {};
-
-  data.forEach(function(t) {
-    if (!t._fechaInc) return;
-    var mes = t._fechaInc.substring(0, 7); // "YYYY-MM"
-    if (t.estado && t.estado.toLowerCase() === "resuelta") {
-      monthClose[mes] = (monthClose[mes] || 0) + 1;
-    } else {
-      monthOpen[mes] = (monthOpen[mes] || 0) + 1;
-    }
-  });
-
-  // Combine and sort months
-  var allMonths = {};
-  Object.keys(monthOpen).forEach(function(m) { allMonths[m] = true; });
-  Object.keys(monthClose).forEach(function(m) { allMonths[m] = true; });
-  var months = Object.keys(allMonths).sort();
-
-  var labels = months.map(function(m) { return getMes(m + "-01"); });
-  var closedData = months.map(function(m) { return monthClose[m] || 0; });
-  var rateData = months.map(function(m) {
-    var total = (monthOpen[m] || 0) + (monthClose[m] || 0);
-    if (total === 0) return 0;
-    return Math.round(((monthClose[m] || 0) / total) * 1000) / 10;
-  });
-
-  var ctx = document.getElementById("chartCierre").getContext("2d");
-  STATE.charts.cierre = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Cerradas",
-          data: closedData,
-          backgroundColor: C.purple,
-          borderRadius: 4,
-          barThickness: 24,
-          yAxisID: "y",
-          order: 2
-        },
-        {
-          label: "Tasa cierre %",
-          data: rateData,
-          type: "line",
-          borderColor: C.orange,
-          backgroundColor: C.orange,
-          borderWidth: 2,
-          pointRadius: 4,
-          pointBackgroundColor: C.orange,
-          tension: 0.3,
-          yAxisID: "y1",
-          order: 1
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: {
-          position: "top",
-          labels: { font: { family: "Calibri, Arial, sans-serif", size: 11 }, usePointStyle: true, padding: 12 }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              if (ctx.dataset.yAxisID === "y1") return ctx.parsed.y + "%";
-              return ctx.parsed.y + " tarjetas";
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { font: { family: "Calibri, Arial, sans-serif", size: 11 } },
-          grid: { display: false }
-        },
-        y: {
-          position: "left",
-          beginAtZero: true,
-          title: { display: true, text: "Tarjetas cerradas", font: { size: 11 } },
-          ticks: { font: { size: 10 } },
-          grid: { color: "#F3F4F6" }
-        },
-        y1: {
-          position: "right",
-          min: 0,
-          max: 100,
-          title: { display: true, text: "% Cierre", font: { size: 11 } },
-          ticks: { font: { size: 10 }, callback: function(v) { return v + "%"; } },
-          grid: { display: false }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================
-// 16. ARTHUR VS SUNRISE COMPARISON
-// ============================================================
-function renderComparison() {
-  var data = STATE.filtered;
-  var groups = { Arthur: { open: 0, closed: 0, bt: 0, rt: 0, yt: 0, sumAntig: 0, countAntig: 0 },
-                 Sunrise: { open: 0, closed: 0, bt: 0, rt: 0, yt: 0, sumAntig: 0, countAntig: 0 } };
-
-  data.forEach(function(t) {
-    var g = groups[t.proyecto];
-    if (!g) return;
-    var isOpen = t.estado && t.estado.toLowerCase() !== "resuelta";
-    if (isOpen) {
-      g.open++;
-      if (t.antiguedadDias > 0) { g.sumAntig += t.antiguedadDias; g.countAntig++; }
-    } else {
-      g.closed++;
-    }
-    if (t._color === "BT") g.bt++;
-    else if (t._color === "RT") g.rt++;
-    else if (t._color === "YT") g.yt++;
-  });
-
-  function rate(g) {
-    var total = g.open + g.closed;
-    return total > 0 ? (g.closed / total * 100).toFixed(1) + "%" : "—";
-  }
-  function antig(g) {
-    return g.countAntig > 0 ? Math.round(g.sumAntig / g.countAntig) + "d" : "0d";
-  }
-
-  var a = groups.Arthur;
-  var s = groups.Sunrise;
-
-  var rows = [
-    { label: "Abiertas",       arthur: a.open,   sunrise: s.open },
-    { label: "Cerradas",       arthur: a.closed,  sunrise: s.closed },
-    { label: "Tasa cierre",    arthur: rate(a),   sunrise: rate(s) },
-    { label: "Antig. prom",    arthur: antig(a),  sunrise: antig(s) },
-    { label: "BT",             arthur: a.bt,      sunrise: s.bt },
-    { label: "RT",             arthur: a.rt,      sunrise: s.rt },
-    { label: "YT",             arthur: a.yt,      sunrise: s.yt }
-  ];
-
-  var tbody = document.getElementById("comparisonBody");
-  tbody.innerHTML = "";
-  rows.forEach(function(r) {
-    var tr = document.createElement("tr");
-    tr.innerHTML = '<td>' + r.label + '</td><td>' + r.arthur + '</td><td>' + r.sunrise + '</td>';
-    tbody.appendChild(tr);
-  });
-}
-
-// ============================================================
-// 17. DATA TABLE
-// ============================================================
-function renderTarjetasTable(data) {
-  var tbody = document.getElementById("tablaTarjetasBody");
-  tbody.innerHTML = "";
-
-  data.forEach(function(t) {
-    var tr = document.createElement("tr");
-
-    // Status pill class
-    var estadoLower = (t.estado || "").toLowerCase();
+  // Render filas
+  var html = "";
+  datos.forEach(function(t){
     var pillClass = "pill-abierta";
-    var estadoLabel = t.estado || "Abierta";
-    if (estadoLower === "resuelta") { pillClass = "pill-resuelta"; estadoLabel = "Resuelta"; }
-    else if (estadoLower === "cmms" || t.estado === "CMMS") { pillClass = "pill-cmms"; estadoLabel = "CMMS"; }
+    var estLow = (t._estado||"").toLowerCase();
+    if(estLow === "resuelta" || estLow === "resolved") pillClass = "pill-resuelta";
+    else if(estLow === "cmms") pillClass = "pill-cmms";
+    else if(estLow === "en proceso" || estLow === "proceso") pillClass = "pill-proceso";
 
-    // Priority class
-    var prioText = t.prioridad || "";
-    var prioClass = "priority-media";
-    if (prioText.indexOf("rítica") >= 0 || prioText.indexOf("ritica") >= 0) prioClass = "priority-critica";
-    else if (prioText.indexOf("Alta") >= 0) prioClass = "priority-alta";
-    else if (prioText.indexOf("Baja") >= 0) prioClass = "priority-baja";
-
-    // Category color tag
-    var catColor = t._color;
-    var catTagClass = catColor === "BT" ? "tag-bt" : catColor === "RT" ? "tag-rt" : catColor === "YT" ? "tag-yt" : "";
-    var catHtml = catTagClass
-      ? '<span class="ticket-color-tag ' + catTagClass + '">' + catColor + '</span> ' + (t.categoria || "")
-      : (t.categoria || "");
-
-    // Equipo name — use standardized name
-    var equipName = t.equipoMapa || "Desconocido";
-    var equipRef = EQUIPOS.find(function(e) { return e.id === equipName; });
-    var equipDisplay = equipRef ? equipRef.nombre : equipName;
-
-    tr.innerHTML =
-      '<td>' + (t.folio || "") + '</td>' +
-      '<td>' + equipDisplay + '</td>' +
-      '<td>' + catHtml + '</td>' +
-      '<td>' + (t.tipoDefecto || "") + '</td>' +
-      '<td><span class="priority-pill ' + prioClass + '">' + prioText + '</span></td>' +
-      '<td><span class="status-pill ' + pillClass + '">' + estadoLabel + '</span></td>' +
-      '<td>' + fmtDate(t._fechaInc) + '</td>' +
-      '<td>' + (t.antiguedadDias > 0 ? t.antiguedadDias + "d" : "—") + '</td>' +
-      '<td class="desc-col" title="' + ((t.descripcion || "").replace(/"/g, "&quot;")) + '">' + (t.descripcion || "—") + '</td>';
-
-    tbody.appendChild(tr);
+    html += "<tr>" +
+      "<td><strong>" + (t._folio||"-") + "</strong></td>" +
+      "<td>" + (t._equipo||"-") + "</td>" +
+      "<td>" + renderColorTag(t._color) + "</td>" +
+      "<td>" + (t._defecto||"-") + "</td>" +
+      "<td>" + (t._prioridad||"-") + "</td>" +
+      "<td><span class='status-pill "+pillClass+"'>" + (t._estado||"-") + "</span></td>" +
+      "<td>" + fmtFecha(t._fechaInc) + "</td>" +
+      "<td>" + t._dias + "d</td>" +
+      "<td>" + (t._descripcion||"-") + "</td>" +
+    "</tr>";
   });
+
+  tbody.innerHTML = html;
+}
+
+function renderColorTag(color){
+  if(color === "BT") return '<span style="color:#2D6EAA;font-weight:700">● BT</span>';
+  if(color === "RT") return '<span style="color:#A52323;font-weight:700">● RT</span>';
+  if(color === "YT") return '<span style="color:#E18719;font-weight:700">● YT</span>';
+  return '<span style="color:#888">—</span>';
 }
 
 // ============================================================
-// 18. DOWNLOAD EXCEL
+// 23. TABLA — Sort por columna
 // ============================================================
-function downloadExcel() {
-  // Get currently displayed data from the table
-  var table = document.getElementById("tablaTarjetas");
-  var rows = table.querySelectorAll("tbody tr");
+function bindTablaControls(){
+  // Sort
+  document.querySelectorAll(".col-sort").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var col = btn.getAttribute("data-col");
+      if(tableSortCol === col){
+        tableSortAsc = !tableSortAsc;
+      } else {
+        tableSortCol = col;
+        tableSortAsc = true;
+      }
+      renderTablaTarjetas();
+    });
+  });
 
-  if (rows.length === 0) {
-    alert("No hay datos para descargar.");
-    return;
-  }
+  // Filtros tipo Excel por columna
+  document.querySelectorAll(".col-filter-btn").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();
+      var col = btn.getAttribute("data-col");
+      toggleColFilter(col, btn);
+    });
+  });
 
-  // Build data array
-  var headers = ["Folio", "Equipo", "Categoría", "Defecto", "Prioridad", "Estado", "Fecha Inclusión", "Antigüedad", "Descripción"];
-  var wsData = [headers];
-
-  // Use the filtered data directly for cleaner export
-  var grupo = document.getElementById("filterGrupo").value;
-  var color = document.getElementById("filterColor").value;
-  var estado = document.getElementById("filterEstado").value;
-  var buscar = document.getElementById("filterBuscar").value.toLowerCase().trim();
-
-  var exportData = STATE.filtered.slice();
-
-  if (grupo !== "todos") exportData = exportData.filter(function(t) { return t.proyecto === grupo; });
-  if (color !== "todos") exportData = exportData.filter(function(t) { return t._color === color; });
-  if (estado !== "todos") {
-    if (estado === "Abierta") {
-      exportData = exportData.filter(function(t) { return t.estado && t.estado.toLowerCase() !== "resuelta" && t.estado.toUpperCase() !== "CMMS"; });
-    } else if (estado === "CMMS") {
-      exportData = exportData.filter(function(t) { return t.estado && t.estado.toUpperCase() === "CMMS"; });
-    } else {
-      exportData = exportData.filter(function(t) { return t.estado && t.estado.toLowerCase() === estado.toLowerCase(); });
-    }
-  }
-  if (buscar) {
-    exportData = exportData.filter(function(t) {
-      return (t.folio && t.folio.toLowerCase().indexOf(buscar) >= 0) ||
-             (t.equipoMapa && t.equipoMapa.toLowerCase().indexOf(buscar) >= 0) ||
-             (t.descripcion && t.descripcion.toLowerCase().indexOf(buscar) >= 0);
+  // Buscador global
+  var searchInput = document.getElementById("tblSearch");
+  if(searchInput){
+    var debounce;
+    searchInput.addEventListener("input", function(){
+      clearTimeout(debounce);
+      debounce = setTimeout(renderTarjetas, 300);
     });
   }
 
-  exportData.forEach(function(t) {
-    var equipRef = EQUIPOS.find(function(e) { return e.id === t.equipoMapa; });
-    var equipName = equipRef ? equipRef.nombre : (t.equipoMapa || "");
-    wsData.push([
-      t.folio || "",
-      equipName,
-      t.categoria || "",
-      t.tipoDefecto || "",
-      t.prioridad || "",
-      t.estado || "",
-      fmtDate(t._fechaInc),
-      t.antiguedadDias > 0 ? t.antiguedadDias + "d" : "—",
-      t.descripcion || ""
-    ]);
+  // Export Excel
+  var btnExp = document.getElementById("btnExport");
+  if(btnExp) btnExp.addEventListener("click", exportarExcel);
+
+  // Cerrar dropdowns al hacer click fuera
+  document.addEventListener("click", function(){
+    document.querySelectorAll(".col-filter-drop.show").forEach(function(d){
+      d.classList.remove("show");
+    });
+  });
+}
+
+// ============================================================
+// 24. FILTROS TIPO EXCEL POR COLUMNA
+// ============================================================
+function toggleColFilter(col, btnEl){
+  // Cerrar otros
+  document.querySelectorAll(".col-filter-drop.show").forEach(function(d){
+    if(d.getAttribute("data-col") !== col) d.classList.remove("show");
   });
 
-  // Create workbook with SheetJS
-  var wb = XLSX.utils.book_new();
-  var ws = XLSX.utils.aoa_to_sheet(wsData);
+  var drop = document.querySelector('.col-filter-drop[data-col="'+col+'"]');
+  if(!drop) return;
 
-  // Column widths
-  ws["!cols"] = [
-    { wch: 14 }, { wch: 24 }, { wch: 16 }, { wch: 28 }, { wch: 18 },
-    { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 40 }
+  if(drop.classList.contains("show")){
+    drop.classList.remove("show");
+    return;
+  }
+
+  // Obtener valores únicos de la columna
+  var unicos = {};
+  tarjetasData.forEach(function(t){
+    var v = getColValue(t, col);
+    if(v) unicos[v] = true;
+  });
+  var vals = Object.keys(unicos).sort();
+  var currentFilter = colFilters[col] || [];
+
+  // Construir contenido del dropdown
+  var html = '<input type="text" placeholder="Buscar..." class="cfd-search" data-col="'+col+'">';
+  html += '<div class="cfd-options">';
+  vals.forEach(function(v){
+    var checked = currentFilter.length === 0 || currentFilter.indexOf(v) > -1;
+    html += '<label><input type="checkbox" value="'+v+'" '+(checked?"checked":"")+'> '+v+'</label>';
+  });
+  html += '</div>';
+  html += '<div class="cfd-actions">';
+  html += '<button class="btn-clear" data-col="'+col+'">Limpiar</button>';
+  html += '<button class="btn-apply" data-col="'+col+'">Aplicar</button>';
+  html += '</div>';
+
+  drop.innerHTML = html;
+  drop.classList.add("show");
+
+  // Búsqueda dentro del dropdown
+  drop.querySelector(".cfd-search").addEventListener("input", function(e){
+    var term = e.target.value.toLowerCase();
+    drop.querySelectorAll(".cfd-options label").forEach(function(lbl){
+      lbl.style.display = lbl.textContent.toLowerCase().indexOf(term) > -1 ? "flex" : "none";
+    });
+  });
+
+  // Botón Limpiar
+  drop.querySelector(".btn-clear").addEventListener("click", function(e){
+    e.stopPropagation();
+    delete colFilters[col];
+    drop.classList.remove("show");
+    btnEl.classList.remove("active");
+    renderTarjetas();
+  });
+
+  // Botón Aplicar
+  drop.querySelector(".btn-apply").addEventListener("click", function(e){
+    e.stopPropagation();
+    var checks = drop.querySelectorAll('.cfd-options input[type="checkbox"]');
+    var selected = [];
+    checks.forEach(function(ch){ if(ch.checked) selected.push(ch.value); });
+
+    if(selected.length === vals.length || selected.length === 0){
+      delete colFilters[col];
+      btnEl.classList.remove("active");
+    } else {
+      colFilters[col] = selected;
+      btnEl.classList.add("active");
+    }
+    drop.classList.remove("show");
+    renderTarjetas();
+  });
+
+  // Prevenir cierre al hacer click dentro
+  drop.addEventListener("click", function(e){ e.stopPropagation(); });
+}
+
+// ============================================================
+// 25. EXPORTAR A CSV (compatible Excel)
+// ============================================================
+function exportarExcel(){
+  var datos = tarjetasFiltradas.length > 0 ? tarjetasFiltradas : tarjetasData;
+  var sep = ",";
+  var lines = [];
+  lines.push(["Folio","Equipo","Color","Defecto","Prioridad","Estado","Fecha","Antigüedad (días)","Descripción"].join(sep));
+
+  datos.forEach(function(t){
+    var row = [
+      '"'+(t._folio||"")+'"',
+      '"'+(t._equipo||"")+'"',
+      '"'+(t._color||"")+'"',
+      '"'+(t._defecto||"")+'"',
+      '"'+(t._prioridad||"")+'"',
+      '"'+(t._estado||"")+'"',
+      '"'+fmtFecha(t._fechaInc)+'"',
+      t._dias,
+      '"'+((t._descripcion||"").replace(/"/g,'""'))+'"'
+    ];
+    lines.push(row.join(sep));
+  });
+
+  var csv = "\uFEFF" + lines.join("\n"); // BOM para Excel
+  var blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "tarjetas_paletizado_" + new Date().toISOString().substring(0,10) + ".csv";
+  link.click();
+}
+
+// ── Fin B2-P3 ──
+
+
+// ── B2-P4: Inicialización final + Event listeners ──
+
+// ============================================================
+// 26. MODAL — Cambio de estado de equipos
+// ============================================================
+var modalEquipoActual = null;
+
+function abrirModalCambioEstado(equipId){
+  modalEquipoActual = equipId;
+  var eq = getEquipo(equipId);
+  if(!eq) return;
+
+  var stActual = equipStatus[equipId] || "operativo";
+
+  document.getElementById("modalTitle").textContent = "Cambiar Estado: " + equipId;
+  document.getElementById("modalEquipName").textContent = eq.nombre + (eq.brand && eq.brand !== "-" ? " — " + eq.brand : "");
+
+  // Estado actual
+  var fromEl = document.getElementById("modalFromStatus");
+  fromEl.textContent = stActual === "operativo" ? "Operativo" : stActual === "degradado" ? "Degradado" : "Fuera de Servicio";
+  fromEl.className = "status-pill";
+  if(stActual === "operativo") fromEl.classList.add("pill-resuelta");
+  else if(stActual === "degradado") fromEl.classList.add("pill-proceso");
+  else fromEl.classList.add("pill-abierta");
+
+  // Opciones de nuevo estado (excluir el actual)
+  var sel = document.getElementById("modalToStatus");
+  sel.innerHTML = "";
+  var opciones = [
+    {value:"operativo", label:"Operativo"},
+    {value:"degradado", label:"Degradado"},
+    {value:"fuera", label:"Fuera de Servicio"}
   ];
-
-  XLSX.utils.book_append_sheet(wb, ws, "Tarjetas");
-
-  // Generate filename with date
-  var hoy = new Date();
-  var fname = "tarjetas_paletizado_" + hoy.getFullYear() +
-    ("0" + (hoy.getMonth()+1)).slice(-2) + ("0" + hoy.getDate()).slice(-2) + ".xlsx";
-
-  XLSX.writeFile(wb, fname);
-}
-
-
-
-/* ===========================================================
-   Parte 3: Pestaña Operatividad — Dona, Acordeón, Tabla
-   tiempo fuera de servicio, Impacto por línea, Modal
-   =========================================================== */
-
-// ============================================================
-// 19. RENDER OPERATIVIDAD (main entry point)
-// ============================================================
-function renderOperatividad() {
-  renderOperDonut();
-  renderAccordion();
-  renderTimeTable();
-  renderImpactChart();
-  renderLineSummary();
-}
-
-// ============================================================
-// 20. DONUT — Operatividad de Equipos
-// ============================================================
-function renderOperDonut() {
-  destroyChart("operDonut");
-
-  var ops = 0, deg = 0, fs = 0;
-  EQUIPOS.forEach(function(eq) {
-    var s = getEquipStatus(eq.id);
-    if (s === "operativo") ops++;
-    else if (s === "degradado") deg++;
-    else fs++;
+  opciones.forEach(function(op){
+    if(op.value !== stActual){
+      var opt = document.createElement("option");
+      opt.value = op.value;
+      opt.textContent = op.label;
+      sel.appendChild(opt);
+    }
   });
 
-  // Render legend
-  var legend = document.getElementById("operDonutLegend");
-  legend.innerHTML =
-    '<div class="oper-legend-item">' +
-      '<div class="oper-legend-dot" style="background:#287819"></div>' +
-      '<span>Operativos</span>' +
-      '<span class="oper-legend-count" style="color:#287819">' + ops + '</span>' +
-    '</div>' +
-    '<div class="oper-legend-item">' +
-      '<div class="oper-legend-dot" style="background:#E18719"></div>' +
-      '<span>Degradados</span>' +
-      '<span class="oper-legend-count" style="color:#E18719">' + deg + '</span>' +
-    '</div>' +
-    '<div class="oper-legend-item">' +
-      '<div class="oper-legend-dot" style="background:#A52323"></div>' +
-      '<span>Fuera de Servicio</span>' +
-      '<span class="oper-legend-count" style="color:#A52323">' + fs + '</span>' +
-    '</div>';
+  // Limpiar motivo
+  document.getElementById("modalMotivo").value = "";
 
-  var ctx = document.getElementById("chartOperDonut").getContext("2d");
-  STATE.charts.operDonut = new Chart(ctx, {
+  // Mostrar modal
+  document.getElementById("modalOverlay").classList.add("show");
+}
+
+function cerrarModal(){
+  document.getElementById("modalOverlay").classList.remove("show");
+  modalEquipoActual = null;
+}
+
+function confirmarCambioEstado(){
+  if(!modalEquipoActual) return;
+
+  var nuevoEstado = document.getElementById("modalToStatus").value;
+  var motivo = document.getElementById("modalMotivo").value.trim();
+  var estadoAnterior = equipStatus[modalEquipoActual] || "operativo";
+
+  // Registrar cambio
+  equipStatus[modalEquipoActual] = nuevoEstado;
+  guardarEstados();
+  registrarCambioEstado(modalEquipoActual, estadoAnterior, nuevoEstado, motivo);
+
+  cerrarModal();
+
+  // Refrescar todo
+  renderKPIs();
+  renderMarcadores();
+  if(mapaSeleccionado === modalEquipoActual){
+    seleccionarEquipoMapa(modalEquipoActual);
+  }
+  if(typeof renderOperatividad === "function") renderOperatividad();
+}
+
+// ============================================================
+// 27. EVENT LISTENERS — Modal
+// ============================================================
+document.addEventListener("DOMContentLoaded", function(){
+  var closeBtn = document.getElementById("modalClose");
+  var cancelBtn = document.getElementById("modalCancelBtn");
+  var confirmBtn = document.getElementById("modalConfirmBtn");
+  var overlay = document.getElementById("modalOverlay");
+
+  if(closeBtn) closeBtn.addEventListener("click", cerrarModal);
+  if(cancelBtn) cancelBtn.addEventListener("click", cerrarModal);
+  if(confirmBtn) confirmBtn.addEventListener("click", confirmarCambioEstado);
+  if(overlay){
+    overlay.addEventListener("click", function(e){
+      if(e.target === overlay) cerrarModal();
+    });
+  }
+
+  // Cerrar con Escape
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") cerrarModal();
+  });
+});
+
+// ============================================================
+// 28. ACORDEÓN — Toggle secciones (Operatividad)
+// ============================================================
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll(".accordion-header").forEach(function(header){
+    header.addEventListener("click", function(){
+      header.classList.toggle("open");
+      var body = header.nextElementSibling;
+      if(body) body.classList.toggle("open");
+    });
+  });
+});
+
+// ============================================================
+// 29. PLACEHOLDER — Funciones de Operatividad
+//     (se reemplazan con Bloque 3)
+// ============================================================
+function initOperatividad(){
+  // Placeholder — se implementa en Bloque 3
+  if(typeof renderOperatividad === "function") renderOperatividad();
+}
+
+// ── Fin B2-P4 ──
+
+
+// ── Bloque 3: Tab Operatividad ──
+
+// ============================================================
+// 30. OPERATIVIDAD — Variables
+// ============================================================
+var chartOperDonut = null;
+
+// ============================================================
+// 31. OPERATIVIDAD — Render maestro
+// ============================================================
+function renderOperatividad(){
+  renderOperDonut();
+  renderOperChips();
+  renderOperTimeTable();
+  renderHeatmap();
+  renderScorecard();
+}
+
+// Sobreescribir el placeholder de B2-P4
+initOperatividad = function(){
+  renderOperatividad();
+};
+
+// ============================================================
+// 32. DONA DE OPERATIVIDAD
+// ============================================================
+function renderOperDonut(){
+  var estados = contarEstados();
+
+  var ctx = document.getElementById("chartOperDonut");
+  if(!ctx) return;
+  if(chartOperDonut) chartOperDonut.destroy();
+
+  chartOperDonut = new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: ["Operativos", "Degradados", "Fuera de Servicio"],
+      labels: ["Operativos","Degradados","Fuera de Servicio"],
       datasets: [{
-        data: [ops, deg, fs],
-        backgroundColor: ["#287819", "#E18719", "#A52323"],
-        borderWidth: 3,
+        data: [estados.operativos, estados.degradados, estados.fuera],
+        backgroundColor: ["#287819","#E18719","#A52323"],
+        borderWidth: 2,
         borderColor: "#fff"
       }]
     },
@@ -1260,382 +1517,267 @@ function renderOperDonut() {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: function(ctx) {
-              var total = ops + deg + fs;
-              var pct = total > 0 ? Math.round(ctx.parsed / total * 100) : 0;
-              return ctx.label + ": " + ctx.parsed + " (" + pct + "%)";
+            label: function(c){
+              var pct = Math.round((c.raw / estados.total) * 100);
+              return c.label + ": " + c.raw + " (" + pct + "%)";
             }
           }
         }
       }
     },
     plugins: [{
-      id: "operDonutCenter",
-      beforeDraw: function(chart) {
-        var total = ops + deg + fs;
-        var c = chart.ctx;
-        var cx = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
-        var cy = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-        c.save();
-        c.font = "bold 28px Calibri, Arial, sans-serif";
-        c.fillStyle = "#3D3D3D";
-        c.textAlign = "center";
-        c.textBaseline = "middle";
-        c.fillText(total, cx, cy - 8);
-        c.font = "12px Calibri, Arial, sans-serif";
-        c.fillStyle = "#9CA3AF";
-        c.fillText("Total", cx, cy + 14);
-        c.restore();
+      id: "centerText",
+      beforeDraw: function(chart){
+        var w = chart.width, h = chart.height, cCtx = chart.ctx;
+        cCtx.restore();
+        cCtx.font = "bold 28px Calibri,Arial,sans-serif";
+        cCtx.textBaseline = "middle";
+        cCtx.textAlign = "center";
+        cCtx.fillStyle = "#4F2170";
+        cCtx.fillText(estados.total, w/2, h/2 - 8);
+        cCtx.font = "11px Calibri,Arial,sans-serif";
+        cCtx.fillStyle = "#888";
+        cCtx.fillText("equipos", w/2, h/2 + 14);
+        cCtx.save();
       }
     }]
   });
+
+  // Leyenda personalizada
+  var legendEl = document.getElementById("operDonutLegend");
+  if(legendEl){
+    legendEl.innerHTML =
+      '<div class="oper-legend-item"><div class="oper-legend-dot" style="background:#287819"></div> Operativos <span class="oper-legend-count" style="color:#287819">' + estados.operativos + '</span></div>' +
+      '<div class="oper-legend-item"><div class="oper-legend-dot" style="background:#E18719"></div> Degradados <span class="oper-legend-count" style="color:#E18719">' + estados.degradados + '</span></div>' +
+      '<div class="oper-legend-item"><div class="oper-legend-dot" style="background:#A52323"></div> Fuera de Servicio <span class="oper-legend-count" style="color:#A52323">' + estados.fuera + '</span></div>';
+  }
 }
 
 // ============================================================
-// 21. ACCORDION — Operativos / Degradados / Fuera de Servicio
+// 33. ACORDEÓN — Chips de equipos por estado
 // ============================================================
-function renderAccordion() {
+function renderOperChips(){
   var operativos = [];
   var degradados = [];
   var fuera = [];
 
-  EQUIPOS.forEach(function(eq) {
-    var s = getEquipStatus(eq.id);
-    if (s === "operativo") operativos.push(eq);
-    else if (s === "degradado") degradados.push(eq);
-    else fuera.push(eq);
+  EQUIPOS.forEach(function(eq){
+    var st = equipStatus[eq.id] || "operativo";
+    if(st === "operativo") operativos.push(eq);
+    else if(st === "degradado") degradados.push(eq);
+    else if(st === "fuera") fuera.push(eq);
   });
 
-  // Update titles
+  // Actualizar títulos
   document.getElementById("accTitleOperativos").textContent = "Operativos (" + operativos.length + ")";
   document.getElementById("accTitleDegradados").textContent = "Degradados (" + degradados.length + ")";
   document.getElementById("accTitleFuera").textContent = "Fuera de Servicio (" + fuera.length + ")";
 
   // Render chips
-  renderChips("chipsOperativos", operativos, "chip-operativo");
-  renderChips("chipsDegradados", degradados, "chip-degradado");
-  renderChips("chipsFuera", fuera, "chip-fuera");
-
-  // Init accordion toggle (only once)
-  if (!STATE._accordionInit) {
-    STATE._accordionInit = true;
-    document.querySelectorAll(".accordion-header").forEach(function(header) {
-      header.addEventListener("click", function() {
-        var section = header.getAttribute("data-section");
-        var bodyId = section === "operativos" ? "accBodyOperativos" :
-                     section === "degradados" ? "accBodyDegradados" : "accBodyFuera";
-        var body = document.getElementById(bodyId);
-        var isOpen = header.classList.contains("open");
-        if (isOpen) {
-          header.classList.remove("open");
-          body.classList.remove("open");
-        } else {
-          header.classList.add("open");
-          body.classList.add("open");
-        }
-      });
-    });
-  }
+  renderChipGroup("chipsOperativos", operativos, "chip-operativo");
+  renderChipGroup("chipsDegradados", degradados, "chip-degradado");
+  renderChipGroup("chipsFuera", fuera, "chip-fuera");
 }
 
-function renderChips(containerId, equipList, chipClass) {
+function renderChipGroup(containerId, equipos, chipClass){
   var container = document.getElementById(containerId);
-  container.innerHTML = "";
+  if(!container) return;
 
-  equipList.forEach(function(eq) {
-    var chip = document.createElement("div");
+  container.innerHTML = "";
+  equipos.forEach(function(eq){
+    var chip = document.createElement("span");
     chip.className = "equip-chip " + chipClass;
-    chip.innerHTML = '<span>' + eq.id + '</span><span class="chip-action"><i class="fa-solid fa-arrow-right-arrow-left"></i></span>';
-    chip.title = eq.nombre + " — Clic para cambiar estado";
-    chip.addEventListener("click", function() {
-      openStatusModal(eq.id);
+    chip.title = eq.nombre + " | Clic para cambiar estado";
+    chip.innerHTML = eq.id + ' <i class="fa-solid fa-pen chip-action"></i>';
+    chip.addEventListener("click", function(){
+      abrirModalCambioEstado(eq.id);
     });
     container.appendChild(chip);
   });
+
+  if(equipos.length === 0){
+    container.innerHTML = '<span class="text-muted" style="padding:8px">Ningún equipo en este estado</span>';
+  }
 }
 
 // ============================================================
-// 22. TIME OUT OF SERVICE TABLE
+// 34. TABLA — Tiempo fuera de servicio
 // ============================================================
-function renderTimeTable() {
+function renderOperTimeTable(){
   var tbody = document.getElementById("operTimeTable");
-  tbody.innerHTML = "";
+  if(!tbody) return;
 
-  // Get all non-operative equipment
-  var nonOp = [];
-  EQUIPOS.forEach(function(eq) {
-    var info = STATE.equipStatus[eq.id];
-    if (info && (info.status === "degradado" || info.status === "fuera")) {
-      var dias = info.desde ? diasDesde(info.desde) : 0;
-      nonOp.push({
-        id: eq.id,
-        nombre: eq.nombre,
-        status: info.status,
-        desde: info.desde,
+  // Obtener equipos NO operativos
+  var noOps = [];
+  EQUIPOS.forEach(function(eq){
+    var st = equipStatus[eq.id] || "operativo";
+    if(st !== "operativo"){
+      // Buscar en historial cuándo cambió a este estado
+      var desde = obtenerFechaCambio(eq.id, st);
+      var dias = desde ? diasDesde(desde) : 0;
+      var motivo = obtenerMotivoCambio(eq.id, st);
+      noOps.push({
+        equipo: eq.id,
+        estado: st,
+        desde: desde || "-",
         dias: dias,
-        motivo: info.motivo || "—"
+        motivo: motivo || "-"
       });
     }
   });
 
-  // Sort by days descending (longest first)
-  nonOp.sort(function(a, b) { return b.dias - a.dias; });
+  // Ordenar por días desc
+  noOps.sort(function(a,b){ return b.dias - a.dias; });
 
-  if (nonOp.length === 0) {
-    var tr = document.createElement("tr");
-    tr.innerHTML = '<td colspan="5" style="text-align:center;color:#9CA3AF;padding:20px;">Todos los equipos están operativos</td>';
-    tbody.appendChild(tr);
+  if(noOps.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:20px">Todos los equipos están operativos</td></tr>';
     return;
   }
 
-  nonOp.forEach(function(item) {
-    var tr = document.createElement("tr");
-    var pillClass = item.status === "fuera" ? "pill-abierta" : "";
-    var pillStyle = item.status === "degradado" ? 'style="background:#E18719"' : '';
-    var statusLabel = item.status === "fuera" ? "Fuera Serv." : "Degradado";
+  var html = "";
+  noOps.forEach(function(item){
+    var stLabel = item.estado === "degradado" ? "Degradado" : "Fuera Serv.";
+    var stColor = item.estado === "degradado" ? "#E18719" : "#A52323";
 
-    tr.innerHTML =
-      '<td style="font-weight:700;">' + item.id + '</td>' +
-      '<td><span class="status-pill ' + pillClass + '" ' + pillStyle + '>' + statusLabel + '</span></td>' +
-      '<td>' + fmtDate(item.desde) + '</td>' +
-      '<td style="font-weight:700;">' + item.dias + ' días</td>' +
-      '<td>' + item.motivo + '</td>';
-
-    tbody.appendChild(tr);
+    html += "<tr>" +
+      "<td><strong>" + item.equipo + "</strong></td>" +
+      "<td><span style='color:"+stColor+";font-weight:600'>" + stLabel + "</span></td>" +
+      "<td>" + fmtFecha(item.desde) + "</td>" +
+      "<td><strong>" + item.dias + " días</strong></td>" +
+      "<td>" + item.motivo + "</td>" +
+    "</tr>";
   });
+
+  tbody.innerHTML = html;
 }
 
-// ============================================================
-// 23. IMPACT BY LINE — Stacked Horizontal Bar Chart
-// ============================================================
-function renderImpactChart() {
-  destroyChart("impacto");
-
-  var lineData = {};
-  ["A", "B", "C", "D"].forEach(function(l) {
-    lineData[l] = { ops: 0, deg: 0, fs: 0 };
-  });
-
-  EQUIPOS.forEach(function(eq) {
-    var s = getEquipStatus(eq.id);
-    var ld = lineData[eq.linea];
-    if (!ld) return;
-    if (s === "operativo") ld.ops++;
-    else if (s === "degradado") ld.deg++;
-    else ld.fs++;
-  });
-
-  var labels = ["Línea A", "Línea B", "Línea C", "Línea D"];
-  var opsData = [lineData.A.ops, lineData.B.ops, lineData.C.ops, lineData.D.ops];
-  var degData = [lineData.A.deg, lineData.B.deg, lineData.C.deg, lineData.D.deg];
-  var fsData  = [lineData.A.fs,  lineData.B.fs,  lineData.C.fs,  lineData.D.fs];
-
-  var ctx = document.getElementById("chartImpacto").getContext("2d");
-  STATE.charts.impacto = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Operativos",
-          data: opsData,
-          backgroundColor: "#287819",
-          borderRadius: 4
-        },
-        {
-          label: "Degradados",
-          data: degData,
-          backgroundColor: "#E18719",
-          borderRadius: 4
-        },
-        {
-          label: "Fuera Serv.",
-          data: fsData,
-          backgroundColor: "#A52323",
-          borderRadius: 4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: "y",
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            font: { family: "Calibri, Arial, sans-serif", size: 11 },
-            usePointStyle: true,
-            padding: 14
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.dataset.label + ": " + ctx.parsed.x + " equipos"; }
-          }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          beginAtZero: true,
-          ticks: { font: { size: 11 }, stepSize: 2 },
-          grid: { color: "#F3F4F6" },
-          title: { display: true, text: "Equipos", font: { size: 11 } }
-        },
-        y: {
-          stacked: true,
-          ticks: { font: { family: "Calibri, Arial, sans-serif", size: 12, weight: "bold" } },
-          grid: { display: false }
-        }
-      }
+function obtenerFechaCambio(equipId, estadoActual){
+  // Buscar la última vez que cambió a este estado
+  for(var i = equipStatusHistory.length - 1; i >= 0; i--){
+    var reg = equipStatusHistory[i];
+    if(reg.equipo === equipId && reg.a === estadoActual){
+      return reg.fecha;
     }
-  });
+  }
+  return null;
+}
+
+function obtenerMotivoCambio(equipId, estadoActual){
+  for(var i = equipStatusHistory.length - 1; i >= 0; i--){
+    var reg = equipStatusHistory[i];
+    if(reg.equipo === equipId && reg.a === estadoActual){
+      return reg.motivo || "-";
+    }
+  }
+  return "-";
 }
 
 // ============================================================
-// 24. LINE SUMMARY CARDS
+// 35. HEATMAP — Mapa de operatividad por 14 líneas
 // ============================================================
-function renderLineSummary() {
-  var container = document.getElementById("lineSummary");
-  container.innerHTML = "";
+function renderHeatmap(){
+  var grid = document.getElementById("heatmapGrid");
+  if(!grid) return;
 
-  ["A", "B", "C", "D"].forEach(function(lineKey) {
-    var linea = LINEAS[lineKey];
-    var total = 0, ops = 0, deg = 0, fs = 0;
-
-    linea.equipos.forEach(function(eqId) {
-      total++;
-      var s = getEquipStatus(eqId);
-      if (s === "operativo") ops++;
-      else if (s === "degradado") deg++;
-      else fs++;
-    });
-
-    var pct = total > 0 ? (ops / total * 100).toFixed(1) : "0.0";
-
-    // Border color based on worst status in line
-    var borderColor = "#287819"; // all good
-    if (fs > 0) borderColor = "#A52323";
-    else if (deg > 0) borderColor = "#E18719";
-
-    var card = document.createElement("div");
-    card.className = "line-card";
-    card.style.borderTopColor = borderColor;
-    card.innerHTML =
-      '<div class="line-name">' + linea.nombre + '</div>' +
-      '<div class="line-equip">' + total + ' equipos</div>' +
-      '<div class="line-pct" style="color:' + borderColor + '">' + pct + '%</div>' +
-      '<div class="line-equip">operativo</div>';
-
-    container.appendChild(card);
-  });
-}
-
-// ============================================================
-// 25. STATUS CHANGE MODAL
-// ============================================================
-function openStatusModal(equipId) {
-  var eq = EQUIPOS.find(function(e) { return e.id === equipId; });
-  if (!eq) return;
-
-  var current = getEquipStatus(equipId);
-  var currentLabel = current === "operativo" ? "Operativo" :
-                     current === "degradado" ? "Degradado" : "Fuera de Servicio";
-  var currentColor = current === "operativo" ? "#287819" :
-                     current === "degradado" ? "#E18719" : "#A52323";
-
-  // Set modal content
-  document.getElementById("modalTitle").textContent = "Cambiar Estado";
-  document.getElementById("modalEquipName").textContent = eq.id + " — " + eq.nombre;
-
-  var fromPill = document.getElementById("modalFromStatus");
-  fromPill.textContent = currentLabel;
-  fromPill.style.background = currentColor;
-  fromPill.className = "status-pill";
-
-  // Set dropdown — exclude current status
-  var select = document.getElementById("modalToStatus");
-  select.innerHTML = "";
-  var options = [
-    { value: "operativo", label: "Operativo" },
-    { value: "degradado", label: "Degradado" },
-    { value: "fuera", label: "Fuera de Servicio" }
+  // Columnas del heatmap
+  var columnas = [
+    {key:"pal",     label:"Paletizadora"},
+    {key:"cc",      label:"Case Conv."},
+    {key:"espiral", label:"Espiral"},
+    {key:"wrapper", label:"Wrapper"}
   ];
-  options.forEach(function(opt) {
-    if (opt.value !== current) {
-      var o = document.createElement("option");
-      o.value = opt.value;
-      o.textContent = opt.label;
-      select.appendChild(o);
-    }
+
+  var html = "";
+
+  // Header row
+  html += '<div class="hm-header">Línea</div>';
+  columnas.forEach(function(col){
+    html += '<div class="hm-header">' + col.label + '</div>';
   });
 
-  // Clear motivo
-  document.getElementById("modalMotivo").value = "";
+  // Data rows — 14 líneas
+  for(var linea = 1; linea <= 14; linea++){
+    html += '<div class="hm-line-label">L' + linea + '</div>';
 
-  // Store which equipment we're editing
-  STATE._modalEquipId = equipId;
+    columnas.forEach(function(col){
+      var equiposLinea = getEquiposLineaTipo(linea, col.key);
 
-  // Show modal
-  document.getElementById("modalOverlay").classList.add("show");
-}
+      if(equiposLinea.length === 0){
+        html += '<div class="hm-cell na" title="Sin equipo">—</div>';
+      } else {
+        // Determinar peor estado de la línea para este tipo
+        var peorEstado = getPeorEstado(equiposLinea);
+        var stClass = peorEstado === "operativo" ? "op" : peorEstado === "degradado" ? "deg" : "fs";
+        var stLabel = peorEstado === "operativo" ? "✓" : peorEstado === "degradado" ? "!" : "✕";
+        var names = equiposLinea.map(function(e){ return e.id; }).join(", ");
+        var title = names + " — " + (peorEstado === "operativo" ? "Operativo" : peorEstado === "degradado" ? "Degradado" : "Fuera de Servicio");
 
-function closeStatusModal() {
-  document.getElementById("modalOverlay").classList.remove("show");
-  STATE._modalEquipId = null;
-}
-
-function confirmStatusChange() {
-  var equipId = STATE._modalEquipId;
-  if (!equipId) return;
-
-  var newStatus = document.getElementById("modalToStatus").value;
-  var motivo = document.getElementById("modalMotivo").value.trim();
-
-  if (!motivo) {
-    alert("Por favor escribe un motivo para el cambio de estado.");
-    document.getElementById("modalMotivo").focus();
-    return;
+        html += '<div class="hm-cell ' + stClass + '" title="' + title + '">' + stLabel + '</div>';
+      }
+    });
   }
 
-  // Apply change
-  changeEquipStatus(equipId, newStatus, motivo);
+  grid.innerHTML = html;
+}
 
-  // Close modal
-  closeStatusModal();
+function getEquiposLineaTipo(linea, tipo){
+  if(tipo === "wrapper"){
+    // Wrappers son compartidos por proyecto, no por línea
+    var lineaProy = LINEAS[linea] ? LINEAS[linea].proyecto : "";
+    return EQUIPOS.filter(function(e){
+      return e.tipo === "wrapper" && e.proyecto === lineaProy;
+    });
+  }
+  return EQUIPOS.filter(function(e){
+    return e.linea === linea && e.tipo === tipo;
+  });
+}
 
-  // Re-render everything
-  updateKPIs();
-  renderOperatividad();
-  renderMapa();
+function getPeorEstado(equipos){
+  var tieneFuera = false;
+  var tieneDeg = false;
+  equipos.forEach(function(eq){
+    var st = equipStatus[eq.id] || "operativo";
+    if(st === "fuera") tieneFuera = true;
+    else if(st === "degradado") tieneDeg = true;
+  });
+  if(tieneFuera) return "fuera";
+  if(tieneDeg) return "degradado";
+  return "operativo";
 }
 
 // ============================================================
-// 26. MODAL EVENT LISTENERS
+// 36. SCORECARD — Arthur vs Sunrise
 // ============================================================
-(function initModalListeners() {
-  // Wait for DOM
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindModal);
-  } else {
-    bindModal();
-  }
+function renderScorecard(){
+  var arthur  = {ops:0, deg:0, fs:0, total:0};
+  var sunrise = {ops:0, deg:0, fs:0, total:0};
 
-  function bindModal() {
-    document.getElementById("modalClose").addEventListener("click", closeStatusModal);
-    document.getElementById("modalCancelBtn").addEventListener("click", closeStatusModal);
-    document.getElementById("modalConfirmBtn").addEventListener("click", confirmStatusChange);
+  EQUIPOS.forEach(function(eq){
+    var st = equipStatus[eq.id] || "operativo";
+    var bucket = eq.proyecto === "arthur" ? arthur : sunrise;
+    bucket.total++;
+    if(st === "operativo") bucket.ops++;
+    else if(st === "degradado") bucket.deg++;
+    else if(st === "fuera") bucket.fs++;
+  });
 
-    // Close on overlay click
-    document.getElementById("modalOverlay").addEventListener("click", function(e) {
-      if (e.target === this) closeStatusModal();
-    });
+  // Arthur
+  var arthurPct = arthur.total > 0 ? Math.round((arthur.ops / arthur.total) * 1000) / 10 : 0;
+  document.getElementById("scArthurPct").textContent = arthurPct + "%";
+  document.getElementById("scArthurPct").style.color = arthurPct >= 90 ? "#287819" : arthurPct >= 75 ? "#E18719" : "#A52323";
+  document.getElementById("scArthurOps").textContent = arthur.ops;
+  document.getElementById("scArthurDeg").textContent = arthur.deg;
+  document.getElementById("scArthurFS").textContent = arthur.fs;
 
-    // Close on Escape key
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") closeStatusModal();
-    });
-  }
-})();
+  // Sunrise
+  var sunrisePct = sunrise.total > 0 ? Math.round((sunrise.ops / sunrise.total) * 1000) / 10 : 0;
+  document.getElementById("scSunrisePct").textContent = sunrisePct + "%";
+  document.getElementById("scSunrisePct").style.color = sunrisePct >= 90 ? "#287819" : sunrisePct >= 75 ? "#E18719" : "#A52323";
+  document.getElementById("scSunriseOps").textContent = sunrise.ops;
+  document.getElementById("scSunriseDeg").textContent = sunrise.deg;
+  document.getElementById("scSunriseFS").textContent = sunrise.fs;
+}
+
+// ── Fin Bloque 3 ──
 
