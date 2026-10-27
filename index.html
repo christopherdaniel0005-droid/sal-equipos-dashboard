@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,14 +37,14 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 .mapa-wrap{display:flex;flex:1;overflow:hidden}
 .mapa-main{flex:1;position:relative;overflow:hidden;background:#f9f8fb}
 .mapa-main img{width:100%;height:100%;object-fit:contain}
-.marker{position:absolute;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;transition:transfo...
+.marker{position:absolute;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:2px solid rgba(255,255,255,.8);box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .marker:hover{transform:scale(1.15);z-index:10}
 .marker.pal{border-radius:6px}
 .marker.wrapper{border-radius:50%}
 .marker.espiral{border-radius:2px;transform:rotate(45deg)}
 .marker.espiral span{transform:rotate(-45deg)}
 .marker.espiral:hover{transform:rotate(45deg) scale(1.15)}
-.marker-badge{position:absolute;top:-6px;right:-6px;background:#4F2170;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-cont...
+.marker-badge{position:absolute;top:-6px;right:-6px;background:#4F2170;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}
 .marker-label{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#3D3D3D;white-space:nowrap;font-weight:600}
 .marker.status-operativo{background:#287819}
 .marker.status-degradado{background:#E18719}
@@ -76,6 +77,7 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 .filter-group{display:flex;align-items:center;gap:4px}
 .filter-group label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase}
 .filter-group select{padding:5px 8px;border:1px solid #d5d0dc;border-radius:4px;font-size:12px;font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#fff}
+.filter-spacer{margin-left:auto}
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px}
 .chart-card{background:#fff;border-radius:8px;border:1px solid #e8e5ec;padding:14px;display:flex;flex-direction:column}
 .chart-card h3{font-size:13px;color:#4F2170;margin-bottom:10px;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
@@ -88,7 +90,7 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 .table-toolbar .tbl-search{margin-left:auto;position:relative}
 .table-toolbar .tbl-search input{padding:6px 10px 6px 30px;border:1px solid #d5d0dc;border-radius:4px;font-size:12px;width:220px;font-family:Calibri,Arial,sans-serif}
 .table-toolbar .tbl-search i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#aaa;font-size:12px}
-.table-toolbar .btn-export{padding:5px 12px;background:#4F2170;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer;font-family:Calibri,Arial,sans-serif;font-weight:600;margin-lef...
+.table-toolbar .btn-export{padding:5px 12px;background:#4F2170;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer;font-family:Calibri,Arial,sans-serif;font-weight:600;margin-left:8px}
 .table-toolbar .btn-export:hover{background:#3a1854}
 .table-scroll{flex:1;overflow-y:auto;overflow-x:auto}
 table.data-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -102,9 +104,9 @@ table.data-table th .col-filter-btn:hover{opacity:1}
 table.data-table th .col-filter-btn.active{color:#E18719;opacity:1}
 table.data-table td{padding:7px 10px;border-bottom:1px solid #f3f3f3}
 table.data-table tbody tr:hover{background:#f9f8fb}
-.col-filter-drop{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #e8e5ec;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);padding:10px;min-width:200px;z-index...
+.col-filter-drop{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #e8e5ec;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);padding:10px;min-width:200px;z-index:20;color:#3D3D3D;font-weight:400}
 .col-filter-drop.show{display:block}
-.col-filter-drop input[type="text"]{width:100%;padding:5px 8px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;margin-bottom:6px;font-family:Calibri,Arial,sans-serif}
+.col-filter-drop input[type="text"],.col-filter-drop input[type="number"]{width:100%;padding:5px 8px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;margin-bottom:6px;font-family:Calibri,Arial,sans-serif}
 .cfd-options{max-height:150px;overflow-y:auto;margin-bottom:6px}
 .cfd-options label{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;cursor:pointer}
 .cfd-actions{display:flex;gap:6px;justify-content:flex-end}
@@ -128,7 +130,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 .oper-legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
 .oper-legend-count{margin-left:auto;font-weight:700;font-size:14px}
 .accordion-section{border:1px solid #e8e5ec;border-radius:6px;margin-bottom:6px;overflow:hidden}
-.accordion-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9f8fb;cursor:pointer;font-size:12px;font-weight:600;user-select:none;transition:backgr...
+.accordion-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9f8fb;cursor:pointer;font-size:12px;font-weight:600;user-select:none;transition:background .15s}
 .accordion-header:hover{background:#f0edf5}
 .accordion-header::after{content:'\f078';font-family:'Font Awesome 6 Free';font-weight:900;font-size:10px;color:#888;transition:transform .2s}
 .accordion-header.open::after{transform:rotate(180deg)}
@@ -191,26 +193,20 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 </style>
 </head>
 <body>
- 
-<!-- =============== HEADER =============== -->
 <header class="header">
   <div style="display:flex;align-items:center;gap:10px">
-    <h1>Mondelēz <span class="plant">| Salinas Plant</span></h1>
+    <h1>Mondelez <span class="plant">| Salinas Plant</span></h1>
   </div>
   <div>
-    <span style="font-size:13px;font-weight:600">Dashboard de Status de Equipos — Área PT Paletizado</span>
+    <span style="font-size:13px;font-weight:600">Dashboard de Status de Equipos - Area PT Paletizado</span>
     <span class="info" id="headerDate" style="margin-left:10px"></span>
   </div>
 </header>
- 
-<!-- =============== TABS =============== -->
 <nav class="tabs">
   <div class="tab active" data-tab="mapa"><i class="fa-solid fa-map" style="margin-right:5px"></i> Mapa</div>
   <div class="tab" data-tab="tarjetas"><i class="fa-solid fa-tags" style="margin-right:5px"></i> Tarjetas</div>
   <div class="tab" data-tab="operatividad"><i class="fa-solid fa-gauge-high" style="margin-right:5px"></i> Operatividad</div>
 </nav>
- 
-<!-- =============== KPI BAR =============== -->
 <div class="kpi-bar">
   <div class="kc"><div class="v" id="kpiAbiertas">0</div><div class="l">Abiertas</div></div>
   <div class="kc"><div class="v" id="kpiCerradas">0</div><div class="l">Cerradas</div></div>
@@ -229,8 +225,6 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     <div><label>Hasta</label><input type="date" id="filtHasta"></div>
   </div>
 </div>
- 
-<!-- =============== TAB: MAPA =============== -->
 <div class="tab-content active" id="tabMapa">
   <div class="mapa-wrap">
     <div class="mapa-main" id="mapaContainer">
@@ -246,7 +240,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
         <p class="text-muted text-center" style="margin-top:40px">Haz clic en un marcador del mapa para ver sus tarjetas abiertas</p>
       </div>
       <div class="mapa-panel-footer">
-        <a href="#" id="mpVerTodas" style="display:none">Ver todas &rarr;</a>
+        <a href="#" id="mpVerTodas" style="display:none">Ver todas</a>
         <div class="mp-updated" id="mpUpdated"></div>
       </div>
     </div>
@@ -260,26 +254,12 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     </div>
   </div>
 </div>
- 
-<!-- =============== TAB: TARJETAS =============== -->
 <div class="tab-content" id="tabTarjetas">
   <div class="filter-bar">
-    <div class="filter-group">
-      <label>Proyecto</label>
-      <select id="filtProyecto"><option value="">Todos</option><option value="arthur">Arthur</option><option value="sunrise">Sunrise</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Grupo</label>
-      <select id="filtGrupo"><option value="">Todos</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Color</label>
-      <select id="filtColor"><option value="">Todos</option><option value="BT">BT (Azul)</option><option value="RT">RT (Rojo)</option><option value="YT">YT (Amarillo)</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Estado</label>
-      <select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select>
-    </div>
+    <div class="filter-group"><label>Proyecto</label><select id="filtProyecto"><option value="">Todos</option><option value="arthur">Arthur</option><option value="sunrise">Sunrise</option></select></div>
+    <div class="filter-group"><label>Grupo</label><select id="filtGrupo"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Color</label><select id="filtColor"><option value="">Todos</option><option value="BT">BT (Azul)</option><option value="RT">RT (Rojo)</option><option value="YT">YT (Amarillo)</option></select></div>
+    <div class="filter-group"><label>Estado</label><select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:12px">
     <div class="chart-grid">
@@ -287,8 +267,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
       <div class="chart-card"><h3>Tendencia Apertura vs Cierre</h3><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
     </div>
     <div class="chart-grid">
-      <div class="chart-card"><h3>Top 10 Equipos Problemáticos</h3><div class="chart-wrap"><canvas id="chartTop10"></canvas></div></div>
-      <div class="chart-card"><h3>Distribución de Antigüedad</h3><div class="chart-wrap"><canvas id="chartAntig"></canvas></div></div>
+      <div class="chart-card"><h3>Top 10 Equipos Problematicos</h3><div class="chart-wrap"><canvas id="chartTop10"></canvas></div></div>
+      <div class="chart-card"><h3>Distribucion de Antiguedad</h3><div class="chart-wrap"><canvas id="chartAntig"></canvas></div></div>
     </div>
     <div class="chart-grid">
       <div class="chart-card"><h3>Tasa de Cierre Mensual</h3><div class="chart-wrap"><canvas id="chartCierre"></canvas></div></div>
@@ -296,37 +276,29 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     </div>
     <div class="table-section">
       <div class="table-toolbar">
-        <h3>Detalle de Tarjetas</h3>
-        <span class="tbl-count" id="tblCount"></span>
-        <div class="tbl-search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="tblSearch" placeholder="Buscar folio, equipo, descripción...">
-        </div>
+        <h3>Detalle de Tarjetas</h3><span class="tbl-count" id="tblCount"></span>
+        <div class="tbl-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="tblSearch" placeholder="Buscar folio, equipo, descripcion..."></div>
         <button class="btn-export" id="btnExport"><i class="fa-solid fa-download" style="margin-right:4px"></i>Descargar Excel</button>
       </div>
       <div class="table-scroll">
         <table class="data-table" id="tarjetasTable">
-          <thead>
-            <tr>
-              <th><div class="th-wrap">Folio <i class="fa-solid fa-sort col-sort" data-col="folio"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="folio"></i></div><div class="col-filte...
-              <th><div class="th-wrap">Equipo <i class="fa-solid fa-sort col-sort" data-col="equipo"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="equipo"></i></div><div class="col-fi...
-              <th><div class="th-wrap">Color <i class="fa-solid fa-sort col-sort" data-col="color"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="color"></i></div><div class="col-filte...
-              <th><div class="th-wrap">Defecto <i class="fa-solid fa-sort col-sort" data-col="defecto"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="defecto"></i></div><div class="col...
-              <th><div class="th-wrap">Prioridad <i class="fa-solid fa-sort col-sort" data-col="prioridad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="prioridad"></i></div><div clas...
-              <th><div class="th-wrap">Estado <i class="fa-solid fa-sort col-sort" data-col="estado"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="estado"></i></div><div class="col-fi...
-              <th><div class="th-wrap">Fecha <i class="fa-solid fa-sort col-sort" data-col="fecha"></i></div></th>
-              <th><div class="th-wrap">Antigüedad <i class="fa-solid fa-sort col-sort" data-col="antiguedad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="antiguedad"></i></div><div c...
-              <th><div class="th-wrap">Descripción</div></th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th><div class="th-wrap">Folio <i class="fa-solid fa-sort col-sort" data-col="folio"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="folio"></i></div><div class="col-filter-drop" data-col="folio"></div></th>
+            <th><div class="th-wrap">Equipo <i class="fa-solid fa-sort col-sort" data-col="equipo"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="equipo"></i></div><div class="col-filter-drop" data-col="equipo"></div></th>
+            <th><div class="th-wrap">Color <i class="fa-solid fa-sort col-sort" data-col="color"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="color"></i></div><div class="col-filter-drop" data-col="color"></div></th>
+            <th><div class="th-wrap">Defecto <i class="fa-solid fa-sort col-sort" data-col="defecto"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="defecto"></i></div><div class="col-filter-drop" data-col="defecto"></div></th>
+            <th><div class="th-wrap">Prioridad <i class="fa-solid fa-sort col-sort" data-col="prioridad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="prioridad"></i></div><div class="col-filter-drop" data-col="prioridad"></div></th>
+            <th><div class="th-wrap">Estado <i class="fa-solid fa-sort col-sort" data-col="estado"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="estado"></i></div><div class="col-filter-drop" data-col="estado"></div></th>
+            <th><div class="th-wrap">Fecha <i class="fa-solid fa-sort col-sort" data-col="fecha"></i></div></th>
+            <th><div class="th-wrap">Antiguedad <i class="fa-solid fa-sort col-sort" data-col="antiguedad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="antiguedad"></i></div><div class="col-filter-drop" data-col="antiguedad"></div></th>
+            <th><div class="th-wrap">Descripcion</div></th>
+          </tr></thead>
           <tbody id="tarjetasTbody"></tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
- 
-<!-- =============== TAB: OPERATIVIDAD =============== -->
 <div class="tab-content" id="tabOperatividad">
   <div class="oper-wrap">
     <div class="oper-left">
@@ -362,7 +334,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
         <div class="oper-note">Datos guardados en navegador (localStorage)</div>
       </div>
       <div class="oper-card">
-        <h3>Mapa de Operatividad por Línea</h3>
+        <h3>Mapa de Operatividad por Linea</h3>
         <div class="heatmap-grid" id="heatmapGrid"></div>
         <div class="heatmap-legend">
           <span><span class="hm-leg-dot" style="background:#287819"></span> Operativo</span>
@@ -374,7 +346,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
       <div class="scorecard-row" id="scorecardRow">
         <div class="scorecard-card" id="scArthur">
           <h4>Arthur</h4>
-          <div class="sc-big" id="scArthurPct" style="color:#287819">—</div>
+          <div class="sc-big" id="scArthurPct" style="color:#287819">-</div>
           <div class="sc-label">operatividad</div>
           <div class="sc-stats">
             <div class="sc-stat"><div class="sc-val" id="scArthurOps" style="color:#287819">0</div><div class="sc-lbl">Operativos</div></div>
@@ -384,7 +356,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
         </div>
         <div class="scorecard-card" id="scSunrise">
           <h4>Sunrise</h4>
-          <div class="sc-big" id="scSunrisePct" style="color:#287819">—</div>
+          <div class="sc-big" id="scSunrisePct" style="color:#287819">-</div>
           <div class="sc-label">operatividad</div>
           <div class="sc-stats">
             <div class="sc-stat"><div class="sc-val" id="scSunriseOps" style="color:#287819">0</div><div class="sc-lbl">Operativos</div></div>
@@ -396,8 +368,6 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     </div>
   </div>
 </div>
- 
-<!-- =============== MODAL CAMBIO DE ESTADO =============== -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -422,8 +392,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     </div>
   </div>
 </div>
- 
-<!-- =============== SCRIPTS =============== -->
 <script src="app.js"></script>
 </body>
 </html>
+
