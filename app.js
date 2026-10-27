@@ -439,7 +439,6 @@ function initTabs(){
     document.getElementById("tabTarjetas").classList.add("active");
   });
 }
- 
 // ================================================================
 // SECCIONES 12-14: TARJETAS -- Init + Filtros
 // ================================================================
