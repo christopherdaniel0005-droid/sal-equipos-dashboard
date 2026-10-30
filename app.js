@@ -195,7 +195,7 @@ function cargarTarjetas(callback){
         _prioridad:t.prioridad||"",_estado:t.estado||"",_fechaInc:fechaLimpia,
         _fechaRes:t.fechaResolucion||"",_dias:dias,_descripcion:t.descripcion||t.defecto||"",
         _ubicacion:t.ubicacion||"",_proyecto:(t.proyecto||"").toLowerCase(),
-        _brand:t.brand||"",_tipoEquipo:t.tipoEquipo||"",_grupo:extraerGrupo(t.ubicacion||t.equipoMapa||""),
+        _brand:t.brand||"",_tipoEquipo:t.tipoEquipo||"",_grupo: (t.grupo || "").toUpperCase(),
         _fuente:t.fuente||""
       };
     });
