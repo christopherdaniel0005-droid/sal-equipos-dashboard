@@ -4,26 +4,26 @@
 // 1. INVENTARIO MAESTRO - 67 equipos
 // ============================================================
 var EQUIPOS = [
-  {id:"Pal 1",tipo:"pal",solvace:"10322569",nombre:"Paletizadora Ritz 1",brand:"Ritz",proyecto:"arthur",linea:1},
-  {id:"Pal 2",tipo:"pal",solvace:"10322929",nombre:"Paletizadora Chips Ahoy! 2",brand:"CA!",proyecto:"arthur",linea:2},
-  {id:"Pal 3",tipo:"pal",solvace:"10322975",nombre:"Paletizadora Oreo 3",brand:"Oreo",proyecto:"sunrise",linea:3},
-  {id:"Pal 4",tipo:"pal",solvace:"10323196",nombre:"Paletizadora Ritz 4",brand:"Ritz",proyecto:"arthur",linea:4},
-  {id:"Pal 5",tipo:"pal",solvace:"10323244",nombre:"Paletizadora Belvita 5",brand:"Belvita",proyecto:"arthur",linea:5},
-  {id:"Pal 6A",tipo:"pal",solvace:"10323324",nombre:"Paletizadora Oreo 6A",brand:"Oreo",proyecto:"arthur",linea:6},
-  {id:"Pal 6B",tipo:"pal",solvace:"10323323",nombre:"Paletizadora Oreo 6B",brand:"Oreo",proyecto:"arthur",linea:6},
-  {id:"Pal 7A",tipo:"pal",solvace:"10323392",nombre:"Paletizadora Mini Oreo 7A",brand:"Mini Oreo",proyecto:"arthur",linea:7},
-  {id:"Pal 7B",tipo:"pal",solvace:"10323393",nombre:"Paletizadora Mini Oreo 7B",brand:"Mini Oreo",proyecto:"arthur",linea:7},
-  {id:"Pal 8",tipo:"pal",solvace:"10324423",nombre:"Paletizadora Ritz 8",brand:"Ritz",proyecto:"sunrise",linea:8},
-  {id:"Pal 9A",tipo:"pal",solvace:"10324914",nombre:"Paletizadora Oreo 9A",brand:"Oreo",proyecto:"arthur",linea:9},
-  {id:"Pal 9B",tipo:"pal",solvace:"10324913",nombre:"Paletizadora Oreo 9B",brand:"Oreo",proyecto:"arthur",linea:9},
-  {id:"Pal 10",tipo:"pal",solvace:"10325123",nombre:"Paletizadora Ritz 10",brand:"Ritz",proyecto:"sunrise",linea:10},
-  {id:"Pal 11 GenZ",tipo:"pal",solvace:"10325178",nombre:"Paletizadora Oreo 11 GenZ",brand:"Oreo",proyecto:"sunrise",linea:11},
-  {id:"Pal 11 PPL",tipo:"pal",solvace:"10325176",nombre:"Paletizadora Oreo 11 PPL",brand:"Oreo",proyecto:"sunrise",linea:11},
-  {id:"Pal 11 PPU",tipo:"pal",solvace:"10325177",nombre:"Paletizadora Oreo 11 PPU",brand:"Oreo",proyecto:"sunrise",linea:11},
-  {id:"Pal 11 OT",tipo:"pal",solvace:"10325175",nombre:"Paletizadora Oreo 11 OT",brand:"Oreo",proyecto:"sunrise",linea:11},
-  {id:"Pal 12",tipo:"pal",solvace:"10336334",nombre:"Paletizadora Graham 12",brand:"Graham",proyecto:"sunrise",linea:12},
-  {id:"Pal 13",tipo:"pal",solvace:"10336335",nombre:"Paletizadora Oreo 13",brand:"Oreo",proyecto:"sunrise",linea:13},
-  {id:"Pal 14",tipo:"pal",solvace:"10336336",nombre:"Paletizadora Oreo 14",brand:"Oreo",proyecto:"sunrise",linea:14},
+  {id:"Pal 1",tipo:"pal",solvace:"10322569",nombre:"Paletizadora 1",brand:"Ritz",proyecto:"arthur",linea:1},
+  {id:"Pal 2",tipo:"pal",solvace:"10322929",nombre:"Paletizadora 2",brand:"CA!",proyecto:"arthur",linea:2},
+  {id:"Pal 3",tipo:"pal",solvace:"10322975",nombre:"Paletizadora 3",brand:"Oreo",proyecto:"sunrise",linea:3},
+  {id:"Pal 4",tipo:"pal",solvace:"10323196",nombre:"Paletizadora 4",brand:"Ritz",proyecto:"arthur",linea:4},
+  {id:"Pal 5",tipo:"pal",solvace:"10323244",nombre:"Paletizadora 5",brand:"Belvita",proyecto:"arthur",linea:5},
+  {id:"Pal 6A",tipo:"pal",solvace:"10323324",nombre:"Paletizadora 6A",brand:"Oreo",proyecto:"arthur",linea:6},
+  {id:"Pal 6B",tipo:"pal",solvace:"10323323",nombre:"Paletizadora 6B",brand:"Oreo",proyecto:"arthur",linea:6},
+  {id:"Pal 7A",tipo:"pal",solvace:"10323392",nombre:"Paletizadora 7A",brand:"Mini Oreo",proyecto:"arthur",linea:7},
+  {id:"Pal 7B",tipo:"pal",solvace:"10323393",nombre:"Paletizadora 7B",brand:"Mini Oreo",proyecto:"arthur",linea:7},
+  {id:"Pal 8",tipo:"pal",solvace:"10324423",nombre:"Paletizadora 8",brand:"Ritz",proyecto:"sunrise",linea:8},
+  {id:"Pal 9A",tipo:"pal",solvace:"10324914",nombre:"Paletizadora 9A",brand:"Oreo",proyecto:"arthur",linea:9},
+  {id:"Pal 9B",tipo:"pal",solvace:"10324913",nombre:"Paletizadora 9B",brand:"Oreo",proyecto:"arthur",linea:9},
+  {id:"Pal 10",tipo:"pal",solvace:"10325123",nombre:"Paletizadora 10",brand:"Ritz",proyecto:"sunrise",linea:10},
+  {id:"Pal 11 GenZ",tipo:"pal",solvace:"10325178",nombre:"Paletizadora 11 GenZ",brand:"Oreo",proyecto:"sunrise",linea:11},
+  {id:"Pal 11 PPL",tipo:"pal",solvace:"10325176",nombre:"Paletizadora 11 PPL",brand:"Oreo",proyecto:"sunrise",linea:11},
+  {id:"Pal 11 PPU",tipo:"pal",solvace:"10325177",nombre:"Paletizadora 11 PPU",brand:"Oreo",proyecto:"sunrise",linea:11},
+  {id:"Pal 11 OT",tipo:"pal",solvace:"10325175",nombre:"Paletizadora 11 OT",brand:"Oreo",proyecto:"sunrise",linea:11},
+  {id:"Pal 12",tipo:"pal",solvace:"10336334",nombre:"Paletizadora 12",brand:"Graham",proyecto:"sunrise",linea:12},
+  {id:"Pal 13",tipo:"pal",solvace:"10336335",nombre:"Paletizadora 13",brand:"Oreo",proyecto:"sunrise",linea:13},
+  {id:"Pal 14",tipo:"pal",solvace:"10336336",nombre:"Paletizadora 14",brand:"Oreo",proyecto:"sunrise",linea:14},
   {id:"Wrapper 1",tipo:"wrapper",solvace:"10121166",nombre:"Wrapper 1",brand:"-",proyecto:"arthur",linea:null},
   {id:"Wrapper 2",tipo:"wrapper",solvace:"10121167",nombre:"Wrapper 2",brand:"-",proyecto:"arthur",linea:null},
   {id:"Wrapper 3",tipo:"wrapper",solvace:"10121168",nombre:"Wrapper 3",brand:"-",proyecto:"arthur",linea:null},
@@ -31,44 +31,44 @@ var EQUIPOS = [
   {id:"Wrapper 6",tipo:"wrapper",solvace:"10190641",nombre:"Wrapper 6",brand:"-",proyecto:"sunrise",linea:null},
   {id:"Wrapper 7",tipo:"wrapper",solvace:"10190642",nombre:"Wrapper 7",brand:"-",proyecto:"sunrise",linea:null},
   {id:"Wrapper 8",tipo:"wrapper",solvace:"10320527",nombre:"Wrapper 8",brand:"-",proyecto:"sunrise",linea:null},
-  {id:"SP-1 y 2",tipo:"espiral",solvace:"-",nombre:"Espiral 1 y 2",brand:"-",proyecto:"arthur",linea:1},
-  {id:"SP-3",tipo:"espiral",solvace:"-",nombre:"Espiral 3",brand:"-",proyecto:"sunrise",linea:3},
-  {id:"SP-4 y 6A",tipo:"espiral",solvace:"-",nombre:"Espiral 4 y 6A",brand:"-",proyecto:"arthur",linea:4},
-  {id:"SP-5 y 9A",tipo:"espiral",solvace:"-",nombre:"Espiral 5 y 9A",brand:"-",proyecto:"arthur",linea:5},
-  {id:"SP-6B",tipo:"espiral",solvace:"-",nombre:"Espiral 6B",brand:"-",proyecto:"arthur",linea:6},
-  {id:"SP-7A y 7B",tipo:"espiral",solvace:"-",nombre:"Espiral 7A y 7B",brand:"-",proyecto:"arthur",linea:7},
-  {id:"SP-8",tipo:"espiral",solvace:"-",nombre:"Espiral 8",brand:"-",proyecto:"sunrise",linea:8},
-  {id:"SP-9B",tipo:"espiral",solvace:"-",nombre:"Espiral 9B",brand:"-",proyecto:"arthur",linea:9},
-  {id:"SP-10",tipo:"espiral",solvace:"-",nombre:"Espiral 10",brand:"-",proyecto:"sunrise",linea:10},
-  {id:"SP-10 FZ",tipo:"espiral",solvace:"-",nombre:"Espiral 10 FZ",brand:"-",proyecto:"arthur",linea:10},
-  {id:"SP-11 OT",tipo:"espiral",solvace:"-",nombre:"Espiral 11 OT",brand:"-",proyecto:"sunrise",linea:11},
-  {id:"SP-11 PPL",tipo:"espiral",solvace:"-",nombre:"Espiral 11 PPL",brand:"-",proyecto:"sunrise",linea:11},
-  {id:"SP-11 PPU",tipo:"espiral",solvace:"-",nombre:"Espiral 11 PPU",brand:"-",proyecto:"sunrise",linea:11},
+  {id:"SP-1 y 2",tipo:"espiral",solvace:"-",nombre:"Espiral L1 y L2",brand:"-",proyecto:"arthur",linea:1},
+  {id:"SP-3",tipo:"espiral",solvace:"-",nombre:"Espiral L3",brand:"-",proyecto:"sunrise",linea:3},
+  {id:"SP-4 y 6A",tipo:"espiral",solvace:"-",nombre:"Espiral L4 y L6A",brand:"-",proyecto:"arthur",linea:4},
+  {id:"SP-5 y 9A",tipo:"espiral",solvace:"-",nombre:"Espiral L5 y L9A",brand:"-",proyecto:"arthur",linea:5},
+  {id:"SP-6B",tipo:"espiral",solvace:"-",nombre:"Espiral L6B",brand:"-",proyecto:"arthur",linea:6},
+  {id:"SP-7A y 7B",tipo:"espiral",solvace:"-",nombre:"Espiral L7A y L7B",brand:"-",proyecto:"arthur",linea:7},
+  {id:"SP-8",tipo:"espiral",solvace:"-",nombre:"Espiral L8",brand:"-",proyecto:"sunrise",linea:8},
+  {id:"SP-9B",tipo:"espiral",solvace:"-",nombre:"Espiral L9B",brand:"-",proyecto:"arthur",linea:9},
+  {id:"SP-10",tipo:"espiral",solvace:"-",nombre:"Espiral L10",brand:"-",proyecto:"sunrise",linea:10},
+  {id:"SP-10 FZ",tipo:"espiral",solvace:"-",nombre:"Espiral L10 FZ",brand:"-",proyecto:"arthur",linea:10},
+  {id:"SP-11 OT",tipo:"espiral",solvace:"-",nombre:"Espiral L11 OT",brand:"-",proyecto:"sunrise",linea:11},
+  {id:"SP-11 PPL",tipo:"espiral",solvace:"-",nombre:"Espiral L11 PPL",brand:"-",proyecto:"sunrise",linea:11},
+  {id:"SP-11 PPU",tipo:"espiral",solvace:"-",nombre:"Espiral L11 PPU",brand:"-",proyecto:"sunrise",linea:11},
   {id:"SP-GENZ",tipo:"espiral",solvace:"-",nombre:"Espiral GenZ",brand:"-",proyecto:"sunrise",linea:11},
-  {id:"SP-12",tipo:"espiral",solvace:"-",nombre:"Espiral 12",brand:"-",proyecto:"sunrise",linea:12},
-  {id:"SP-13",tipo:"espiral",solvace:"-",nombre:"Espiral 13",brand:"-",proyecto:"sunrise",linea:13},
-  {id:"SP-14",tipo:"espiral",solvace:"-",nombre:"Espiral 14",brand:"-",proyecto:"sunrise",linea:14},
-  {id:"SP-14 FZ",tipo:"espiral",solvace:"-",nombre:"Espiral 14 FZ",brand:"-",proyecto:"arthur",linea:14},
-  {id:"CC-1",tipo:"cc",solvace:"10322568",nombre:"Case Conveyor Ritz 1",brand:"Ritz",proyecto:"arthur",linea:1,asociado:"Pal 1"},
-  {id:"CC-2",tipo:"cc",solvace:"10322928",nombre:"Case Conveyor Chips Ahoy 2",brand:"Chips Ahoy",proyecto:"arthur",linea:2,asociado:"Pal 2"},
-  {id:"CC-3",tipo:"cc",solvace:"10322974",nombre:"Case Conveyor Oreo 3",brand:"Oreo",proyecto:"sunrise",linea:3,asociado:"Pal 3"},
-  {id:"CC-4",tipo:"cc",solvace:"10323195",nombre:"Case Conveyor Ritz 4",brand:"Ritz",proyecto:"arthur",linea:4,asociado:"Pal 4"},
-  {id:"CC-5",tipo:"cc",solvace:"10323243",nombre:"Case Conveyor Belvita 5",brand:"Belvita",proyecto:"arthur",linea:5,asociado:"Pal 5"},
-  {id:"CC-6A",tipo:"cc",solvace:"10323322",nombre:"Case Conveyor Oreo 6A",brand:"Oreo",proyecto:"arthur",linea:6,asociado:"Pal 6A"},
-  {id:"CC-6B",tipo:"cc",solvace:"10323321",nombre:"Case Conveyor Oreo 6B",brand:"Oreo",proyecto:"arthur",linea:6,asociado:"Pal 6B"},
-  {id:"CC-7A",tipo:"cc",solvace:"10323390",nombre:"Case Conveyor Mini Oreo A",brand:"Mini Oreo",proyecto:"arthur",linea:7,asociado:"Pal 7A"},
-  {id:"CC-7B",tipo:"cc",solvace:"10323391",nombre:"Case Conveyor Mini Oreo B",brand:"Mini Oreo",proyecto:"arthur",linea:7,asociado:"Pal 7B"},
-  {id:"CC-8",tipo:"cc",solvace:"10324422",nombre:"Case Conveyor Ritz 8",brand:"Ritz",proyecto:"sunrise",linea:8,asociado:"Pal 8"},
-  {id:"CC-9A",tipo:"cc",solvace:"10324912",nombre:"Case Conveyor Oreo 9A",brand:"Oreo",proyecto:"arthur",linea:9,asociado:"Pal 9A"},
-  {id:"CC-9B",tipo:"cc",solvace:"10324911",nombre:"Case Conveyor Oreo 9B",brand:"Oreo",proyecto:"arthur",linea:9,asociado:"Pal 9B"},
-  {id:"CC-10",tipo:"cc",solvace:"10324462",nombre:"Case Conveyor Ritz 10",brand:"Ritz",proyecto:"sunrise",linea:10,asociado:"Pal 10"},
-  {id:"CC-11 GenZ",tipo:"cc",solvace:"10325174",nombre:"Case Conveyor Oreo 11 GenZ",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 GenZ"},
-  {id:"CC-11 PPL",tipo:"cc",solvace:"10325172",nombre:"Case Conveyor Oreo 11 PPL",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 PPL"},
-  {id:"CC-11 PPU",tipo:"cc",solvace:"10325173",nombre:"Case Conveyor Oreo 11 PPU",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 PPU"},
-  {id:"CC-11 OT",tipo:"cc",solvace:"10325171",nombre:"Case Conveyor Oreo 11 OT",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 OT"},
-  {id:"CC-12",tipo:"cc",solvace:"10334032",nombre:"Case Conveyor Graham 12",brand:"Graham",proyecto:"sunrise",linea:12,asociado:"Pal 12"},
-  {id:"CC-13",tipo:"cc",solvace:"10328680",nombre:"Case Conveyor OT 13",brand:"Oreo",proyecto:"sunrise",linea:13,asociado:"Pal 13"},
-  {id:"CC-14",tipo:"cc",solvace:"10336033",nombre:"Case Conveyor Oreo 14",brand:"Oreo",proyecto:"sunrise",linea:14,asociado:"Pal 14"},
+  {id:"SP-12",tipo:"espiral",solvace:"-",nombre:"Espiral L12",brand:"-",proyecto:"sunrise",linea:12},
+  {id:"SP-13",tipo:"espiral",solvace:"-",nombre:"Espiral L13",brand:"-",proyecto:"sunrise",linea:13},
+  {id:"SP-14",tipo:"espiral",solvace:"-",nombre:"Espiral L14",brand:"-",proyecto:"sunrise",linea:14},
+  {id:"SP-14 FZ",tipo:"espiral",solvace:"-",nombre:"Espiral L14 FZ",brand:"-",proyecto:"arthur",linea:14},
+  {id:"CC-1",tipo:"cc",solvace:"10322568",nombre:"Case Conveyor L1",brand:"Ritz",proyecto:"arthur",linea:1,asociado:"Pal 1"},
+  {id:"CC-2",tipo:"cc",solvace:"10322928",nombre:"Case Conveyor L2",brand:"Chips Ahoy",proyecto:"arthur",linea:2,asociado:"Pal 2"},
+  {id:"CC-3",tipo:"cc",solvace:"10322974",nombre:"Case Conveyor L3",brand:"Oreo",proyecto:"sunrise",linea:3,asociado:"Pal 3"},
+  {id:"CC-4",tipo:"cc",solvace:"10323195",nombre:"Case Conveyor L4",brand:"Ritz",proyecto:"arthur",linea:4,asociado:"Pal 4"},
+  {id:"CC-5",tipo:"cc",solvace:"10323243",nombre:"Case Conveyor L5",brand:"Belvita",proyecto:"arthur",linea:5,asociado:"Pal 5"},
+  {id:"CC-6A",tipo:"cc",solvace:"10323322",nombre:"Case Conveyor L6A",brand:"Oreo",proyecto:"arthur",linea:6,asociado:"Pal 6A"},
+  {id:"CC-6B",tipo:"cc",solvace:"10323321",nombre:"Case Conveyor L6B",brand:"Oreo",proyecto:"arthur",linea:6,asociado:"Pal 6B"},
+  {id:"CC-7A",tipo:"cc",solvace:"10323390",nombre:"Case Conveyor L7A",brand:"Mini Oreo",proyecto:"arthur",linea:7,asociado:"Pal 7A"},
+  {id:"CC-7B",tipo:"cc",solvace:"10323391",nombre:"Case Conveyor L7B",brand:"Mini Oreo",proyecto:"arthur",linea:7,asociado:"Pal 7B"},
+  {id:"CC-8",tipo:"cc",solvace:"10324422",nombre:"Case Conveyor L8",brand:"Ritz",proyecto:"sunrise",linea:8,asociado:"Pal 8"},
+  {id:"CC-9A",tipo:"cc",solvace:"10324912",nombre:"Case Conveyor L9A",brand:"Oreo",proyecto:"arthur",linea:9,asociado:"Pal 9A"},
+  {id:"CC-9B",tipo:"cc",solvace:"10324911",nombre:"Case Conveyor L9B",brand:"Oreo",proyecto:"arthur",linea:9,asociado:"Pal 9B"},
+  {id:"CC-10",tipo:"cc",solvace:"10324462",nombre:"Case Conveyor L10",brand:"Ritz",proyecto:"sunrise",linea:10,asociado:"Pal 10"},
+  {id:"CC-11 GenZ",tipo:"cc",solvace:"10325174",nombre:"Case Conveyor L11 GenZ",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 GenZ"},
+  {id:"CC-11 PPL",tipo:"cc",solvace:"10325172",nombre:"Case Conveyor L11 PPL",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 PPL"},
+  {id:"CC-11 PPU",tipo:"cc",solvace:"10325173",nombre:"Case Conveyor L11 PPU",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 PPU"},
+  {id:"CC-11 OT",tipo:"cc",solvace:"10325171",nombre:"Case Conveyor L11 OT",brand:"Oreo",proyecto:"sunrise",linea:11,asociado:"Pal 11 OT"},
+  {id:"CC-12",tipo:"cc",solvace:"10334032",nombre:"Case Conveyor L12",brand:"Graham",proyecto:"sunrise",linea:12,asociado:"Pal 12"},
+  {id:"CC-13",tipo:"cc",solvace:"10328680",nombre:"Case Conveyor L13",brand:"Oreo",proyecto:"sunrise",linea:13,asociado:"Pal 13"},
+  {id:"CC-14",tipo:"cc",solvace:"10336033",nombre:"Case Conveyor L14",brand:"Oreo",proyecto:"sunrise",linea:14,asociado:"Pal 14"},
   {id:"PC-Arthur",tipo:"pc",solvace:"10331366",nombre:"Pallet Conveyor Arthur",brand:"-",proyecto:"arthur",linea:null,asociado:"Proyecto Arthur"},
   {id:"PC-Sunrise",tipo:"pc",solvace:"10331367",nombre:"Pallet Conveyor Sunrise",brand:"-",proyecto:"sunrise",linea:null,asociado:"Proyecto Sunrise"}
 ];
@@ -95,6 +95,8 @@ var MAPA_COORDS={
   "SP-11 PPU":{x:31,y:52},"SP-GENZ":{x:17,y:72},"SP-12":{x:10,y:88},"SP-13":{x:17,y:88},
   "SP-14":{x:24,y:88},"SP-14 FZ":{x:31,y:88}
 };
+// >>> FIN PARTE 1 de 7 — Verifica: ultima linea es cierre de MAPA_COORDS
+
 
 // ============================================================
 // 4. UTILIDADES GLOBALES
@@ -155,6 +157,44 @@ function equiposPorProyecto(p){return EQUIPOS.filter(function(e){return e.proyec
 function equiposPorLinea(n){return EQUIPOS.filter(function(e){return e.linea===n;});}
 
 // ============================================================
+// >>> BLOQUE 1 NUEVO: 4B. ALIAS_MAP + MATCHING INTELIGENTE
+// ============================================================
+var ALIAS_MAP = {
+  "W1": "Wrapper 1",
+  "W2": "Wrapper 2",
+  "W3": "Wrapper 3",
+  "W5": "Wrapper 5",
+  "W6": "Wrapper 6",
+  "W7": "Wrapper 7",
+  "W8": "Wrapper 8",
+  "CC 1": "CC-1",
+  "CC 2": "CC-2",
+  "CC 3": "CC-3",
+  "CC 4": "CC-4",
+  "CC 5": "CC-5",
+  "CC 8": "CC-8",
+  "PC Arthur": "PC-Arthur",
+  "PC Sunrise": "PC-Sunrise"
+};
+var SOLVACE_MAP = {};
+EQUIPOS.forEach(function(e) {
+  if (e.solvace && e.solvace !== "-") SOLVACE_MAP[e.solvace] = e.id;
+});
+function resolverEquipo(equipo, equipoFull) {
+  if (EQUIPO_MAP[equipo]) return equipo;
+  if (ALIAS_MAP[equipo] && EQUIPO_MAP[ALIAS_MAP[equipo]]) return ALIAS_MAP[equipo];
+  if (equipoFull) {
+    var nums = equipoFull.match(/\d{7,10}/g);
+    if (nums) {
+      for (var i = 0; i < nums.length; i++) {
+        if (SOLVACE_MAP[nums[i]]) return SOLVACE_MAP[nums[i]];
+      }
+    }
+  }
+  return "";
+}
+
+// ============================================================
 // 5. LOCALSTORAGE
 // ============================================================
 function cargarEstados(){
@@ -173,7 +213,8 @@ function contarEstados(){
   EQUIPOS.forEach(function(eq){var s=equipStatus[eq.id]||"operativo";if(s==="operativo")o++;else if(s==="degradado")d++;else if(s==="fuera")f++;});
   return{operativos:o,degradados:d,fuera:f,total:EQUIPOS.length};
 }
-// FIN BLOQUE A
+// >>> FIN PARTE 2 de 7 — Verifica: ultima linea es cierre de contarEstados
+
 
 // ============================================================
 // 6. CARGA DE DATOS
@@ -195,11 +236,18 @@ function cargarTarjetas(callback){
         _prioridad:t.prioridad||"",_estado:t.estado||"",_fechaInc:fechaLimpia,
         _fechaRes:t.fechaResolucion||"",_dias:dias,_descripcion:t.descripcion||t.defecto||"",
         _ubicacion:t.ubicacion||"",_proyecto:(t.proyecto||"").toLowerCase(),
-        _brand:t.brand||"",_tipoEquipo:t.tipoEquipo||"",_grupo: (t.grupo || "").toUpperCase(),
+        _brand:t.brand||"",_tipoEquipo:t.tipoEquipo||"",
+        _grupo:(t.grupo||"").toUpperCase(),
         _fuente:t.fuente||""
       };
     });
     console.log("Tarjetas cargadas:",tarjetasData.length);
+    // >>> BLOQUE 1: resolver equipoId y equipoDisplay para cada tarjeta
+    tarjetasData.forEach(function(t){
+      var eqId=resolverEquipo(t._equipo,t._equipoFull);
+      t._equipoId=eqId;
+      t._equipoDisplay=EQUIPO_MAP[eqId]?EQUIPO_MAP[eqId].nombre:t._equipo;
+    });
     if(callback) callback();
   }).catch(function(err){console.error("Error cargando tarjetas:",err);tarjetasData=[];if(callback) callback();});
 }
@@ -265,10 +313,11 @@ function renderMarcadores(){
     c.appendChild(mk);
   });
 }
+// >>> BLOQUE 1: contarTarjetasEquipo y obtenerTarjetasEquipo usan _equipoId
 function contarTarjetasEquipo(eid){
   var n=0;tarjetasData.forEach(function(t){
     if(!esAbierta(t._estado)) return;
-    if(matchEquipoTarjeta((t._equipo||"").toLowerCase(),eid.toLowerCase())) n++;
+    if(t._equipoId===eid) n++;
   });return n;
 }
 function matchEquipoTarjeta(te,ie){
@@ -282,7 +331,7 @@ function seleccionarEquipoMapa(eid){
   mapaSeleccionado=eid;var eq=getEquipo(eid);if(!eq) return;
   document.querySelectorAll(".marker").forEach(function(m){m.style.outline=m.getAttribute("data-equipo")===eid?"3px solid #4F2170":"none";});
   var st=equipStatus[eid]||"operativo";
-  document.getElementById("mpTitle").textContent=eq.id;
+  document.getElementById("mpTitle").textContent=eq.nombre;
   var meta=eq.nombre;if(eq.brand&&eq.brand!=="-") meta+=" - "+eq.brand;
   meta+=" | "+eq.proyecto.charAt(0).toUpperCase()+eq.proyecto.slice(1);
   if(eq.linea) meta+=" | Linea "+eq.linea;
@@ -304,9 +353,11 @@ function seleccionarEquipoMapa(eid){
 function obtenerTarjetasEquipo(eid){
   var r=[];tarjetasData.forEach(function(t){
     if(!esAbierta(t._estado)) return;
-    if(matchEquipoTarjeta((t._equipo||"").toLowerCase(),eid.toLowerCase())) r.push(t);
+    if(t._equipoId===eid) r.push(t);
   });r.sort(function(a,b){return b._dias-a._dias;});return r;
 }
+// >>> FIN PARTE 3 de 7 — Verifica: ultima linea es cierre de obtenerTarjetasEquipo
+
 
 // ============================================================
 // 10-11. MAPA LABELS + TABS
@@ -345,8 +396,9 @@ function poblarFiltroGrupos(){
   Object.keys(g).sort().forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent="Grupo "+k;sel.appendChild(o);});
 }
 function bindFiltrosTarjetas(){["filtProyecto","filtGrupo","filtColor","filtEstado"].forEach(function(id){var e=document.getElementById(id);if(e) e.addEventListener("change",renderTarjetas);});}
+// >>> BLOQUE 1: getColValue usa _equipoDisplay
 function getColValue(t,col){
-  switch(col){case "folio":return t._folio||"";case "equipo":return t._equipo||"";case "color":return t._color||"";
+  switch(col){case "folio":return t._folio||"";case "equipo":return t._equipoDisplay||t._equipo||"";case "color":return t._color||"";
   case "defecto":return t._defecto||"";case "prioridad":return t._prioridad||"";case "estado":return t._estado||"";
   case "antiguedad":return String(t._dias);default:return "";}
 }
@@ -428,9 +480,10 @@ function renderChartTrend(){
 // ============================================================
 // 18. GRAFICA 3 - Top 10 Equipos Problematicos
 // ============================================================
+// >>> BLOQUE 1: usa _equipoDisplay para nombres bonitos en grafica
 function renderChartTop10(){
   var c={};
-  tarjetasFiltradas.forEach(function(t){if(!esAbierta(t._estado)) return;var eq=t._equipo||"Sin equipo";c[eq]=(c[eq]||0)+1;});
+  tarjetasFiltradas.forEach(function(t){if(!esAbierta(t._estado)) return;var eq=t._equipoDisplay||t._equipo||"Sin equipo";c[eq]=(c[eq]||0)+1;});
   var s=Object.keys(c).map(function(k){return{eq:k,n:c[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,10);
   var ctx=document.getElementById("chartTop10");if(!ctx) return;
   if(chartTop10) chartTop10.destroy();
@@ -440,6 +493,8 @@ function renderChartTop10(){
     options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{ticks:{font:{size:10,family:"Calibri,Arial,sans-serif"}}}}}
   });
 }
+// >>> FIN PARTE 4 de 7 — Verifica: ultima linea es cierre de renderChartTop10
+
 
 // ============================================================
 // 19. GRAFICA 4 - Distribucion de Antiguedad
@@ -511,6 +566,7 @@ function renderChartGrupos(){
 // ============================================================
 // 22. Tabla de Tarjetas
 // ============================================================
+// >>> BLOQUE 1: usa _equipoDisplay en la tabla
 function renderTablaTarjetas(){
   var tb=document.getElementById("tarjetasTbody");if(!tb) return;
   var d=tarjetasFiltradas.slice();
@@ -527,7 +583,7 @@ function renderTablaTarjetas(){
   d.forEach(function(t){
     var pc="pill-abierta";var el=(t._estado||"").toLowerCase();
     if(el==="resuelta") pc="pill-resuelta";else if(el==="cmms") pc="pill-cmms";else if(el==="pendiente") pc="pill-proceso";
-    h+="<tr><td><strong>"+(t._folio||"-")+"</strong></td><td>"+(t._equipo||"-")+"</td><td>"+renderColorTag(t._color)+"</td><td>"+(t._defecto||"-")+"</td><td>"+(t._prioridad||"-")+"</td><td><span class='status-pill "+pc+"'>"+(t._estado||"-")+"</span></td><td>"+fmtFecha(t._fechaInc)+"</td><td>"+t._dias+"d</td><td>"+(t._descripcion||"-")+"</td></tr>";
+    h+="<tr><td><strong>"+(t._folio||"-")+"</strong></td><td>"+(t._equipoDisplay||t._equipo||"-")+"</td><td>"+renderColorTag(t._color)+"</td><td>"+(t._defecto||"-")+"</td><td>"+(t._prioridad||"-")+"</td><td><span class='status-pill "+pc+"'>"+(t._estado||"-")+"</span></td><td>"+fmtFecha(t._fechaInc)+"</td><td>"+t._dias+"d</td><td>"+(t._descripcion||"-")+"</td></tr>";
   });
   tb.innerHTML=h;
 }
@@ -537,6 +593,8 @@ function renderColorTag(c){
   if(c==="YT") return '<span style="color:#E18719;font-weight:700">YT</span>';
   return '<span style="color:#888">-</span>';
 }
+// >>> FIN PARTE 5 de 7 — Verifica: ultima linea es cierre de renderColorTag
+
 
 // ============================================================
 // 23-25. Tabla controles + filtros Excel + export
@@ -573,20 +631,19 @@ function toggleColFilter(col,btn){
   dr.querySelector(".btn-apply").addEventListener("click",function(e){e.stopPropagation();var cks=dr.querySelectorAll('.cfd-options input[type="checkbox"]');var sel=[];cks.forEach(function(c){if(c.checked) sel.push(c.value);});if(sel.length===vs.length||sel.length===0){delete colFilters[col];btn.classList.remove("active");}else{colFilters[col]=sel;btn.classList.add("active");}dr.classList.remove("show");renderTarjetas();});
   dr.addEventListener("click",function(e){e.stopPropagation();});
 }
+// >>> BLOQUE 1: exportarExcel usa _equipoDisplay
 function exportarExcel(){
   var d=tarjetasFiltradas.length>0?tarjetasFiltradas:tarjetasData;
   var lines=[];
   lines.push("Folio,Equipo,Color,Defecto,Prioridad,Estado,Fecha,Antiguedad (dias),Descripcion");
   d.forEach(function(t){
-    lines.push(['"'+(t._folio||"")+'"','"'+(t._equipo||"")+'"','"'+(t._color||"")+'"','"'+(t._defecto||"")+'"','"'+(t._prioridad||"")+'"','"'+(t._estado||"")+'"','"'+fmtFecha(t._fechaInc)+'"',t._dias,'"'+((t._descripcion||"").replace(/"/g,'""'))+'"'].join(","));
+    lines.push(['"'+(t._folio||"")+'"','"'+(t._equipoDisplay||t._equipo||"")+'"','"'+(t._color||"")+'"','"'+(t._defecto||"")+'"','"'+(t._prioridad||"")+'"','"'+(t._estado||"")+'"','"'+fmtFecha(t._fechaInc)+'"',t._dias,'"'+((t._descripcion||"").replace(/"/g,'""'))+'"'].join(","));
   });
   var csv="\uFEFF"+lines.join("\n");
   var blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
   var lk=document.createElement("a");
   lk.href=URL.createObjectURL(blob);lk.download="tarjetas_paletizado_"+new Date().toISOString().substring(0,10)+".csv";lk.click();
 }
-// FIN BLOQUE B
-
 
 // ============================================================
 // 26-28. MODAL + ACORDEON
@@ -626,6 +683,8 @@ function confirmarCambioEstado(){
   if(mapaSeleccionado===modalEquipoActual) seleccionarEquipoMapa(modalEquipoActual);
   if(typeof renderOperatividad==="function") renderOperatividad();
 }
+// >>> FIN PARTE 6 de 7 — Verifica: ultima linea es cierre de confirmarCambioEstado
+
 
 // ============================================================
 // 30-31. OPERATIVIDAD
@@ -852,6 +911,4 @@ function inicializarApp(){
 }
 document.addEventListener("DOMContentLoaded",inicializarApp);
 // FIN app.js
-
-
 
