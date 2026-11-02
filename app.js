@@ -217,6 +217,74 @@ function contarEstados(){
 
 
 // ============================================================
+// 4C. REASIGNACION DE ESPIRALES POR PALABRA CLAVE  >>> BLOQUE 1
+// ============================================================
+var ESPIRAL_LINEA_MAP = {
+  1: "SP-1 y 2",
+  3: "SP-3",
+  4: "SP-4 y 6A",
+  5: "SP-5 y 9A",
+  7: "SP-7A y 7B",
+  8: "SP-8",
+  12: "SP-12",
+  13: "SP-13"
+};
+var ESPIRAL_SUFIJO_MAP = {
+  "OT": "SP-11 OT",
+  "PPL": "SP-11 PPL",
+  "PPU": "SP-11 PPU",
+  "GENZ": "SP-GENZ",
+  "GEN Z": "SP-GENZ"
+};
+function reasignarEspiral(t) {
+  var desc = (t._descripcion || "").toUpperCase();
+  if (desc.indexOf("ESPIRAL") === -1) return;
+  var lineaUbic = 0;
+  var mu = (t._ubicacion || "").match(/LINEA\s+(\d+)/i);
+  if (mu) lineaUbic = parseInt(mu[1]);
+  // REGLA A: sufijo explicito en descripcion (OT, PPU, PPL, GENZ, FZ)
+  var mSuf = desc.match(/ESPIRAL[\s\S]*?(OT|PPU|PPL|GENZ|GEN\s*Z|FZ)/i);
+  if (mSuf) {
+    var suf = mSuf[1].replace(/\s+/g, "").toUpperCase();
+    if (suf === "FZ") {
+      if (lineaUbic === 10 && EQUIPO_MAP["SP-10 FZ"]) { t._equipoId = "SP-10 FZ"; t._equipoDisplay = EQUIPO_MAP["SP-10 FZ"].nombre; return; }
+      if (lineaUbic === 14 && EQUIPO_MAP["SP-14 FZ"]) { t._equipoId = "SP-14 FZ"; t._equipoDisplay = EQUIPO_MAP["SP-14 FZ"].nombre; return; }
+    }
+    if (ESPIRAL_SUFIJO_MAP[suf] && EQUIPO_MAP[ESPIRAL_SUFIJO_MAP[suf]]) {
+      t._equipoId = ESPIRAL_SUFIJO_MAP[suf];
+      t._equipoDisplay = EQUIPO_MAP[ESPIRAL_SUFIJO_MAP[suf]].nombre;
+      return;
+    }
+  }
+  // REGLA B: numero de linea explicito en descripcion
+  var mNum = desc.match(/ESPIRAL[\s\S]*?(?:L)?(\d{1,2})/);
+  if (mNum) {
+    var nLin = parseInt(mNum[1]);
+    if (ESPIRAL_LINEA_MAP[nLin] && EQUIPO_MAP[ESPIRAL_LINEA_MAP[nLin]]) {
+      t._equipoId = ESPIRAL_LINEA_MAP[nLin];
+      t._equipoDisplay = EQUIPO_MAP[ESPIRAL_LINEA_MAP[nLin]].nombre;
+      return;
+    }
+  }
+  // REGLA C: sin numero, usar linea de ubicacion si tiene 1 solo espiral
+  if (lineaUbic > 0 && ESPIRAL_LINEA_MAP[lineaUbic] && EQUIPO_MAP[ESPIRAL_LINEA_MAP[lineaUbic]]) {
+    t._equipoId = ESPIRAL_LINEA_MAP[lineaUbic];
+    t._equipoDisplay = EQUIPO_MAP[ESPIRAL_LINEA_MAP[lineaUbic]].nombre;
+    return;
+  }
+  // REGLA D: linea ambigua, usar sufijo del equipo origen
+  if (lineaUbic === 11) {
+    var orig = (t._equipoId || "").toUpperCase();
+    if (orig.indexOf("OT") > -1 && EQUIPO_MAP["SP-11 OT"]) { t._equipoId = "SP-11 OT"; t._equipoDisplay = EQUIPO_MAP["SP-11 OT"].nombre; return; }
+    if (orig.indexOf("PPU") > -1 && EQUIPO_MAP["SP-11 PPU"]) { t._equipoId = "SP-11 PPU"; t._equipoDisplay = EQUIPO_MAP["SP-11 PPU"].nombre; return; }
+    if (orig.indexOf("PPL") > -1 && EQUIPO_MAP["SP-11 PPL"]) { t._equipoId = "SP-11 PPL"; t._equipoDisplay = EQUIPO_MAP["SP-11 PPL"].nombre; return; }
+    if (orig.indexOf("GENZ") > -1 && EQUIPO_MAP["SP-GENZ"]) { t._equipoId = "SP-GENZ"; t._equipoDisplay = EQUIPO_MAP["SP-GENZ"].nombre; return; }
+  }
+  // REGLA E: no se puede resolver, se queda en equipo original
+}
+
+
+// ============================================================
 // 6. CARGA DE DATOS
 // ============================================================
 function cargarTarjetas(callback){
@@ -247,6 +315,7 @@ function cargarTarjetas(callback){
       var eqId=resolverEquipo(t._equipo,t._equipoFull);
       t._equipoId=eqId;
       t._equipoDisplay=EQUIPO_MAP[eqId]?EQUIPO_MAP[eqId].nombre:t._equipo;
+      reasignarEspiral(t);
     });
     if(callback) callback();
   }).catch(function(err){console.error("Error cargando tarjetas:",err);tarjetasData=[];if(callback) callback();});
