@@ -133,6 +133,35 @@ function diasDesde(fechaStr){
   var hoy=new Date();hoy.setHours(0,0,0,0);d.setHours(0,0,0,0);
   return Math.max(0,Math.floor((hoy-d)/86400000));
 }
+
+// >>> FIX ANTIGUEDAD: calcula dias segun estado de la tarjeta
+function parseFecha(str){
+  if(!str) return null;
+  str=str.split(" ")[0];
+  var d;
+  if(str.indexOf("/")>-1){var p=str.split("/");d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));}
+  else{d=new Date(str);}
+  if(isNaN(d.getTime())) return null;
+  d.setHours(0,0,0,0);
+  return d;
+}
+function calcularDias(fechaInc,fechaRes,estado){
+  if(!estado) return 0;
+  var e=estado.toLowerCase().trim();
+  if(e==="cancelada") return 0;
+  var fi=parseFecha(fechaInc);
+  if(!fi) return 0;
+  if(e==="resuelta"){
+    var fr=parseFecha(fechaRes);
+    if(fr) return Math.max(0,Math.floor((fr-fi)/86400000));
+    return 0;
+  }
+  // Abierta (cmms/pendiente): dias desde inclusion hasta hoy
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  return Math.max(0,Math.floor((hoy-fi)/86400000));
+}
+
+
 function fmtFecha(fechaStr){
   if(!fechaStr) return "-";
   if(fechaStr.indexOf("/")>-1) return fechaStr;
@@ -297,7 +326,7 @@ function cargarTarjetas(callback){
       var fechaRaw=t.fechaInclusion||t["Fecha Inclusion"]||t.fecha||"";
       var fechaLimpia=fechaRaw.split(" ")[0];
       var color=getTagColor(t.categoria||"");
-      var dias=(typeof t.antiguedadDias==="number")?t.antiguedadDias:diasDesde(fechaLimpia);
+      var dias=calcularDias(fechaLimpia,t.fechaResolucion||t["Fecha Resolucion"]||"",t.estado||"");
       return{
         _raw:t,_folio:t.folio||"",_equipo:t.equipoMapa||"",_equipoFull:t.equipoSolvace||"",
         _categoria:t.categoria||"",_color:color,_defecto:t.tipoDefecto||t.defecto||"",
