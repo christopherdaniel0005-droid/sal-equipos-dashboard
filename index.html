@@ -7,6 +7,8 @@
 <title>Status de equipos | Paletizado - Planta Salinas</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;display:flex;flex-direction:column;height:100vh;overflow:hidden}
@@ -259,7 +261,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     <div class="filter-group"><label>Proyecto</label><select id="filtProyecto"><option value="">Todos</option><option value="arthur">Arthur</option><option value="sunrise">Sunrise</option></select></div>
     <div class="filter-group"><label>Grupo</label><select id="filtGrupo"><option value="">Todos</option></select></div>
     <div class="filter-group"><label>Color</label><select id="filtColor"><option value="">Todos</option><option value="BT">BT (Azul)</option><option value="RT">RT (Rojo)</option><option value="YT">YT (Amarillo)</option></select></div>
-    <div class="filter-group"><label>Estado</label><select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select></div>
+    <div class="filter-group"><label>Estado</label><select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select></div>    
+    <div class="filter-group"><label>Equipo</label><select id="filtEquipo"><option value="">Todos</option></select></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding-bottom:12px">
     <div class="chart-grid">
