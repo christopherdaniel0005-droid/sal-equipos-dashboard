@@ -552,13 +552,38 @@ function initTabs(){
 var chartDonut=null,chartTrend=null,chartTop10=null,chartAntig=null,chartCierre=null,chartGrupos=null;
 var tarjetasFiltradas=[];var tableSortCol=null,tableSortAsc=true;var colFilters={};
 
-function initTarjetas(){poblarFiltroGrupos();bindFiltrosTarjetas();bindTablaControls();renderTarjetas();}
+function initTarjetas(){poblarFiltroGrupos();poblarFiltroEquipos();bindFiltrosTarjetas();bindTablaControls();renderTarjetas();}
+
+// >>> BLOQUE 2: poblar filtros de grupo y equipo
 function poblarFiltroGrupos(){
   var sel=document.getElementById("filtGrupo");if(!sel) return;
   var g={};tarjetasData.forEach(function(t){if(t._grupo) g[t._grupo]=true;});
   Object.keys(g).sort().forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent="Grupo "+k;sel.appendChild(o);});
 }
-function bindFiltrosTarjetas(){["filtProyecto","filtGrupo","filtColor","filtEstado"].forEach(function(id){var e=document.getElementById(id);if(e) e.addEventListener("change",renderTarjetas);});}
+function poblarFiltroEquipos(){
+  var sel=document.getElementById("filtEquipo");if(!sel) return;
+  var tipos=[
+    {k:"pal",l:"Paletizadoras"},
+    {k:"wrapper",l:"Wrappers"},
+    {k:"espiral",l:"Espirales"},
+    {k:"cc",l:"Case Conveyors"},
+    {k:"pc",l:"Pallet Conveyors"}
+  ];
+  tipos.forEach(function(tipo){
+    var grp=document.createElement("optgroup");
+    grp.label=tipo.l;
+    EQUIPOS.filter(function(e){return e.tipo===tipo.k;}).forEach(function(e){
+      var opt=document.createElement("option");
+      opt.value=e.id;
+      opt.textContent=e.nombre;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+}
+
+
+function bindFiltrosTarjetas(){["filtProyecto","filtGrupo","filtColor","filtEstado","filtEquipo"].forEach(function(id){var e=document.getElementById(id);if(e) e.addEventListener("change",renderTarjetas);});}
 // >>> BLOQUE 1: getColValue usa _equipoDisplay
 function getColValue(t,col){
   switch(col){case "folio":return t._folio||"";case "equipo":return t._equipoDisplay||t._equipo||"";case "color":return t._color||"";
@@ -592,8 +617,9 @@ function filtrarTarjetas(){
 // ============================================================
 function renderTarjetas(){filtrarTarjetas();renderChartDonut();renderChartTrend();renderChartTop10();renderChartAntig();renderChartCierre();renderChartGrupos();renderTablaTarjetas();}
 
+
 // ============================================================
-// 16. GRAFICA 1 - Dona: Tarjetas por Color
+// 16. GRAFICA 1 - Dona: Tarjetas por Color  >>> BLOQUE 2: data labels
 // ============================================================
 function renderChartDonut(){
   var bt=0,rt=0,yt=0;
@@ -607,12 +633,23 @@ function renderChartDonut(){
   chartDonut=new Chart(ctx,{
     type:"doughnut",
     data:{labels:["BT (Azul)","RT (Rojo)","YT (Amarillo)"],datasets:[{data:[bt,rt,yt],backgroundColor:["#2D6EAA","#A52323","#E18719"],borderWidth:2,borderColor:"#fff"}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11},padding:12}}},cutout:"60%"}
+    options:{responsive:true,maintainAspectRatio:false,cutout:"60%",
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11},padding:12}},
+        datalabels:{color:"#fff",font:{family:"Calibri,Arial,sans-serif",size:13,weight:"bold"},
+          display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;},
+          formatter:function(val){return val;}
+        }
+      }
+    },
+    plugins:[ChartDataLabels]
   });
 }
 
+
+
+
 // ============================================================
-// 17. GRAFICA 2 - Tendencia Apertura vs Cierre
+// 17. GRAFICA 2 - Tendencia Apertura vs Cierre  >>> BLOQUE 2: data labels + autoSkip
 // ============================================================
 function renderChartTrend(){
   var meses={};
@@ -636,14 +673,24 @@ function renderChartTrend(){
       {label:"Abiertas",data:ks.map(function(k){return meses[k].a;}),borderColor:"#A52323",backgroundColor:"rgba(165,35,35,.1)",fill:true,tension:.3,pointRadius:3},
       {label:"Cerradas",data:ks.map(function(k){return meses[k].c;}),borderColor:"#287819",backgroundColor:"rgba(40,120,25,.1)",fill:true,tension:.3,pointRadius:3}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:10}}}}}
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}},
+        datalabels:{display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;},
+          color:"#3D3D3D",anchor:"end",align:"top",
+          font:{family:"Calibri,Arial,sans-serif",size:10,weight:"bold"}}
+      },
+      scales:{x:{ticks:{font:{size:10},autoSkip:false,maxRotation:45},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:10}}}}
+    },
+    plugins:[ChartDataLabels]
   });
 }
 
+
+
+
 // ============================================================
-// 18. GRAFICA 3 - Top 10 Equipos Problematicos
+// 18. GRAFICA 3 - Top 10 Equipos Problematicos  >>> BLOQUE 2: data labels + autoSkip
 // ============================================================
-// >>> BLOQUE 1: usa _equipoDisplay para nombres bonitos en grafica
 function renderChartTop10(){
   var c={};
   tarjetasFiltradas.forEach(function(t){if(!esAbierta(t._estado)) return;var eq=t._equipoDisplay||t._equipo||"Sin equipo";c[eq]=(c[eq]||0)+1;});
@@ -653,14 +700,25 @@ function renderChartTop10(){
   chartTop10=new Chart(ctx,{
     type:"bar",
     data:{labels:s.map(function(t){return t.eq;}),datasets:[{data:s.map(function(t){return t.n;}),backgroundColor:"#4F2170",borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{ticks:{font:{size:10,family:"Calibri,Arial,sans-serif"}}}}}
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{legend:{display:false},
+        datalabels:{color:"#fff",anchor:"center",align:"center",
+          font:{family:"Calibri,Arial,sans-serif",size:11,weight:"bold"},
+          display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;}}
+      },
+      scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{ticks:{font:{size:10,family:"Calibri,Arial,sans-serif"},autoSkip:false}}}
+    },
+    plugins:[ChartDataLabels]
   });
 }
+
+
 // >>> FIN PARTE 4 de 7 — Verifica: ultima linea es cierre de renderChartTop10
 
 
+
 // ============================================================
-// 19. GRAFICA 4 - Distribucion de Antiguedad
+// 19. GRAFICA 4 - Distribucion de Antiguedad  >>> BLOQUE 2: data labels + diasPeriodo
 // ============================================================
 function renderChartAntig(){
   var b={a:0,b:0,c:0,d:0};
@@ -673,12 +731,23 @@ function renderChartAntig(){
   chartAntig=new Chart(ctx,{
     type:"bar",
     data:{labels:["0-7 dias","8-15 dias","16-30 dias","30+ dias"],datasets:[{data:[b.a,b.b,b.c,b.d],backgroundColor:["#287819","#E18719","#E18719","#A52323"],borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:10}}}}}
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        datalabels:{color:"#3D3D3D",anchor:"end",align:"top",
+          font:{family:"Calibri,Arial,sans-serif",size:12,weight:"bold"},
+          display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;}}
+      },
+      scales:{x:{ticks:{font:{size:10},autoSkip:false},grid:{display:false}},y:{beginAtZero:true,ticks:{font:{size:10}}}}
+    },
+    plugins:[ChartDataLabels]
   });
 }
 
+
+
+
 // ============================================================
-// 20. GRAFICA 5 - Tasa de Cierre Mensual
+// 20. GRAFICA 5 - Tasa de Cierre Mensual  >>> BLOQUE 2: data labels + autoSkip
 // ============================================================
 function renderChartCierre(){
   var meses={};
@@ -698,33 +767,102 @@ function renderChartCierre(){
       {label:"Cerradas",data:ks.map(function(k){return meses[k].c;}),backgroundColor:"#4F2170",borderRadius:4,yAxisID:"y",order:2},
       {label:"% Cierre",data:ks.map(function(k){return meses[k].t>0?Math.round(meses[k].c/meses[k].t*1000)/10:0;}),type:"line",borderColor:"#E18719",backgroundColor:"transparent",pointBackgroundColor:"#E18719",pointRadius:4,tension:.3,yAxisID:"y1",order:1}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{beginAtZero:true,position:"left",ticks:{font:{size:10}}},y1:{beginAtZero:true,max:100,position:"right",ticks:{font:{size:10}},grid:{display:false}}}}
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}},
+        datalabels:{display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;},
+          color:function(ctx2){return ctx2.dataset.type==="line"?"#E18719":"#3D3D3D";},
+          anchor:"end",align:"top",
+          font:{family:"Calibri,Arial,sans-serif",size:10,weight:"bold"},
+          formatter:function(val,ctx2){return ctx2.dataset.type==="line"?val+"%":val;}
+        }
+      },
+      scales:{x:{ticks:{font:{size:10},autoSkip:false,maxRotation:45},grid:{display:false}},y:{beginAtZero:true,position:"left",ticks:{font:{size:10}}},y1:{beginAtZero:true,max:100,position:"right",ticks:{font:{size:10},callback:function(v){return v+"%";}},grid:{display:false}}}
+    },
+    plugins:[ChartDataLabels]
   });
 }
 
+
+
 // ============================================================
 // 21. GRAFICA 6 - Tasa de Cierre por Grupo
+// ============================================================
+
+// ============================================================
+// 21. GRAFICA 6 - Tasa de Cierre por Grupo  >>> BLOQUE 2: Opcion A mejorada
 // ============================================================
 function renderChartGrupos(){
   var g={};
   tarjetasFiltradas.forEach(function(t){
     if(esCancelada(t._estado)) return;
-    var k=t._grupo||"Sin grupo";if(!g[k]) g[k]={a:0,c:0,t:0};g[k].t++;
-    if(esAbierta(t._estado)) g[k].a++;else if(esCerrada(t._estado)) g[k].c++;
+    var k=t._grupo;
+    if(!k) return; // excluir "Sin grupo"
+    if(!g[k]) g[k]={a:0,c:0,t:0};
+    g[k].t++;
+    if(esAbierta(t._estado)) g[k].a++;
+    else if(esCerrada(t._estado)) g[k].c++;
   });
   var ks=Object.keys(g).sort();
   var ctx=document.getElementById("chartGrupos");if(!ctx) return;
   if(chartGrupos) chartGrupos.destroy();
   chartGrupos=new Chart(ctx,{
     type:"bar",
-    data:{labels:ks.map(function(k){return k==="Sin grupo"?k:"Grupo "+k;}),datasets:[
-      {label:"Abiertas",data:ks.map(function(k){return g[k].a;}),backgroundColor:"#A52323",borderRadius:4,yAxisID:"y"},
-      {label:"Cerradas",data:ks.map(function(k){return g[k].c;}),backgroundColor:"#287819",borderRadius:4,yAxisID:"y"},
-      {label:"% Cierre",data:ks.map(function(k){return g[k].t>0?Math.round(g[k].c/g[k].t*1000)/10:0;}),type:"line",borderColor:"#E18719",backgroundColor:"transparent",pointBackgroundColor:"#E18719",pointRadius:5,tension:.3,yAxisID:"y1",order:0}
+    data:{labels:ks.map(function(k){return "Grupo "+k;}),datasets:[
+      {label:"Abiertas",data:ks.map(function(k){return g[k].a;}),backgroundColor:"#4F2170",borderRadius:4,yAxisID:"y",order:2},
+      {label:"Cerradas",data:ks.map(function(k){return g[k].c;}),backgroundColor:"#287819",borderRadius:4,yAxisID:"y",order:2},
+      {label:"% Cierre",data:ks.map(function(k){return g[k].t>0?Math.round(g[k].c/g[k].t*1000)/10:0;}),type:"line",borderColor:"#E18719",backgroundColor:"transparent",pointBackgroundColor:"#E18719",pointRadius:5,tension:.3,yAxisID:"y1",order:1}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{beginAtZero:true,position:"left",ticks:{font:{size:10}}},y1:{beginAtZero:true,max:100,position:"right",ticks:{font:{size:10}},grid:{display:false}}}}
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}},
+        datalabels:{display:function(ctx2){return ctx2.dataset.type==="line"||ctx2.dataset.label!=="% Cierre";},
+          color:function(ctx2){return ctx2.dataset.type==="line"?"#E18719":"#3D3D3D";},
+          anchor:function(ctx2){return ctx2.dataset.type==="line"?"end":"end";},
+          align:function(ctx2){return ctx2.dataset.type==="line"?"top":"top";},
+          font:{family:"Calibri,Arial,sans-serif",size:11,weight:"bold"},
+          formatter:function(val,ctx2){return ctx2.dataset.type==="line"?val+"%":val;}
+        }
+      },
+      scales:{
+        x:{ticks:{font:{size:11,family:"Calibri,Arial,sans-serif"},autoSkip:false},grid:{display:false}},
+        y:{beginAtZero:true,position:"left",ticks:{font:{size:10}}},
+        y1:{beginAtZero:true,max:100,position:"right",ticks:{font:{size:10},callback:function(v){return v+"%";}},grid:{display:false}}
+      }
+    },
+    plugins:[ChartDataLabels]
   });
+  // Ranking debajo de la grafica
+  renderRankingGrupos(ks,g);
 }
+function renderRankingGrupos(ks,g){
+  var container=document.getElementById("rankingGrupos");
+  if(!container){
+    var chartParent=document.getElementById("chartGrupos").parentElement;
+    container=document.createElement("div");
+    container.id="rankingGrupos";
+    container.style.cssText="margin-top:12px;padding:8px 12px;background:#f9f7fc;border-radius:8px;border:1px solid #e5e0eb;";
+    chartParent.parentElement.appendChild(container);
+  }
+  var ranked=ks.map(function(k){
+    var pct=g[k].t>0?Math.round(g[k].c/g[k].t*1000)/10:0;
+    return{grupo:k,total:g[k].t,abiertas:g[k].a,cerradas:g[k].c,pct:pct};
+  }).sort(function(a,b){return b.pct-a.pct;});
+  var medals=["&#x1F947;","&#x1F948;","&#x1F949;",""];
+  var h='<div style="font-weight:700;color:#4F2170;margin-bottom:6px;font-size:13px;">Ranking por Grupo</div>';
+  h+='<table style="width:100%;font-size:12px;border-collapse:collapse;font-family:Calibri,Arial,sans-serif">';
+  h+='<tr style="border-bottom:2px solid #4F2170;color:#4F2170;font-weight:700"><td style="padding:4px">Pos</td><td>Grupo</td><td style="text-align:center">Levantadas</td><td style="text-align:center">Cerradas</td><td style="text-align:center">% Cierre</td></tr>';
+  ranked.forEach(function(r,i){
+    var medal=i<3?medals[i]:(i+1)+"";
+    var pctColor=r.pct>=75?"#287819":r.pct>=50?"#E18719":"#A52323";
+    h+='<tr style="border-bottom:1px solid #eee"><td style="padding:4px;font-size:14px">'+medal+'</td><td style="font-weight:600">Grupo '+r.grupo+'</td><td style="text-align:center">'+r.total+'</td><td style="text-align:center">'+r.cerradas+'</td><td style="text-align:center;font-weight:700;color:'+pctColor+'">'+r.pct+'%</td></tr>';
+  });
+  h+='</table>';
+  if(ranked.length>0){
+    h+='<div style="margin-top:6px;font-size:11px;color:#287819">&#10003; Grupo '+ranked[0].grupo+' lidera con '+ranked[0].pct+'% de tasa de cierre</div>';
+  }
+  container.innerHTML=h;
+}
+
+
 
 // ============================================================
 // 22. Tabla de Tarjetas
@@ -779,21 +917,56 @@ function bindTablaControls(){
   if(be) be.addEventListener("click",exportarExcel);
   document.addEventListener("click",function(){document.querySelectorAll(".col-filter-drop.show").forEach(function(d){d.classList.remove("show");});});
 }
+
+// >>> BLOQUE 2: toggleColFilter con seleccionar/deseleccionar todo
 function toggleColFilter(col,btn){
   document.querySelectorAll(".col-filter-drop.show").forEach(function(d){if(d.getAttribute("data-col")!==col) d.classList.remove("show");});
   var dr=document.querySelector('.col-filter-drop[data-col="'+col+'"]');if(!dr) return;
   if(dr.classList.contains("show")){dr.classList.remove("show");return;}
   var u={};tarjetasData.forEach(function(t){var v=getColValue(t,col);if(v) u[v]=true;});
   var vs=Object.keys(u).sort();var cf=colFilters[col]||[];
-  var h='<input type="text" placeholder="Buscar..." class="cfd-search"><div class="cfd-options">';
+  var allChecked=cf.length===0||cf.length===vs.length;
+  var h='<label class="cfd-toggle-all"><input type="checkbox" class="cfd-check-all" '+(allChecked?"checked":"")+"> Seleccionar todo</label>";
+  h+='<input type="text" placeholder="Buscar..." class="cfd-search"><div class="cfd-options">';
   vs.forEach(function(v){h+='<label><input type="checkbox" value="'+v+'" '+(cf.length===0||cf.indexOf(v)>-1?"checked":"")+"> "+v+"</label>";});
   h+='</div><div class="cfd-actions"><button class="btn-clear" data-col="'+col+'">Limpiar</button><button class="btn-apply" data-col="'+col+'">Aplicar</button></div>';
   dr.innerHTML=h;dr.classList.add("show");
-  dr.querySelector(".cfd-search").addEventListener("input",function(e){var term=e.target.value.toLowerCase();dr.querySelectorAll(".cfd-options label").forEach(function(l){l.style.display=l.textContent.toLowerCase().indexOf(term)>-1?"flex":"none";});});
-  dr.querySelector(".btn-clear").addEventListener("click",function(e){e.stopPropagation();delete colFilters[col];dr.classList.remove("show");btn.classList.remove("active");renderTarjetas();});
-  dr.querySelector(".btn-apply").addEventListener("click",function(e){e.stopPropagation();var cks=dr.querySelectorAll('.cfd-options input[type="checkbox"]');var sel=[];cks.forEach(function(c){if(c.checked) sel.push(c.value);});if(sel.length===vs.length||sel.length===0){delete colFilters[col];btn.classList.remove("active");}else{colFilters[col]=sel;btn.classList.add("active");}dr.classList.remove("show");renderTarjetas();});
+  // Checkbox seleccionar/deseleccionar todo
+  var chkAll=dr.querySelector(".cfd-check-all");
+  chkAll.addEventListener("change",function(){
+    var checked=chkAll.checked;
+    dr.querySelectorAll('.cfd-options input[type="checkbox"]').forEach(function(c){
+      if(c.parentElement.style.display!=="none") c.checked=checked;
+    });
+  });
+  // Al cambiar un checkbox individual, actualizar el "todo"
+  dr.querySelector(".cfd-options").addEventListener("change",function(){
+    var all=dr.querySelectorAll('.cfd-options input[type="checkbox"]');
+    var checked=dr.querySelectorAll('.cfd-options input[type="checkbox"]:checked');
+    chkAll.checked=all.length===checked.length;
+  });
+  // Buscar
+  dr.querySelector(".cfd-search").addEventListener("input",function(e){
+    var term=e.target.value.toLowerCase();
+    dr.querySelectorAll(".cfd-options label").forEach(function(l){l.style.display=l.textContent.toLowerCase().indexOf(term)>-1?"flex":"none";});
+  });
+  // Limpiar
+  dr.querySelector(".btn-clear").addEventListener("click",function(e){
+    e.stopPropagation();delete colFilters[col];dr.classList.remove("show");btn.classList.remove("active");renderTarjetas();
+  });
+  // Aplicar
+  dr.querySelector(".btn-apply").addEventListener("click",function(e){
+    e.stopPropagation();
+    var cks=dr.querySelectorAll('.cfd-options input[type="checkbox"]');
+    var sel=[];cks.forEach(function(c){if(c.checked) sel.push(c.value);});
+    if(sel.length===vs.length||sel.length===0){delete colFilters[col];btn.classList.remove("active");}
+    else{colFilters[col]=sel;btn.classList.add("active");}
+    dr.classList.remove("show");renderTarjetas();
+  });
   dr.addEventListener("click",function(e){e.stopPropagation();});
 }
+
+
 // >>> BLOQUE 1: exportarExcel usa _equipoDisplay
 function exportarExcel(){
   var d=tarjetasFiltradas.length>0?tarjetasFiltradas:tarjetasData;
@@ -862,8 +1035,9 @@ function renderOperatividad(){
 }
 function initOperatividad(){renderOperatividad();}
 
+
 // ============================================================
-// 32. Dona de Operatividad
+// 32. Dona de Operatividad  >>> BLOQUE 2: data labels
 // ============================================================
 function renderOperDonut(){
   var est=contarEstados();
@@ -872,7 +1046,14 @@ function renderOperDonut(){
   chartOperDonut=new Chart(ctx,{
     type:"doughnut",
     data:{labels:["Operativos","Degradados","Fuera de Servicio"],datasets:[{data:[est.operativos,est.degradados,est.fuera],backgroundColor:["#287819","#E18719","#A52323"],borderWidth:2,borderColor:"#fff"}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",plugins:{legend:{display:false}}},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",
+      plugins:{legend:{display:false},
+        datalabels:{color:"#fff",font:{family:"Calibri,Arial,sans-serif",size:13,weight:"bold"},
+          display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;},
+          formatter:function(val){return val;}
+        }
+      }
+    },
     plugins:[{
       id:"centerText",
       beforeDraw:function(chart){
@@ -885,13 +1066,15 @@ function renderOperDonut(){
         c.fillStyle="#888";c.fillText("equipos",w/2,h/2+14);
         c.save();
       }
-    }]
+    },ChartDataLabels]
   });
   var le=document.getElementById("operDonutLegend");
   if(le){
     le.innerHTML='<div class="oper-legend-item"><div class="oper-legend-dot" style="background:#287819"></div> Operativos <span class="oper-legend-count" style="color:#287819">'+est.operativos+'</span></div><div class="oper-legend-item"><div class="oper-legend-dot" style="background:#E18719"></div> Degradados <span class="oper-legend-count" style="color:#E18719">'+est.degradados+'</span></div><div class="oper-legend-item"><div class="oper-legend-dot" style="background:#A52323"></div> Fuera de Servicio <span class="oper-legend-count" style="color:#A52323">'+est.fuera+'</span></div>';
   }
 }
+
+
 
 // ============================================================
 // 33. Acordeon - Chips de equipos por estado
