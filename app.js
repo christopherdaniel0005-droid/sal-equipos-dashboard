@@ -145,6 +145,54 @@ function parseFecha(str){
   d.setHours(0,0,0,0);
   return d;
 }
+
+// >>> BLOQUE 2: utilidades de periodo
+function toISO(fechaStr){
+  if(!fechaStr) return "";
+  if(fechaStr.indexOf("-")>-1) return fechaStr.split(" ")[0];
+  if(fechaStr.indexOf("/")>-1){var p=fechaStr.split("/");return p[2]+"-"+p[1]+"-"+p[0];}
+  return fechaStr;
+}
+function existeEnPeriodo(t,desde,hasta){
+  if(!desde&&!hasta) return true;
+  if(esCancelada(t._estado)) return false;
+  var fi=toISO(t._fechaInc);
+  if(!fi) return false;
+  var fr=toISO(t._fechaRes);
+  var estaAbierta=esAbierta(t._estado);
+  // tarjeta existia en periodo si: fechaInc <= hasta Y (fechaRes >= desde O sigue abierta)
+  if(hasta&&fi>hasta) return false;
+  if(desde){
+    if(!estaAbierta&&fr&&fr<desde) return false;
+  }
+  return true;
+}
+function calcularDiasPeriodo(t,hasta){
+  var fi=parseFecha(t._fechaInc);
+  if(!fi) return 0;
+  if(esCancelada(t._estado)) return 0;
+  if(esCerrada(t._estado)){
+    var fr=parseFecha(t._fechaRes);
+    if(!fr) return 0;
+    var frISO=toISO(t._fechaRes);
+    // si cerrada dentro del periodo, usar fechaRes
+    // si cerrada despues del periodo, usar fechaHasta
+    if(hasta&&frISO>hasta){
+      var fh=parseFecha(hasta);
+      if(fh) return Math.max(0,Math.floor((fh-fi)/86400000));
+    }
+    return Math.max(0,Math.floor((fr-fi)/86400000));
+  }
+  // abierta: usar fechaHasta como corte si hay periodo, si no usar hoy
+  if(hasta){
+    var fh2=parseFecha(hasta);
+    if(fh2) return Math.max(0,Math.floor((fh2-fi)/86400000));
+  }
+  var hoy=new Date();hoy.setHours(0,0,0,0);
+  return Math.max(0,Math.floor((hoy-fi)/86400000));
+}
+
+
 function calcularDias(fechaInc,fechaRes,estado){
   if(!estado) return 0;
   var e=estado.toLowerCase().trim();
@@ -353,23 +401,38 @@ function cargarTarjetas(callback){
 // ============================================================
 // 7. KPIs DINAMICOS
 // ============================================================
+
+// ============================================================
+// 7. KPIs DINAMICOS  >>> BLOQUE 2: logica de periodo
+// ============================================================
 function renderKPIs(){
   var abiertas=0,cerradas=0,sumDias=0,countDias=0,bt=0,rt=0,yt=0;
   var desde=document.getElementById("filtDesde").value;
   var hasta=document.getElementById("filtHasta").value;
   tarjetasData.forEach(function(t){
     if(esCancelada(t._estado)) return;
-    if(desde||hasta){
-      var fi=t._fechaInc;if(fi){
-        var iso=fi;if(fi.indexOf("/")>-1){var p=fi.split("/");iso=p[2]+"-"+p[1]+"-"+p[0];}
-        if(desde&&iso<desde) return;if(hasta&&iso>hasta) return;
+    if(!existeEnPeriodo(t,desde,hasta)) return;
+    var dias=calcularDiasPeriodo(t,hasta);
+    if(esAbierta(t._estado)){
+      // si hay periodo, contar como abierta solo si NO se cerro antes del fin del periodo
+      abiertas++;
+      if(dias>0){sumDias+=dias;countDias++;}
+      if(t._color==="BT")bt++;else if(t._color==="RT")rt++;else if(t._color==="YT")yt++;
+    }else if(esCerrada(t._estado)){
+      // contar como cerrada solo si la fecha de resolucion cae dentro del periodo
+      var fr=toISO(t._fechaRes);
+      if(desde||hasta){
+        var dentroRes=true;
+        if(desde&&fr&&fr<desde) dentroRes=false;
+        if(hasta&&fr&&fr>hasta) dentroRes=false;
+        if(dentroRes) cerradas++;
+        // tambien contar sus dias para el promedio
+        if(dias>0){sumDias+=dias;countDias++;}
+      }else{
+        cerradas++;
+        if(dias>0){sumDias+=dias;countDias++;}
       }
     }
-    if(esAbierta(t._estado)){
-      abiertas++;
-      if(t._dias>0){sumDias+=t._dias;countDias++;}
-      if(t._color==="BT")bt++;else if(t._color==="RT")rt++;else if(t._color==="YT")yt++;
-    }else if(esCerrada(t._estado)){cerradas++;}
   });
   document.getElementById("kpiAbiertas").textContent=fmtNum(abiertas);
   document.getElementById("kpiCerradas").textContent=fmtNum(cerradas);
@@ -386,6 +449,8 @@ function renderKPIs(){
   if(!document.getElementById("filtDesde").value) document.getElementById("filtDesde").value=yy+"-01-01";
   if(!document.getElementById("filtHasta").value) document.getElementById("filtHasta").value=yy+"-"+mm+"-"+dd;
 }
+
+
 
 // ============================================================
 // 8-9. MAPA
@@ -601,7 +666,7 @@ function renderChartAntig(){
   var b={a:0,b:0,c:0,d:0};
   tarjetasFiltradas.forEach(function(t){
     if(!esAbierta(t._estado)) return;
-    var d=t._dias;if(d<=7)b.a++;else if(d<=15)b.b++;else if(d<=30)b.c++;else b.d++;
+    var d=t._diasPeriodo||t._dias;if(d<=7)b.a++;else if(d<=15)b.b++;else if(d<=30)b.c++;else b.d++;
   });
   var ctx=document.getElementById("chartAntig");if(!ctx) return;
   if(chartAntig) chartAntig.destroy();
