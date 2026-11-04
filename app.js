@@ -192,6 +192,27 @@ function calcularDiasPeriodo(t,hasta){
   return Math.max(0,Math.floor((hoy-fi)/86400000));
 }
 
+// >>> BLOQUE 2 FIX: estado relativo al periodo seleccionado
+function esAbiertaEnPeriodo(t,hasta){
+  if(!hasta) return esAbierta(t._estado);
+  if(esCancelada(t._estado)) return false;
+  // Una tarjeta estaba abierta en el periodo si no tenia fecha de resolucion antes del fin del periodo
+  var fr=toISO(t._fechaRes);
+  if(!fr||fr==="") return true; // sigue abierta hoy, tambien estaba abierta en el periodo
+  if(fr>hasta) return true; // se cerro despues del fin del periodo, estaba abierta durante el periodo
+  return false;
+}
+function esCerradaEnPeriodo(t,desde,hasta){
+  if(!desde&&!hasta) return esCerrada(t._estado);
+  if(!esCerrada(t._estado)) return false;
+  var fr=toISO(t._fechaRes);
+  if(!fr) return false;
+  if(desde&&fr<desde) return false;
+  if(hasta&&fr>hasta) return false;
+  return true;
+}
+
+
 
 function calcularDias(fechaInc,fechaRes,estado){
   if(!estado) return 0;
@@ -398,12 +419,9 @@ function cargarTarjetas(callback){
   }).catch(function(err){console.error("Error cargando tarjetas:",err);tarjetasData=[];if(callback) callback();});
 }
 
-// ============================================================
-// 7. KPIs DINAMICOS
-// ============================================================
 
 // ============================================================
-// 7. KPIs DINAMICOS  >>> BLOQUE 2: logica de periodo
+// 7. KPIs DINAMICOS  >>> BLOQUE 2 FIX: estado relativo al periodo
 // ============================================================
 function renderKPIs(){
   var abiertas=0,cerradas=0,sumDias=0,countDias=0,bt=0,rt=0,yt=0;
@@ -413,25 +431,13 @@ function renderKPIs(){
     if(esCancelada(t._estado)) return;
     if(!existeEnPeriodo(t,desde,hasta)) return;
     var dias=calcularDiasPeriodo(t,hasta);
-    if(esAbierta(t._estado)){
-      // si hay periodo, contar como abierta solo si NO se cerro antes del fin del periodo
+    if(esAbiertaEnPeriodo(t,hasta)){
       abiertas++;
       if(dias>0){sumDias+=dias;countDias++;}
       if(t._color==="BT")bt++;else if(t._color==="RT")rt++;else if(t._color==="YT")yt++;
-    }else if(esCerrada(t._estado)){
-      // contar como cerrada solo si la fecha de resolucion cae dentro del periodo
-      var fr=toISO(t._fechaRes);
-      if(desde||hasta){
-        var dentroRes=true;
-        if(desde&&fr&&fr<desde) dentroRes=false;
-        if(hasta&&fr&&fr>hasta) dentroRes=false;
-        if(dentroRes) cerradas++;
-        // tambien contar sus dias para el promedio
-        if(dias>0){sumDias+=dias;countDias++;}
-      }else{
-        cerradas++;
-        if(dias>0){sumDias+=dias;countDias++;}
-      }
+    }else if(esCerradaEnPeriodo(t,desde,hasta)){
+      cerradas++;
+      if(dias>0){sumDias+=dias;countDias++;}
     }
   });
   document.getElementById("kpiAbiertas").textContent=fmtNum(abiertas);
@@ -449,6 +455,8 @@ function renderKPIs(){
   if(!document.getElementById("filtDesde").value) document.getElementById("filtDesde").value=yy+"-01-01";
   if(!document.getElementById("filtHasta").value) document.getElementById("filtHasta").value=yy+"-"+mm+"-"+dd;
 }
+
+
 
 
 
@@ -618,13 +626,15 @@ function filtrarTarjetas(){
 function renderTarjetas(){filtrarTarjetas();renderChartDonut();renderChartTrend();renderChartTop10();renderChartAntig();renderChartCierre();renderChartGrupos();renderTablaTarjetas();}
 
 
+
 // ============================================================
-// 16. GRAFICA 1 - Dona: Tarjetas por Color  >>> BLOQUE 2: data labels
+// 16. GRAFICA 1 - Dona: Tarjetas por Color  >>> FIX: estado en periodo
 // ============================================================
 function renderChartDonut(){
+  var hasta=document.getElementById("filtHasta").value;
   var bt=0,rt=0,yt=0;
   tarjetasFiltradas.forEach(function(t){
-    if(esAbierta(t._estado)){
+    if(esAbiertaEnPeriodo(t,hasta)){
       if(t._color==="BT")bt++;else if(t._color==="RT")rt++;else if(t._color==="YT")yt++;
     }
   });
@@ -644,6 +654,8 @@ function renderChartDonut(){
     plugins:[ChartDataLabels]
   });
 }
+
+
 
 
 
@@ -688,12 +700,14 @@ function renderChartTrend(){
 
 
 
+
 // ============================================================
-// 18. GRAFICA 3 - Top 10 Equipos Problematicos  >>> BLOQUE 2: data labels + autoSkip
+// 18. GRAFICA 3 - Top 10 Equipos Problematicos  >>> FIX: estado en periodo
 // ============================================================
 function renderChartTop10(){
+  var hasta=document.getElementById("filtHasta").value;
   var c={};
-  tarjetasFiltradas.forEach(function(t){if(!esAbierta(t._estado)) return;var eq=t._equipoDisplay||t._equipo||"Sin equipo";c[eq]=(c[eq]||0)+1;});
+  tarjetasFiltradas.forEach(function(t){if(!esAbiertaEnPeriodo(t,hasta)) return;var eq=t._equipoDisplay||t._equipo||"Sin equipo";c[eq]=(c[eq]||0)+1;});
   var s=Object.keys(c).map(function(k){return{eq:k,n:c[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,10);
   var ctx=document.getElementById("chartTop10");if(!ctx) return;
   if(chartTop10) chartTop10.destroy();
@@ -713,17 +727,21 @@ function renderChartTop10(){
 }
 
 
-// >>> FIN PARTE 4 de 7 — Verifica: ultima linea es cierre de renderChartTop10
+
+
+
+
 
 
 
 // ============================================================
-// 19. GRAFICA 4 - Distribucion de Antiguedad  >>> BLOQUE 2: data labels + diasPeriodo
+// 19. GRAFICA 4 - Distribucion de Antiguedad  >>> FIX: estado en periodo
 // ============================================================
 function renderChartAntig(){
+  var hasta=document.getElementById("filtHasta").value;
   var b={a:0,b:0,c:0,d:0};
   tarjetasFiltradas.forEach(function(t){
-    if(!esAbierta(t._estado)) return;
+    if(!esAbiertaEnPeriodo(t,hasta)) return;
     var d=t._diasPeriodo||t._dias;if(d<=7)b.a++;else if(d<=15)b.b++;else if(d<=30)b.c++;else b.d++;
   });
   var ctx=document.getElementById("chartAntig");if(!ctx) return;
@@ -742,6 +760,8 @@ function renderChartAntig(){
     plugins:[ChartDataLabels]
   });
 }
+
+
 
 
 
@@ -784,23 +804,22 @@ function renderChartCierre(){
 
 
 
-// ============================================================
-// 21. GRAFICA 6 - Tasa de Cierre por Grupo
-// ============================================================
 
 // ============================================================
-// 21. GRAFICA 6 - Tasa de Cierre por Grupo  >>> BLOQUE 2: Opcion A mejorada
+// 21. GRAFICA 6 - Tasa de Cierre por Grupo  >>> FIX: excluir PLTZ + estado en periodo
 // ============================================================
 function renderChartGrupos(){
+  var desde=document.getElementById("filtDesde").value;
+  var hasta=document.getElementById("filtHasta").value;
   var g={};
   tarjetasFiltradas.forEach(function(t){
     if(esCancelada(t._estado)) return;
     var k=t._grupo;
-    if(!k) return; // excluir "Sin grupo"
+    if(!k||k==="PLTZ") return; // excluir sin grupo y error PLTZ
     if(!g[k]) g[k]={a:0,c:0,t:0};
     g[k].t++;
-    if(esAbierta(t._estado)) g[k].a++;
-    else if(esCerrada(t._estado)) g[k].c++;
+    if(esAbiertaEnPeriodo(t,hasta)) g[k].a++;
+    else if(esCerradaEnPeriodo(t,desde,hasta)) g[k].c++;
   });
   var ks=Object.keys(g).sort();
   var ctx=document.getElementById("chartGrupos");if(!ctx) return;
@@ -814,10 +833,9 @@ function renderChartGrupos(){
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:"bottom",labels:{font:{family:"Calibri,Arial,sans-serif",size:11}}},
-        datalabels:{display:function(ctx2){return ctx2.dataset.type==="line"||ctx2.dataset.label!=="% Cierre";},
+        datalabels:{display:function(ctx2){return ctx2.dataset.data[ctx2.dataIndex]>0;},
           color:function(ctx2){return ctx2.dataset.type==="line"?"#E18719":"#3D3D3D";},
-          anchor:function(ctx2){return ctx2.dataset.type==="line"?"end":"end";},
-          align:function(ctx2){return ctx2.dataset.type==="line"?"top":"top";},
+          anchor:"end",align:"top",
           font:{family:"Calibri,Arial,sans-serif",size:11,weight:"bold"},
           formatter:function(val,ctx2){return ctx2.dataset.type==="line"?val+"%":val;}
         }
@@ -830,9 +848,11 @@ function renderChartGrupos(){
     },
     plugins:[ChartDataLabels]
   });
-  // Ranking debajo de la grafica
   renderRankingGrupos(ks,g);
 }
+
+
+
 function renderRankingGrupos(ks,g){
   var container=document.getElementById("rankingGrupos");
   if(!container){
