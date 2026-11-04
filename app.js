@@ -153,37 +153,32 @@ function toISO(fechaStr){
   if(fechaStr.indexOf("/")>-1){var p=fechaStr.split("/");return p[2]+"-"+p[1]+"-"+p[0];}
   return fechaStr;
 }
+
+// >>> BLOQUE 2 OPTIMIZADO: funciones de periodo usando cache
 function existeEnPeriodo(t,desde,hasta){
   if(!desde&&!hasta) return true;
   if(esCancelada(t._estado)) return false;
-  var fi=toISO(t._fechaInc);
+  var fi=t._fiISO;
   if(!fi) return false;
-  var fr=toISO(t._fechaRes);
+  var fr=t._frISO;
   var estaAbierta=esAbierta(t._estado);
-  // tarjeta existia en periodo si: fechaInc <= hasta Y (fechaRes >= desde O sigue abierta)
   if(hasta&&fi>hasta) return false;
-  if(desde){
-    if(!estaAbierta&&fr&&fr<desde) return false;
-  }
+  if(desde){if(!estaAbierta&&fr&&fr<desde) return false;}
   return true;
 }
 function calcularDiasPeriodo(t,hasta){
-  var fi=parseFecha(t._fechaInc);
+  var fi=t._fiDate;
   if(!fi) return 0;
   if(esCancelada(t._estado)) return 0;
   if(esCerrada(t._estado)){
-    var fr=parseFecha(t._fechaRes);
+    var fr=t._frDate;
     if(!fr) return 0;
-    var frISO=toISO(t._fechaRes);
-    // si cerrada dentro del periodo, usar fechaRes
-    // si cerrada despues del periodo, usar fechaHasta
-    if(hasta&&frISO>hasta){
+    if(hasta&&t._frISO>hasta){
       var fh=parseFecha(hasta);
       if(fh) return Math.max(0,Math.floor((fh-fi)/86400000));
     }
     return Math.max(0,Math.floor((fr-fi)/86400000));
   }
-  // abierta: usar fechaHasta como corte si hay periodo, si no usar hoy
   if(hasta){
     var fh2=parseFecha(hasta);
     if(fh2) return Math.max(0,Math.floor((fh2-fi)/86400000));
@@ -191,26 +186,25 @@ function calcularDiasPeriodo(t,hasta){
   var hoy=new Date();hoy.setHours(0,0,0,0);
   return Math.max(0,Math.floor((hoy-fi)/86400000));
 }
-
-// >>> BLOQUE 2 FIX: estado relativo al periodo seleccionado
 function esAbiertaEnPeriodo(t,hasta){
   if(!hasta) return esAbierta(t._estado);
   if(esCancelada(t._estado)) return false;
-  // Una tarjeta estaba abierta en el periodo si no tenia fecha de resolucion antes del fin del periodo
-  var fr=toISO(t._fechaRes);
-  if(!fr||fr==="") return true; // sigue abierta hoy, tambien estaba abierta en el periodo
-  if(fr>hasta) return true; // se cerro despues del fin del periodo, estaba abierta durante el periodo
+  var fr=t._frISO;
+  if(!fr||fr==="") return true;
+  if(fr>hasta) return true;
   return false;
 }
 function esCerradaEnPeriodo(t,desde,hasta){
   if(!desde&&!hasta) return esCerrada(t._estado);
   if(!esCerrada(t._estado)) return false;
-  var fr=toISO(t._fechaRes);
+  var fr=t._frISO;
   if(!fr) return false;
   if(desde&&fr<desde) return false;
   if(hasta&&fr>hasta) return false;
   return true;
 }
+
+
 
 
 
@@ -409,12 +403,21 @@ function cargarTarjetas(callback){
     });
     console.log("Tarjetas cargadas:",tarjetasData.length);
     // >>> BLOQUE 1: resolver equipoId y equipoDisplay para cada tarjeta
+  
     tarjetasData.forEach(function(t){
       var eqId=resolverEquipo(t._equipo,t._equipoFull);
       t._equipoId=eqId;
       t._equipoDisplay=EQUIPO_MAP[eqId]?EQUIPO_MAP[eqId].nombre:t._equipo;
       reasignarEspiral(t);
+      // >>> CACHE: parsear fechas una sola vez al cargar
+      t._fiDate=parseFecha(t._fechaInc);
+      t._frDate=parseFecha(t._fechaRes);
+      t._fiISO=toISO(t._fechaInc);
+      t._frISO=toISO(t._fechaRes);
+      t._dias=calcularDias(t._fechaInc,t._fechaRes,t._estado);
     });
+
+
     if(callback) callback();
   }).catch(function(err){console.error("Error cargando tarjetas:",err);tarjetasData=[];if(callback) callback();});
 }
@@ -1256,8 +1259,17 @@ document.addEventListener("DOMContentLoaded",function(){
   });
   var fd=document.getElementById("filtDesde");
   var fh=document.getElementById("filtHasta");
-  if(fd) fd.addEventListener("change",function(){renderKPIs();if(typeof renderTarjetas==="function") renderTarjetas();});
-  if(fh) fh.addEventListener("change",function(){renderKPIs();if(typeof renderTarjetas==="function") renderTarjetas();});
+  
+  // >>> OPTIMIZACION: debounce para filtros
+  var _debounceTimer=null;
+  function debounceRender(){
+    if(_debounceTimer) clearTimeout(_debounceTimer);
+    _debounceTimer=setTimeout(function(){renderKPIs();if(typeof renderTarjetas==="function") renderTarjetas();},300);
+  }
+  if(fd) fd.addEventListener("change",debounceRender);
+  if(fh) fh.addEventListener("change",debounceRender);
+
+
 });
 
 // ============================================================
