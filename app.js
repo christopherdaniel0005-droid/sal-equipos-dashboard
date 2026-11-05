@@ -467,7 +467,7 @@ function renderKPIs(){
 // 8-9. MAPA
 // ============================================================
 var mapaSeleccionado=null;
-function initMapa(){renderMarcadores();initMapaLabels();}
+function initMapa(){renderMarcadores();initMapaLabels();initMapaZoom();}
 function renderMarcadores(){
   var c=document.getElementById("mapaContainer");
   c.querySelectorAll(".marker").forEach(function(m){m.remove();});
@@ -1091,10 +1091,10 @@ function renderOperDonut(){
       }
     },ChartDataLabels]
   });
-  var le=document.getElementById("operDonutLegend");
-  if(le){
-    le.innerHTML='<div class="oper-legend-item"><div class="oper-legend-dot" style="background:#287819"></div> Operativos <span class="oper-legend-count" style="color:#287819">'+est.operativos+'</span></div><div class="oper-legend-item"><div class="oper-legend-dot" style="background:#E18719"></div> Degradados <span class="oper-legend-count" style="color:#E18719">'+est.degradados+'</span></div><div class="oper-legend-item"><div class="oper-legend-dot" style="background:#A52323"></div> Fuera de Servicio <span class="oper-legend-count" style="color:#A52323">'+est.fuera+'</span></div>';
-  }
+document.getElementById("legOp").textContent=est.operativos;
+document.getElementById("legDeg").textContent=est.degradados;
+document.getElementById("legFS").textContent=est.fuera;
+
 }
 
 
@@ -1110,12 +1110,13 @@ function renderOperChips(){
     else if(s==="degradado") deg.push(eq);
     else if(s==="fuera") fs.push(eq);
   });
-  document.getElementById("accTitleOperativos").textContent="Operativos ("+ops.length+")";
-  document.getElementById("accTitleDegradados").textContent="Degradados ("+deg.length+")";
-  document.getElementById("accTitleFuera").textContent="Fuera de Servicio ("+fs.length+")";
-  renderChipGroup("chipsOperativos",ops,"chip-operativo");
-  renderChipGroup("chipsDegradados",deg,"chip-degradado");
-  renderChipGroup("chipsFuera",fs,"chip-fuera");
+document.getElementById("accOpCount").textContent=ops.length;
+document.getElementById("accDegCount").textContent=deg.length;
+document.getElementById("accFSCount").textContent=fs.length;
+renderChipGroup("accOpBody",ops,"chip-operativo");
+renderChipGroup("accDegBody",deg,"chip-degradado");
+renderChipGroup("accFSBody",fs,"chip-fuera");
+
 }
 function renderChipGroup(cid,eqs,cls){
   var c=document.getElementById(cid);if(!c) return;
@@ -1271,6 +1272,123 @@ document.addEventListener("DOMContentLoaded",function(){
 
 
 });
+
+// ============================================================
+// ZOOM DEL MAPA
+// ============================================================
+var mapaZoom={scale:1,minScale:.5,maxScale:3,panX:0,panY:0,isPanning:false,startX:0,startY:0,startPanX:0,startPanY:0,pinchStartDist:0,pinchStartScale:1};
+
+function initMapaZoom(){
+  var vp=document.getElementById("mapaZoomViewport");
+  if(!vp)return;
+  var btnIn=document.getElementById("btnMapaZoomIn");
+  var btnOut=document.getElementById("btnMapaZoomOut");
+  var btnReset=document.getElementById("btnMapaZoomReset");
+  if(btnIn)btnIn.addEventListener("click",function(){zoomMapa(.3)});
+  if(btnOut)btnOut.addEventListener("click",function(){zoomMapa(-.3)});
+  if(btnReset)btnReset.addEventListener("click",function(){resetZoomMapa()});
+  vp.addEventListener("wheel",function(e){e.preventDefault();zoomMapaAtPoint(e.deltaY>0?-.15:.15,e.clientX,e.clientY)},{passive:false});
+  vp.addEventListener("touchstart",_mzTouchStart,{passive:false});
+  vp.addEventListener("touchmove",_mzTouchMove,{passive:false});
+  vp.addEventListener("touchend",_mzTouchEnd,{passive:false});
+  vp.addEventListener("mousedown",function(e){
+    if(mapaZoom.scale<=1)return;
+    if(e.target.classList.contains("marker"))return;
+    mapaZoom.isPanning=true;
+    mapaZoom.startX=e.clientX;mapaZoom.startY=e.clientY;
+    mapaZoom.startPanX=mapaZoom.panX;mapaZoom.startPanY=mapaZoom.panY;
+    vp.style.cursor="grabbing";e.preventDefault();
+  });
+  document.addEventListener("mousemove",function(e){
+    if(!mapaZoom.isPanning)return;
+    mapaZoom.panX=mapaZoom.startPanX+(e.clientX-mapaZoom.startX);
+    mapaZoom.panY=mapaZoom.startPanY+(e.clientY-mapaZoom.startY);
+    _mzApply();
+  });
+  document.addEventListener("mouseup",function(){
+    if(mapaZoom.isPanning){mapaZoom.isPanning=false;vp.style.cursor=mapaZoom.scale>1?"grab":"default"}
+  });
+  var lastTap=0;
+  vp.addEventListener("touchend",function(e){
+    var now=Date.now();
+    if(now-lastTap<300&&e.changedTouches.length===1){
+      e.preventDefault();
+      if(mapaZoom.scale>1.5)resetZoomMapa();
+      else zoomMapaAtPoint(.8,e.changedTouches[0].clientX,e.changedTouches[0].clientY);
+    }
+    lastTap=now;
+  });
+}
+
+function _mzTouchStart(e){
+  if(e.touches.length===2){
+    e.preventDefault();
+    mapaZoom.pinchStartDist=_mzDist(e.touches[0],e.touches[1]);
+    mapaZoom.pinchStartScale=mapaZoom.scale;
+  }else if(e.touches.length===1&&mapaZoom.scale>1){
+    if(e.touches[0].target.classList&&e.touches[0].target.classList.contains("marker"))return;
+    mapaZoom.isPanning=true;
+    mapaZoom.startX=e.touches[0].clientX;mapaZoom.startY=e.touches[0].clientY;
+    mapaZoom.startPanX=mapaZoom.panX;mapaZoom.startPanY=mapaZoom.panY;
+  }
+}
+function _mzTouchMove(e){
+  if(e.touches.length===2){
+    e.preventDefault();
+    var d=_mzDist(e.touches[0],e.touches[1]);
+    mapaZoom.scale=Math.max(mapaZoom.minScale,Math.min(mapaZoom.maxScale,mapaZoom.pinchStartScale*(d/mapaZoom.pinchStartDist)));
+    _mzApply();
+  }else if(e.touches.length===1&&mapaZoom.isPanning&&mapaZoom.scale>1){
+    e.preventDefault();
+    mapaZoom.panX=mapaZoom.startPanX+(e.touches[0].clientX-mapaZoom.startX);
+    mapaZoom.panY=mapaZoom.startPanY+(e.touches[0].clientY-mapaZoom.startY);
+    _mzApply();
+  }
+}
+function _mzTouchEnd(e){
+  if(e.touches.length<2)mapaZoom.pinchStartDist=0;
+  if(e.touches.length===0)mapaZoom.isPanning=false;
+}
+function _mzDist(a,b){var dx=a.clientX-b.clientX,dy=a.clientY-b.clientY;return Math.sqrt(dx*dx+dy*dy)}
+
+function zoomMapa(d){
+  mapaZoom.scale=Math.max(mapaZoom.minScale,Math.min(mapaZoom.maxScale,mapaZoom.scale+d));
+  if(mapaZoom.scale<=1){mapaZoom.panX=0;mapaZoom.panY=0}
+  _mzApply();_mzIndicator();
+}
+function zoomMapaAtPoint(d,cx,cy){
+  var vp=document.getElementById("mapaZoomViewport");if(!vp)return;
+  var r=vp.getBoundingClientRect(),mx=cx-r.left,my=cy-r.top;
+  var old=mapaZoom.scale,ns=Math.max(mapaZoom.minScale,Math.min(mapaZoom.maxScale,old+d));
+  var ratio=ns/old;
+  mapaZoom.panX=mx-ratio*(mx-mapaZoom.panX);
+  mapaZoom.panY=my-ratio*(my-mapaZoom.panY);
+  mapaZoom.scale=ns;
+  if(ns<=1){mapaZoom.panX=0;mapaZoom.panY=0}
+  _mzApply();_mzIndicator();
+}
+function resetZoomMapa(){
+  mapaZoom.scale=1;mapaZoom.panX=0;mapaZoom.panY=0;
+  _mzApply();_mzIndicator();
+}
+function _mzApply(){
+  var inner=document.getElementById("mapaContainer"),vp=document.getElementById("mapaZoomViewport");
+  if(!inner)return;
+  if(vp&&mapaZoom.scale>1){
+    var r=vp.getBoundingClientRect();
+    var mx=r.width*(mapaZoom.scale-1)/2,my=r.height*(mapaZoom.scale-1)/2;
+    mapaZoom.panX=Math.max(-mx,Math.min(mx,mapaZoom.panX));
+    mapaZoom.panY=Math.max(-my,Math.min(my,mapaZoom.panY));
+  }
+  inner.style.transform="translate("+mapaZoom.panX+"px,"+mapaZoom.panY+"px) scale("+mapaZoom.scale+")";
+  inner.style.transformOrigin="center center";
+  if(vp)vp.style.cursor=mapaZoom.scale>1?"grab":"default";
+}
+function _mzIndicator(){
+  var el=document.getElementById("mapaZoomLevel");
+  if(el)el.textContent=Math.round(mapaZoom.scale*100)+"%";
+}
+
 
 // ============================================================
 // INICIALIZACION FINAL
