@@ -3,13 +3,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Status de equipos | Paletizado - Planta Salinas</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
 <style>
+/* === BASE === */
 .chart-wrap { position: relative; height: 300px; max-height: 300px; overflow: hidden; }
 .chart-wrap canvas { max-height: 280px !important; height: 280px !important; }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -38,6 +39,8 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 .kc-date input{padding:4px 6px;border:1px solid #d5d0dc;border-radius:4px;font-size:11px;font-family:Calibri,Arial,sans-serif;width:110px}
 .tab-content{display:none;flex:1;overflow:hidden}
 .tab-content.active{display:flex;flex-direction:column;overflow:auto}
+
+/* === MAPA === */
 .mapa-wrap{display:flex;flex:1;overflow:hidden}
 .mapa-main{flex:1;position:relative;overflow:hidden;background:#f9f8fb}
 .mapa-main img{width:100%;height:100%;object-fit:contain}
@@ -77,16 +80,31 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 .mapa-legend-dot.wrapper{border-radius:50%;background:#287819}
 .mapa-legend-dot.espiral{border-radius:2px;background:#287819;transform:rotate(45deg);width:12px;height:12px}
 .mapa-labels-toggle{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:#666}
+
+/* === ZOOM DEL MAPA (NUEVO) === */
+.mapa-zoom-viewport{position:relative;width:100%;height:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+.mapa-zoom-viewport #mapaContainer{transition:transform .15s ease-out;will-change:transform}
+.mapa-zoom-controls{position:absolute;top:8px;right:8px;z-index:20;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.95);border:1px solid #e0e0e0;border-radius:8px;padding:4px 6px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.mapa-zoom-controls button{width:30px;height:30px;border:none;background:transparent;color:#4F2170;font-size:13px;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.mapa-zoom-controls button:hover{background:#f3edf8}
+.mapa-zoom-controls button:active{background:#e5d8f0}
+.mapa-zoom-level{font-family:Calibri,Arial,sans-serif;font-size:11px;color:#3D3D3D;min-width:36px;text-align:center;font-weight:600}
+
+/* === FILTROS TARJETAS === */
 .filter-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid #e8e5ec;flex-wrap:wrap}
 .filter-group{display:flex;align-items:center;gap:4px}
 .filter-group label{font-size:10px;color:#888;font-weight:600;text-transform:uppercase}
 .filter-group select{padding:5px 8px;border:1px solid #d5d0dc;border-radius:4px;font-size:12px;font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#fff}
 .filter-spacer{margin-left:auto}
+
+/* === GRÁFICAS === */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px}
 .chart-card{background:#fff;border-radius:8px;border:1px solid #e8e5ec;padding:14px;display:flex;flex-direction:column}
 .chart-card h3{font-size:13px;color:#4F2170;margin-bottom:10px;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
 .chart-card .chart-wrap{flex:1;position:relative;min-height:180px}
 .chart-card canvas{width:100%!important;height:100%!important}
+
+/* === TABLA === */
 .table-section{margin:0 16px 12px;background:#fff;border-radius:8px;border:1px solid #e8e5ec;display:flex;flex-direction:column;min-height:260px;max-height:360px}
 .table-toolbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e5ec;flex-wrap:wrap}
 .table-toolbar h3{font-size:13px;color:#4F2170;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
@@ -123,6 +141,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 .pill-resuelta{background:#287819}
 .pill-cmms{background:#2D6EAA}
 .pill-proceso{background:#E18719}
+
+/* === OPERATIVIDAD === */
 .oper-wrap{display:flex;flex:1;gap:12px;padding:12px 16px;overflow:hidden}
 .oper-left{width:320px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;flex-shrink:0}
 .oper-right{flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
@@ -146,10 +166,16 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 .chip-degradado{background:#fef3e0;color:#E18719;border-color:#E18719}
 .chip-fuera{background:#fde8e8;color:#A52323;border-color:#A52323}
 .chip-action{font-size:9px;opacity:.5;margin-left:2px}
+
+/* === TABLA TIEMPO FUERA SERVICIO === */
+.oper-time-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .oper-time-table{width:100%;border-collapse:collapse;font-size:12px}
 .oper-time-table th{background:#f9f8fb;padding:8px 10px;text-align:left;font-weight:600;color:#888;text-transform:uppercase;font-size:10px;border-bottom:1px solid #e8e5ec}
 .oper-time-table td{padding:7px 10px;border-bottom:1px solid #f3f3f3}
 .oper-note{font-size:10px;color:#aaa;margin-top:8px;text-align:center}
+
+/* === HEATMAP === */
+.heatmap-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .heatmap-grid{display:grid;grid-template-columns:60px repeat(4,1fr);gap:2px;font-size:11px}
 .hm-header{background:#4F2170;color:#fff;padding:6px 8px;text-align:center;font-weight:600;font-size:10px;border-radius:3px}
 .hm-line-label{background:#f9f8fb;padding:6px 8px;font-weight:700;color:#4F2170;border-radius:3px;display:flex;align-items:center}
@@ -161,6 +187,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 .hm-cell.na{background:#e8e5ec;color:#aaa}
 .heatmap-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:#666;align-items:center;justify-content:center}
 .heatmap-legend .hm-leg-dot{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:3px}
+
+/* === SCORECARDS === */
 .scorecard-row{display:flex;gap:12px}
 .scorecard-card{flex:1;background:#fff;border-radius:8px;border:1px solid #e8e5ec;padding:16px;text-align:center;border-top:4px solid #4F2170}
 .scorecard-card h4{font-size:14px;color:#4F2170;margin-bottom:12px;font-family:'MDLZ BITE TYPE',Arial,sans-serif}
@@ -170,6 +198,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 .sc-stat{text-align:center}
 .sc-stat .sc-val{font-size:18px;font-weight:700}
 .sc-stat .sc-lbl{font-size:10px;color:#888;text-transform:uppercase}
+
+/* === MODAL === */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
 .modal-overlay.show{display:flex}
 .modal-box{background:#fff;border-radius:10px;width:420px;max-width:90vw;box-shadow:0 8px 30px rgba(0,0,0,.2)}
@@ -195,534 +225,132 @@ table.data-table tbody tr:hover{background:#f9f8fb}
 .text-center{text-align:center}
 .text-muted{color:#9CA3AF;font-size:12px}
 
-/* ============================================================
-   RESPONSIVE — Agregar al final del bloque <style> en index.html
-   Asegurarse de tener en <head>:
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   ============================================================ */
+/* === SCROLLBARS === */
+.kpi-bar::-webkit-scrollbar,.table-scroll::-webkit-scrollbar,.heatmap-wrapper::-webkit-scrollbar,.oper-time-wrapper::-webkit-scrollbar{height:4px}
+.kpi-bar::-webkit-scrollbar-thumb,.table-scroll::-webkit-scrollbar-thumb,.heatmap-wrapper::-webkit-scrollbar-thumb,.oper-time-wrapper::-webkit-scrollbar-thumb{background:rgba(79,33,112,.3);border-radius:4px}
+.kpi-bar::-webkit-scrollbar-track,.table-scroll::-webkit-scrollbar-track,.heatmap-wrapper::-webkit-scrollbar-track,.oper-time-wrapper::-webkit-scrollbar-track{background:transparent}
 
-/* ============================================================
-   BREAKPOINT 1: TABLETS (max 1024px)
-   ============================================================ */
-@media (max-width: 1024px) {
-
-  /* --- HEADER --- */
-  header {
-    padding: 12px 16px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  header h1 {
-    font-size: 15px;
-  }
-
-  /* --- KPI CARDS --- */
-  .kpi-row {
-    gap: 8px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 4px;
-  }
-  .kpi-row > div {
-    flex-shrink: 0;
-    min-width: 90px;
-    scroll-snap-align: start;
-  }
-
-  /* --- MAPA: panel lateral más angosto --- */
-  .mapa-layout {
-    gap: 12px;
-  }
-  .mapa-panel {
-    min-width: 240px;
-    max-width: 280px;
-  }
-
-  /* --- GRÁFICAS: reducir gap --- */
-  .charts-row {
-    gap: 12px;
-  }
-  .chart-wrap {
-    height: 260px;
-    max-height: 260px;
-  }
-  .chart-wrap canvas {
-    max-height: 240px !important;
-    height: 240px !important;
-  }
-
-  /* --- FILTROS TARJETAS --- */
-  .filtros-bar {
-    gap: 8px;
-  }
-  .filtros-bar select {
-    font-size: 12px;
-    padding: 6px 8px;
-    min-width: 0;
-  }
+/* =============================================================
+   RESPONSIVE — TABLETS (max 1024px)
+   ============================================================= */
+@media(max-width:1024px){
+  .header{padding:12px 16px;flex-wrap:wrap;gap:8px}
+  .header h1{font-size:15px}
+  .kpi-bar{gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding-bottom:4px}
+  .kpi-bar .kc{flex-shrink:0;min-width:90px;scroll-snap-align:start}
+  .mapa-panel{min-width:240px;max-width:280px}
+  .chart-grid{gap:12px}
+  .chart-wrap{height:260px;max-height:260px}
+  .chart-wrap canvas{max-height:240px!important;height:240px!important}
+  .filter-bar{gap:8px}
+  .filter-bar select{font-size:12px;padding:6px 8px;min-width:0}
 }
 
-/* ============================================================
-   BREAKPOINT 2: MÓVIL (max 768px) — Cambios principales
-   ============================================================ */
-@media (max-width: 768px) {
-
-  /* --- BODY --- */
-  body {
-    font-size: 13px;
-  }
-
-  /* --- HEADER --- */
-  header {
-    padding: 10px 12px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  header h1 {
-    font-size: 14px;
-    line-height: 1.3;
-  }
-  #headerDate {
-    font-size: 11px;
-  }
-
-  /* --- TABS --- */
-  .tabs {
-    gap: 0;
-    justify-content: stretch;
-  }
-  .tab {
-    flex: 1;
-    text-align: center;
-    padding: 10px 8px;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-  .tab i {
-    display: block;
-    margin-bottom: 2px;
-    font-size: 14px;
-  }
-
-  /* --- KPI CARDS: scroll horizontal compacto --- */
-  .kpi-row {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    gap: 6px;
-    padding: 8px 12px;
-    scroll-snap-type: x mandatory;
-  }
-  .kpi-row > div {
-    flex-shrink: 0;
-    min-width: 80px;
-    padding: 8px 10px;
-    scroll-snap-align: start;
-  }
-  .kpi-row .kpi-num {
-    font-size: 18px;
-  }
-  .kpi-row .kpi-label {
-    font-size: 10px;
-  }
-  .kpi-divider {
-    display: none;
-  }
-
-  /* --- FILTROS DE FECHA (Desde/Hasta) --- */
-  .fecha-filtros {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 12px;
-  }
-  .fecha-filtros label {
-    font-size: 11px;
-  }
-  .fecha-filtros input[type="date"] {
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-
-  /* --- TAB CONTENT padding --- */
-  .tab-content {
-    padding: 12px;
-  }
-
-  /* =========================
-     TAB MAPA — Apilar vertical
-     ========================= */
-  .mapa-layout {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .mapa-container-wrap {
-    width: 100%;
-    min-height: 300px;
-  }
-  .mapa-panel {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  .mapa-panel h3 {
-    font-size: 14px;
-  }
-  .mapa-legend {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px;
-  }
-  .mapa-legend label {
-    font-size: 11px;
-  }
-
-  /* Marcadores del mapa más pequeños */
-  .marker {
-    width: 28px;
-    height: 28px;
-    font-size: 8px;
-  }
-  .marker-badge {
-    font-size: 8px;
-    width: 14px;
-    height: 14px;
-    line-height: 14px;
-  }
-  .marker-label {
-    font-size: 8px;
-  }
-
-  /* =========================
-     TAB TARJETAS — 1 columna
-     ========================= */
-
-  /* Filtros: grid 2 columnas */
-  .filtros-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 8px;
-  }
-  .filtros-bar .filtro-group {
-    min-width: 0;
-  }
-  .filtros-bar label {
-    font-size: 11px;
-  }
-  .filtros-bar select {
-    font-size: 12px;
-    padding: 6px 8px;
-    width: 100%;
-  }
-
-  /* Gráficas: 1 columna */
-  .charts-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .chart-wrap {
-    height: 280px;
-    max-height: 280px;
-  }
-  .chart-wrap canvas {
-    max-height: 260px !important;
-    height: 260px !important;
-  }
-
-  /* Tabla: scroll horizontal */
-  .tabla-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .tabla-container table {
-    min-width: 800px;
-  }
-  .tabla-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .tabla-header h3 {
-    font-size: 14px;
-  }
-  #tblSearch {
-    width: 100%;
-    font-size: 12px;
-  }
-  #btnExport {
-    width: 100%;
-    text-align: center;
-    font-size: 12px;
-  }
-
-  /* Table cells más compactos */
-  .tabla-container th,
-  .tabla-container td {
-    padding: 6px 8px;
-    font-size: 11px;
-  }
-
-  /* Column filter dropdown */
-  .col-filter-drop {
-    min-width: 180px;
-    max-width: 240px;
-    font-size: 12px;
-  }
-
-  /* Ranking de grupos */
-  #rankingGrupos {
-    overflow-x: auto;
-  }
-  #rankingGrupos table {
-    min-width: 500px;
-    font-size: 12px;
-  }
-
-  /* =========================
-     TAB OPERATIVIDAD — Apilar
-     ========================= */
-
-  /* Dona + Accordion layout */
-  .oper-top {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .oper-donut-wrap {
-    width: 100%;
-    max-width: 280px;
-    margin: 0 auto;
-  }
-  .oper-chips-wrap {
-    width: 100%;
-  }
-
-  /* Operatividad grid general */
-  .oper-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  /* Accordion headers */
-  .accordion-header {
-    font-size: 13px;
-    padding: 10px 12px;
-  }
-
-  /* Chips más pequeños */
-  .equip-chip {
-    font-size: 11px;
-    padding: 4px 8px;
-  }
-
-  /* Tabla tiempo fuera de servicio */
-  .oper-time-table {
-    overflow-x: auto;
-  }
-  .oper-time-table table {
-    min-width: 500px;
-  }
-
-  /* Heatmap: scroll horizontal */
-  .heatmap-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  #heatmapGrid {
-    min-width: 500px;
-    font-size: 11px;
-  }
-  .hm-cell {
-    padding: 4px 6px;
-    min-width: 60px;
-  }
-
-  /* Scorecards: 1 columna */
-  .scorecards-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-  .scorecard {
-    width: 100%;
-  }
-  .scorecard h4 {
-    font-size: 15px;
-  }
-  .sc-pct {
-    font-size: 28px;
-  }
-  .sc-row {
-    gap: 12px;
-  }
-
-  /* =========================
-     MODAL — Full-width en móvil
-     ========================= */
-  .modal-box {
-    width: 95%;
-    max-width: 95%;
-    margin: 20px auto;
-    max-height: 85vh;
-    overflow-y: auto;
-  }
-  .modal-header h3 {
-    font-size: 14px;
-  }
-  .modal-body {
-    padding: 12px;
-  }
-  .modal-footer {
-    padding: 10px 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .modal-footer button {
-    flex: 1;
-    min-width: 100px;
-  }
-
-  /* --- Ticket items en panel mapa --- */
-  .ticket-item {
-    padding: 8px;
-    font-size: 12px;
-  }
+/* =============================================================
+   RESPONSIVE — MÓVIL (max 768px)
+   ============================================================= */
+@media(max-width:768px){
+  body{font-size:13px}
+  .header{padding:10px 12px;flex-direction:column;align-items:flex-start;gap:6px}
+  .header h1{font-size:14px;line-height:1.3}
+  .tabs{gap:0;justify-content:stretch;padding:0}
+  .tab{flex:1;text-align:center;padding:10px 8px;font-size:12px;white-space:nowrap}
+  .tab i{display:block;margin:0 auto 2px;font-size:14px}
+  .kpi-bar{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px;padding:8px 12px;scroll-snap-type:x mandatory}
+  .kpi-bar .kc{flex-shrink:0;min-width:80px;padding:8px 10px;scroll-snap-align:start}
+  .kpi-bar .kc .v{font-size:18px}
+  .kpi-bar .kc .l{font-size:9px}
+  .kc-sep{display:none}
+  .kc-date{padding:0 4px}
+  .kc-date input{width:100px;font-size:10px}
+  .tab-content.active{padding:0}
+  /* TAB MAPA */
+  .mapa-wrap{flex-direction:column}
+  .mapa-main{width:100%;min-height:300px}
+  .mapa-panel{width:100%;max-width:100%;min-width:0;max-height:400px;overflow-y:auto;border-left:none;border-top:1px solid #e8e5ec}
+  .mapa-panel-header h3{font-size:14px}
+  .mapa-legend{flex-wrap:wrap;gap:8px;padding:8px}
+  .mapa-legend label{font-size:11px}
+  .marker{width:28px;height:28px;font-size:8px}
+  .marker-badge{font-size:8px;width:14px;height:14px;line-height:14px}
+  .marker-label{font-size:8px}
+  .mapa-zoom-controls{top:4px;right:4px;padding:3px 4px;gap:2px}
+  .mapa-zoom-controls button{width:32px;height:32px;font-size:14px}
+  .mapa-zoom-level{font-size:10px;min-width:32px}
+  /* TAB TARJETAS */
+  .filter-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px}
+  .filter-group{min-width:0}
+  .filter-group label{font-size:10px}
+  .filter-group select{font-size:12px;padding:6px 8px;width:100%}
+  .filter-spacer{display:none}
+  .chart-grid{grid-template-columns:1fr;gap:12px;padding:12px}
+  .chart-wrap{height:280px;max-height:280px}
+  .chart-wrap canvas{max-height:260px!important;height:260px!important}
+  .table-section{margin:0 12px 12px;max-height:none}
+  .table-toolbar{flex-direction:column;align-items:stretch;gap:8px}
+  .table-toolbar .tbl-search{margin-left:0}
+  .table-toolbar .tbl-search input{width:100%}
+  .table-toolbar .btn-export{margin-left:0;width:100%;text-align:center}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table-scroll table.data-table{min-width:800px}
+  table.data-table th,table.data-table td{padding:6px 8px;font-size:11px}
+  .col-filter-drop{min-width:180px;max-width:240px;font-size:12px}
+  /* TAB OPERATIVIDAD */
+  .oper-wrap{flex-direction:column;padding:12px;overflow:auto}
+  .oper-left{width:100%;flex-shrink:unset}
+  .oper-right{width:100%}
+  .oper-donut-wrap{flex-direction:column;align-items:center}
+  .oper-donut-chart{width:160px;height:160px}
+  .accordion-header{font-size:13px;padding:10px 12px}
+  .equip-chip{font-size:11px;padding:4px 8px}
+  .oper-time-wrapper table{min-width:500px}
+  .heatmap-wrapper .heatmap-grid{min-width:500px;font-size:11px}
+  .hm-cell{padding:4px 6px;min-width:60px}
+  .scorecard-row{flex-direction:column;gap:12px}
+  .scorecard-card{width:100%}
+  .scorecard-card h4{font-size:15px}
+  .sc-big{font-size:28px}
+  /* MODAL */
+  .modal-box{width:95%;max-width:95%;margin:20px auto;max-height:85vh;overflow-y:auto}
+  .modal-header h3{font-size:14px}
+  .modal-body{padding:12px}
+  .modal-footer{padding:10px 12px;flex-wrap:wrap;gap:8px}
+  .modal-footer button{flex:1;min-width:100px}
+  .ticket-item{padding:8px;font-size:12px}
+  .hide-mobile{display:none!important}
+  button,select,input,.tab,.accordion-header,.equip-chip,.marker{min-height:36px}
 }
 
-/* ============================================================
-   BREAKPOINT 3: MÓVIL PEQUEÑO (max 480px)
-   ============================================================ */
-@media (max-width: 480px) {
-
-  /* Header aún más compacto */
-  header {
-    padding: 8px 10px;
-  }
-  header h1 {
-    font-size: 12px;
-  }
-
-  /* Tabs iconos solamente en pantallas muy chicas */
-  .tab span.tab-text {
-    display: none;
-  }
-  .tab {
-    padding: 10px 12px;
-    font-size: 16px;
-  }
-
-  /* KPI cards más angostas */
-  .kpi-row > div {
-    min-width: 70px;
-    padding: 6px 8px;
-  }
-  .kpi-row .kpi-num {
-    font-size: 16px;
-  }
-  .kpi-row .kpi-label {
-    font-size: 9px;
-  }
-
-  /* Filtros: 1 columna */
-  .filtros-bar {
-    grid-template-columns: 1fr;
-  }
-
-  /* Gráficas más bajas */
-  .chart-wrap {
-    height: 240px;
-    max-height: 240px;
-  }
-  .chart-wrap canvas {
-    max-height: 220px !important;
-    height: 220px !important;
-  }
-
-  /* Mapa container más bajo */
-  .mapa-container-wrap {
-    min-height: 250px;
-  }
-
-  /* Marcadores aún más pequeños */
-  .marker {
-    width: 24px;
-    height: 24px;
-    font-size: 7px;
-  }
-
-  /* Heatmap cells */
-  .hm-cell {
-    min-width: 50px;
-    font-size: 10px;
-  }
-
-  /* Dona operatividad más compacta */
-  .oper-donut-wrap {
-    max-width: 220px;
-  }
+/* =============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (max 480px)
+   ============================================================= */
+@media(max-width:480px){
+  .header{padding:8px 10px}
+  .header h1{font-size:12px}
+  .tab .tab-text{display:none}
+  .tab{padding:10px 12px;font-size:16px}
+  .kpi-bar .kc{min-width:70px;padding:6px 8px}
+  .kpi-bar .kc .v{font-size:16px}
+  .kpi-bar .kc .l{font-size:8px}
+  .filter-bar{grid-template-columns:1fr}
+  .chart-wrap{height:240px;max-height:240px}
+  .chart-wrap canvas{max-height:220px!important;height:220px!important}
+  .mapa-main{min-height:250px}
+  .marker{width:24px;height:24px;font-size:7px}
+  .hm-cell{min-width:50px;font-size:10px}
+  .oper-donut-chart{width:120px;height:120px}
+  .mapa-zoom-controls button{width:34px;height:34px}
 }
 
-/* ============================================================
-   UTILIDADES RESPONSIVE
-   ============================================================ */
-
-/* Ocultar en móvil */
-@media (max-width: 768px) {
-  .hide-mobile {
-    display: none !important;
-  }
+/* Safe area (iPhones con notch) */
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  body{padding-bottom:env(safe-area-inset-bottom)}
 }
-
-/* Ocultar en desktop */
-@media (min-width: 769px) {
-  .hide-desktop {
-    display: none !important;
-  }
-}
-
-/* Scroll indicator para KPIs y tablas (sutil) */
-.kpi-row::-webkit-scrollbar,
-.tabla-container::-webkit-scrollbar,
-.heatmap-wrap::-webkit-scrollbar {
-  height: 4px;
-}
-.kpi-row::-webkit-scrollbar-thumb,
-.tabla-container::-webkit-scrollbar-thumb,
-.heatmap-wrap::-webkit-scrollbar-thumb {
-  background: rgba(79, 33, 112, 0.3);
-  border-radius: 4px;
-}
-.kpi-row::-webkit-scrollbar-track,
-.tabla-container::-webkit-scrollbar-track,
-.heatmap-wrap::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Touch-friendly: targets más grandes en móvil */
-@media (max-width: 768px) {
-  button, select, input, .tab, .accordion-header, .equip-chip, .marker {
-    min-height: 36px;
-  }
-  select, input[type="date"], input[type="text"] {
-    min-height: 36px;
-  }
-}
-
-/* Safe area para iPhones con notch */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  body {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-
 </style>
 </head>
 <body>
+
+<!-- ============ HEADER ============ -->
 <header class="header">
   <div style="display:flex;align-items:center;gap:10px">
     <h1>Mondelez <span class="plant">| Salinas Plant</span></h1>
@@ -732,11 +360,15 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     <span class="info" id="headerDate" style="margin-left:10px"></span>
   </div>
 </header>
+
+<!-- ============ TABS (CAMBIO: texto envuelto en span.tab-text) ============ -->
 <nav class="tabs">
-  <div class="tab active" data-tab="mapa"><i class="fa-solid fa-map" style="margin-right:5px"></i> Mapa</div>
-  <div class="tab" data-tab="tarjetas"><i class="fa-solid fa-tags" style="margin-right:5px"></i> Tarjetas</div>
-  <div class="tab" data-tab="operatividad"><i class="fa-solid fa-gauge-high" style="margin-right:5px"></i> Operatividad</div>
+  <div class="tab active" data-tab="mapa"><i class="fa-solid fa-map" style="margin-right:5px"></i> <span class="tab-text">Mapa</span></div>
+  <div class="tab" data-tab="tarjetas"><i class="fa-solid fa-tags" style="margin-right:5px"></i> <span class="tab-text">Tarjetas</span></div>
+  <div class="tab" data-tab="operatividad"><i class="fa-solid fa-gauge-high" style="margin-right:5px"></i> <span class="tab-text">Operatividad</span></div>
 </nav>
+
+<!-- ============ KPI BAR ============ -->
 <div class="kpi-bar">
   <div class="kc"><div class="v" id="kpiAbiertas">0</div><div class="l">Abiertas</div></div>
   <div class="kc"><div class="v" id="kpiCerradas">0</div><div class="l">Cerradas</div></div>
@@ -755,10 +387,22 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     <div><label>Hasta</label><input type="date" id="filtHasta"></div>
   </div>
 </div>
+
+<!-- ============ TAB: MAPA (CAMBIO: zoom controls + viewport wrapper) ============ -->
 <div class="tab-content active" id="tabMapa">
   <div class="mapa-wrap">
-    <div class="mapa-main" id="mapaContainer">
-      <img src="pltz-layout.png" alt="Layout Paletizado" id="mapaImg">
+    <div class="mapa-main">
+      <div class="mapa-zoom-controls">
+        <button id="btnMapaZoomIn" type="button" title="Acercar"><i class="fas fa-plus"></i></button>
+        <span id="mapaZoomLevel" class="mapa-zoom-level">100%</span>
+        <button id="btnMapaZoomOut" type="button" title="Alejar"><i class="fas fa-minus"></i></button>
+        <button id="btnMapaZoomReset" type="button" title="Restablecer"><i class="fas fa-compress-arrows-alt"></i></button>
+      </div>
+      <div id="mapaZoomViewport" class="mapa-zoom-viewport">
+        <div id="mapaContainer" style="position:relative;width:100%;height:100%">
+          <img src="pltz-layout.png" alt="Layout Paletizado" id="mapaImg">
+        </div>
+      </div>
     </div>
     <div class="mapa-panel" id="mapaPanel">
       <div class="mapa-panel-header">
@@ -780,40 +424,40 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     <div class="mapa-legend-item"><div class="mapa-legend-dot wrapper"></div> Wrapper</div>
     <div class="mapa-legend-item"><div class="mapa-legend-dot espiral"></div> Espiral</div>
     <div class="mapa-labels-toggle">
-      <input type="checkbox" id="chkLabels" checked> <label for="chkLabels">Mostrar etiquetas</label>
+      <input type="checkbox" id="chkLabels" checked> <label for="chkLabels">Etiquetas</label>
     </div>
   </div>
 </div>
+
+<!-- ============ TAB: TARJETAS ============ -->
 <div class="tab-content" id="tabTarjetas">
   <div class="filter-bar">
     <div class="filter-group"><label>Proyecto</label><select id="filtProyecto"><option value="">Todos</option><option value="arthur">Arthur</option><option value="sunrise">Sunrise</option></select></div>
     <div class="filter-group"><label>Grupo</label><select id="filtGrupo"><option value="">Todos</option></select></div>
     <div class="filter-group"><label>Color</label><select id="filtColor"><option value="">Todos</option><option value="BT">BT (Azul)</option><option value="RT">RT (Rojo)</option><option value="YT">YT (Amarillo)</option></select></div>
-    <div class="filter-group"><label>Estado</label><select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select></div>    
+    <div class="filter-group"><label>Estado</label><select id="filtEstado"><option value="">Todos</option><option value="Abierta">Abierta</option><option value="Resuelta">Resuelta</option><option value="CMMS">CMMS</option></select></div>
+    <div class="filter-spacer"></div>
     <div class="filter-group"><label>Equipo</label><select id="filtEquipo"><option value="">Todos</option></select></div>
   </div>
-  <div style="flex:1;overflow-y:auto;padding-bottom:12px">
-    <div class="chart-grid">
-      <div class="chart-card"><h3>Tarjetas por Color</h3><div class="chart-wrap"><canvas id="chartDonut"></canvas></div></div>
-      <div class="chart-card"><h3>Tendencia Apertura vs Cierre</h3><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Tarjetas por Color</h3><div class="chart-wrap"><canvas id="chartDonut"></canvas></div></div>
+    <div class="chart-card"><h3>Tendencia Apertura vs Cierre</h3><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
+    <div class="chart-card"><h3>Top 10 Equipos Problematicos</h3><div class="chart-wrap"><canvas id="chartTop10"></canvas></div></div>
+    <div class="chart-card"><h3>Distribucion de Antiguedad</h3><div class="chart-wrap"><canvas id="chartAntig"></canvas></div></div>
+    <div class="chart-card"><h3>Tasa de Cierre Mensual</h3><div class="chart-wrap"><canvas id="chartCierre"></canvas></div></div>
+    <div class="chart-card"><h3>Tasa de Cierre por Grupo</h3><div class="chart-wrap"><canvas id="chartGrupos"></canvas></div></div>
+  </div>
+  <div class="table-section">
+    <div class="table-toolbar">
+      <h3>Detalle de Tarjetas</h3>
+      <span class="tbl-count" id="tblCount"></span>
+      <div class="tbl-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="tblSearch" placeholder="Buscar..."></div>
+      <button class="btn-export" id="btnExport"><i class="fa-solid fa-download" style="margin-right:4px"></i>Descargar Excel</button>
     </div>
-    <div class="chart-grid">
-      <div class="chart-card"><h3>Top 10 Equipos Problematicos</h3><div class="chart-wrap"><canvas id="chartTop10"></canvas></div></div>
-      <div class="chart-card"><h3>Distribucion de Antiguedad</h3><div class="chart-wrap"><canvas id="chartAntig"></canvas></div></div>
-    </div>
-    <div class="chart-grid">
-      <div class="chart-card"><h3>Tasa de Cierre Mensual</h3><div class="chart-wrap"><canvas id="chartCierre"></canvas></div></div>
-      <div class="chart-card"><h3>Tasa de Cierre por Grupo</h3><div class="chart-wrap"><canvas id="chartGrupos"></canvas></div></div>
-    </div>
-    <div class="table-section">
-      <div class="table-toolbar">
-        <h3>Detalle de Tarjetas</h3><span class="tbl-count" id="tblCount"></span>
-        <div class="tbl-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="tblSearch" placeholder="Buscar folio, equipo, descripcion..."></div>
-        <button class="btn-export" id="btnExport"><i class="fa-solid fa-download" style="margin-right:4px"></i>Descargar Excel</button>
-      </div>
-      <div class="table-scroll">
-        <table class="data-table" id="tarjetasTable">
-          <thead><tr>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
             <th><div class="th-wrap">Folio <i class="fa-solid fa-sort col-sort" data-col="folio"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="folio"></i></div><div class="col-filter-drop" data-col="folio"></div></th>
             <th><div class="th-wrap">Equipo <i class="fa-solid fa-sort col-sort" data-col="equipo"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="equipo"></i></div><div class="col-filter-drop" data-col="equipo"></div></th>
             <th><div class="th-wrap">Color <i class="fa-solid fa-sort col-sort" data-col="color"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="color"></i></div><div class="col-filter-drop" data-col="color"></div></th>
@@ -821,15 +465,17 @@ table.data-table tbody tr:hover{background:#f9f8fb}
             <th><div class="th-wrap">Prioridad <i class="fa-solid fa-sort col-sort" data-col="prioridad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="prioridad"></i></div><div class="col-filter-drop" data-col="prioridad"></div></th>
             <th><div class="th-wrap">Estado <i class="fa-solid fa-sort col-sort" data-col="estado"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="estado"></i></div><div class="col-filter-drop" data-col="estado"></div></th>
             <th><div class="th-wrap">Fecha <i class="fa-solid fa-sort col-sort" data-col="fecha"></i></div></th>
-            <th><div class="th-wrap">Antiguedad <i class="fa-solid fa-sort col-sort" data-col="antiguedad"></i> <i class="fa-solid fa-filter col-filter-btn" data-col="antiguedad"></i></div><div class="col-filter-drop" data-col="antiguedad"></div></th>
-            <th><div class="th-wrap">Descripcion</div></th>
-          </tr></thead>
-          <tbody id="tarjetasTbody"></tbody>
-        </table>
-      </div>
+            <th><div class="th-wrap">Antiguedad <i class="fa-solid fa-sort col-sort" data-col="antiguedad"></i></div></th>
+            <th>Descripcion</th>
+          </tr>
+        </thead>
+        <tbody id="tarjetasTbody"></tbody>
+      </table>
     </div>
   </div>
 </div>
+
+<!-- ============ TAB: OPERATIVIDAD ============ -->
 <div class="tab-content" id="tabOperatividad">
   <div class="oper-wrap">
     <div class="oper-left">
@@ -837,36 +483,46 @@ table.data-table tbody tr:hover{background:#f9f8fb}
         <h3>Operatividad de Equipos</h3>
         <div class="oper-donut-wrap">
           <div class="oper-donut-chart"><canvas id="chartOperDonut"></canvas></div>
-          <div id="operDonutLegend"></div>
+          <div>
+            <div class="oper-legend-item"><div class="oper-legend-dot" style="background:#287819"></div> Operativos <span class="oper-legend-count" id="legOp">0</span></div>
+            <div class="oper-legend-item"><div class="oper-legend-dot" style="background:#E18719"></div> Degradados <span class="oper-legend-count" id="legDeg">0</span></div>
+            <div class="oper-legend-item"><div class="oper-legend-dot" style="background:#A52323"></div> Fuera Serv. <span class="oper-legend-count" id="legFS">0</span></div>
+          </div>
         </div>
       </div>
-      <div class="oper-card" style="flex:1;overflow-y:auto">
+      <div class="oper-card">
         <div class="accordion-section">
-          <div class="accordion-header open" data-section="operativos"><span id="accTitleOperativos">Operativos (0)</span></div>
-          <div class="accordion-body open" id="accBodyOperativos"><div id="chipsOperativos"></div></div>
+          <div class="accordion-header" id="accOp">Operativos (<span id="accOpCount">0</span>)</div>
+          <div class="accordion-body" id="accOpBody"></div>
         </div>
         <div class="accordion-section">
-          <div class="accordion-header" data-section="degradados"><span id="accTitleDegradados">Degradados (0)</span></div>
-          <div class="accordion-body" id="accBodyDegradados"><div id="chipsDegradados"></div></div>
+          <div class="accordion-header" id="accDeg">Degradados (<span id="accDegCount">0</span>)</div>
+          <div class="accordion-body" id="accDegBody"></div>
         </div>
         <div class="accordion-section">
-          <div class="accordion-header" data-section="fuera"><span id="accTitleFuera">Fuera de Servicio (0)</span></div>
-          <div class="accordion-body" id="accBodyFuera"><div id="chipsFuera"></div></div>
+          <div class="accordion-header" id="accFS">Fuera de Servicio (<span id="accFSCount">0</span>)</div>
+          <div class="accordion-body" id="accFSBody"></div>
         </div>
       </div>
     </div>
     <div class="oper-right">
       <div class="oper-card">
         <h3>Tiempo Fuera de Servicio</h3>
-        <table class="oper-time-table">
-          <thead><tr><th>Equipo</th><th>Estado</th><th>Desde</th><th>Tiempo</th><th>Motivo</th></tr></thead>
-          <tbody id="operTimeTable"></tbody>
-        </table>
+        <!-- CAMBIO: wrapper para scroll horizontal en móvil -->
+        <div class="oper-time-wrapper">
+          <table class="oper-time-table">
+            <thead><tr><th>Equipo</th><th>Estado</th><th>Desde</th><th>Tiempo</th><th>Motivo</th></tr></thead>
+            <tbody id="operTimeTable"></tbody>
+          </table>
+        </div>
         <div class="oper-note">Datos guardados en navegador (localStorage)</div>
       </div>
       <div class="oper-card">
         <h3>Mapa de Operatividad por Linea</h3>
-        <div class="heatmap-grid" id="heatmapGrid"></div>
+        <!-- CAMBIO: wrapper para scroll horizontal en móvil -->
+        <div class="heatmap-wrapper">
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
         <div class="heatmap-legend">
           <span><span class="hm-leg-dot" style="background:#287819"></span> Operativo</span>
           <span><span class="hm-leg-dot" style="background:#E18719"></span> Degradado</span>
@@ -899,6 +555,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     </div>
   </div>
 </div>
+
+<!-- ============ MODAL CAMBIO DE ESTADO ============ -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -923,6 +581,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
     </div>
   </div>
 </div>
+
 <script src="app.js"></script>
 </body>
 </html>
