@@ -43,7 +43,7 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 /* === MAPA === */
 .mapa-wrap{display:flex;flex:1;overflow:hidden}
 .mapa-main{flex:1;position:relative;overflow:hidden;background:#f9f8fb}
-.mapa-main img{width:100%;height:100%;object-fit:contain}
+.mapa-main img{width:100%;height:auto;display:block}
 .marker{position:absolute;width:16px;height:16px;margin-left:-8px;margin-top:-8px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:1.5px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .marker:hover{transform:scale(1.15);z-index:10}
 .marker.pal{border-radius:6px}
@@ -82,7 +82,7 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 
 /* === ZOOM DEL MAPA (NUEVO) === */
 .mapa-zoom-viewport{position:relative;width:100%;height:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
-.mapa-zoom-viewport #mapaContainer{transition:transform .15s ease-out;will-change:transform}
+.mapa-zoom-viewport #mapaContainer{position:relative;transition:transform .15s ease-out;will-change:transform}
 .mapa-zoom-controls{position:absolute;top:8px;right:8px;z-index:20;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.95);border:1px solid #e0e0e0;border-radius:8px;padding:4px 6px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .mapa-zoom-controls button{width:30px;height:30px;border:none;background:transparent;color:#4F2170;font-size:13px;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .15s}
 .mapa-zoom-controls button:hover{background:#f3edf8}
@@ -398,7 +398,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
         <button id="btnMapaZoomReset" type="button" title="Restablecer"><i class="fas fa-compress-arrows-alt"></i></button>
       </div>
       <div id="mapaZoomViewport" class="mapa-zoom-viewport">
-        <div id="mapaContainer" style="position:relative;width:100%;height:100%">
+        <div id="mapaContainer" >
           <img src="pltz-layout.png" alt="Layout Paletizado" id="mapaImg">
         </div>
       </div>
