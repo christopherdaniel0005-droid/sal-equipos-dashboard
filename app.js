@@ -507,25 +507,48 @@ function renderKPIs(){
 // ============================================================
 var mapaSeleccionado=null;
 function initMapa(){renderMarcadores();initMapaLabels();initMapaZoom();}
+
 function renderMarcadores(){
   var c=document.getElementById("mapaContainer");
   c.querySelectorAll(".marker").forEach(function(m){m.remove();});
+
+  // Usar la imagen como background para que los % coincidan exactamente
+  var img=document.getElementById("mapaImg");
+  if(img){
+    img.style.position="absolute";
+    img.style.width="100%";
+    img.style.height="100%";
+    img.style.objectFit="fill";
+  }
+
   EQUIPOS_MAPA.forEach(function(eq){
     var coord=MAPA_COORDS[eq.id];if(!coord) return;
     var st=equipStatus[eq.id]||"operativo";
     var ta=contarTarjetasEquipo(eq.id);
     var mk=document.createElement("div");
     mk.className="marker "+eq.tipo+" status-"+st;
-    mk.style.left=coord.x+"%";mk.style.top=coord.y+"%";
-    mk.setAttribute("data-equipo",eq.id);mk.title=eq.id+" - "+eq.nombre;
+    mk.style.left=coord.x+"%";
+    mk.style.top=coord.y+"%";
+    mk.setAttribute("data-equipo",eq.id);
+    mk.title=eq.id+" - "+eq.nombre;
+
     var lb=eq.id.replace("Pal ","P").replace("Wrapper ","W").replace("SP-","S");
-    if(eq.tipo==="wrapper") mk.innerHTML="<span>"+lb+"</span>";else mk.textContent=lb;
-    if(ta>0){var bg=document.createElement("div");bg.className="marker-badge";bg.textContent=ta;mk.appendChild(bg);}
-    var le=document.createElement("div");le.className="marker-label";le.textContent=eq.id;mk.appendChild(le);
+    // Wrappers son rombos (rotados), necesitan span interno
+    if(eq.tipo==="wrapper") mk.innerHTML="<span>"+lb+"</span>";
+    else mk.textContent=lb;
+
+    if(ta>0){
+      var bg=document.createElement("div");
+      bg.className="marker-badge";bg.textContent=ta;mk.appendChild(bg);
+    }
+    var le=document.createElement("div");
+    le.className="marker-label";le.textContent=eq.id;mk.appendChild(le);
     mk.addEventListener("click",function(){seleccionarEquipoMapa(eq.id);});
     c.appendChild(mk);
   });
 }
+
+
 // >>> BLOQUE 1: contarTarjetasEquipo y obtenerTarjetasEquipo usan _equipoId
 function contarTarjetasEquipo(eid){
   var n=0;tarjetasData.forEach(function(t){
