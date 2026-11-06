@@ -43,15 +43,17 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 /* === MAPA === */
 .mapa-wrap{display:flex;flex:1;overflow:hidden}
 .mapa-main{flex:1;position:relative;overflow:hidden;background:#f9f8fb}
-.mapa-main img{width:100%;height:auto;display:block}
-.marker{position:absolute;width:16px;height:16px;margin-left:-8px;margin-top:-8px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:1.5px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.marker:hover{transform:scale(1.15);z-index:10}
+.mapa-main img{width:100%;height:100%;object-fit:contain;display:block}
+.marker{position:absolute;width:24px;height:24px;aspect-ratio:1;margin-left:-12px;margin-top:-12px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.marker:hover{transform:scale(1.3);z-index:100}
+.marker.wrapper:hover{transform:rotate(45deg) scale(1.3);z-index:100}
 .marker.pal{border-radius:6px}
 .marker.wrapper{border-radius:2px;transform:rotate(45deg)}
 .marker.wrapper span{transform:rotate(-45deg)}
 .marker.espiral{border-radius:50%}
-.marker-badge{position:absolute;top:-5px;right:-5px;...width:14px;height:14px;...font-size:7px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff}
-.marker-label{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);font-size:7px;color:#3D3D3D;white-space:nowr   ap;font-weight:600}
+.marker-badge{position:absolute;top:-5px;right:-5px;background:#A52323;color:#fff;border-radius:50%;width:12px;height:12px;aspect-ratio:1;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid #fff;z-index:3;pointer-events:none}
+.marker-label{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-size:7px;color:#333;background:rgba(255,255,255,.85);padding:1px 3px;border-radius:2px;white-space:nowrap;font-weight:600;margin-top:2px;pointer-events:none;display:none}
+.marker:hover .marker-label{display:block}
 .marker.status-operativo{background:#287819}
 .marker.status-degradado{background:#E18719}
 .marker.status-fuera{background:#A52323}
@@ -82,7 +84,7 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 
 /* === ZOOM DEL MAPA (NUEVO) === */
 .mapa-zoom-viewport{position:relative;width:100%;height:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
-.mapa-zoom-viewport #mapaContainer{position:relative;transition:transform .15s ease-out;will-change:transform}
+.mapa-zoom-viewport #mapaContainer{position:relative;width:100%;height:100%;transition:transform .15s ease-out;will-change:transform}
 .mapa-zoom-controls{position:absolute;top:8px;right:8px;z-index:20;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.95);border:1px solid #e0e0e0;border-radius:8px;padding:4px 6px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .mapa-zoom-controls button{width:30px;height:30px;border:none;background:transparent;color:#4F2170;font-size:13px;cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .15s}
 .mapa-zoom-controls button:hover{background:#f3edf8}
@@ -266,12 +268,12 @@ table.data-table tbody tr:hover{background:#f9f8fb}
   /* TAB MAPA */
   .mapa-wrap{flex-direction:column}
   .mapa-main{width:100%;min-height:300px}
-  .mapa-panel{width:100%;max-width:100%;min-width:0;max-height:400px;overflow-y:auto;border-left:none;border-top:1px solid #e8e5ec}
+   .mapa-panel{width:100%;height:45vh;max-height:45vh;overflow-y:auto}
   .mapa-panel-header h3{font-size:14px}
   .mapa-legend{flex-wrap:wrap;gap:8px;padding:8px}
   .mapa-legend label{font-size:11px}
-  .marker{width:28px;height:28px;font-size:8px}
-  .marker-badge{font-size:8px;width:14px;height:14px;line-height:14px}
+  .marker{width:14px;height:14px;aspect-ratio:1;margin-left:-7px;margin-top:-7px;font-size:5px}
+   .marker-badge{width:10px;height:10px;font-size:6px;top:-4px;right:-4px}
   .marker-label{font-size:8px}
   .mapa-zoom-controls{top:4px;right:4px;padding:3px 4px;gap:2px}
   .mapa-zoom-controls button{width:32px;height:32px;font-size:14px}
@@ -335,7 +337,8 @@ table.data-table tbody tr:hover{background:#f9f8fb}
   .chart-wrap{height:240px;max-height:240px}
   .chart-wrap canvas{max-height:220px!important;height:220px!important}
   .mapa-main{min-height:250px}
-  .marker{width:24px;height:24px;font-size:7px}
+   .marker{width:12px;height:12px;aspect-ratio:1;margin-left:-6px;margin-top:-6px;font-size:5px}
+   .marker-badge{width:8px;height:8px;font-size:5px;top:-3px;right:-3px}
   .hm-cell{min-width:50px;font-size:10px}
   .oper-donut-chart{width:120px;height:120px}
   .mapa-zoom-controls button{width:34px;height:34px}
@@ -398,7 +401,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
         <button id="btnMapaZoomReset" type="button" title="Restablecer"><i class="fas fa-compress-arrows-alt"></i></button>
       </div>
       <div id="mapaZoomViewport" class="mapa-zoom-viewport">
-        <div id="mapaContainer" >
+         <div id="mapaContainer" style="position:relative;width:100%;height:100%">
           <img src="pltz-layout.png" alt="Layout Paletizado" id="mapaImg">
         </div>
       </div>
