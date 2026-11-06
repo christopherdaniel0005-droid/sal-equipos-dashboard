@@ -508,10 +508,34 @@ function renderKPIs(){
 var mapaSeleccionado=null;
 function initMapa(){renderMarcadores();initMapaLabels();initMapaZoom();}
 
+
 function renderMarcadores(){
   var c=document.getElementById("mapaContainer");
   c.querySelectorAll(".marker").forEach(function(m){m.remove();});
 
+  // Calcular offset real de la imagen con object-fit:contain
+  var img=document.getElementById("mapaImg");
+  var offset={ox:0,oy:0,iw:c.offsetWidth,ih:c.offsetHeight};
+
+  if(img&&img.naturalWidth&&c.offsetWidth&&c.offsetHeight){
+    var cw=c.offsetWidth, ch=c.offsetHeight;
+    var nw=img.naturalWidth, nh=img.naturalHeight;
+    var ratioImg=nw/nh, ratioContainer=cw/ch;
+    var renderedW, renderedH;
+    if(ratioImg>ratioContainer){
+      // imagen más ancha: llena el ancho, hay espacio arriba/abajo
+      renderedW=cw;
+      renderedH=cw/ratioImg;
+    }else{
+      // imagen más alta: llena el alto, hay espacio izq/der
+      renderedH=ch;
+      renderedW=ch*ratioImg;
+    }
+    offset.ox=(cw-renderedW)/2;
+    offset.oy=(ch-renderedH)/2;
+    offset.iw=renderedW;
+    offset.ih=renderedH;
+  }
 
   EQUIPOS_MAPA.forEach(function(eq){
     var coord=MAPA_COORDS[eq.id];if(!coord) return;
@@ -519,13 +543,17 @@ function renderMarcadores(){
     var ta=contarTarjetasEquipo(eq.id);
     var mk=document.createElement("div");
     mk.className="marker "+eq.tipo+" status-"+st;
-    mk.style.left=coord.x+"%";
-    mk.style.top=coord.y+"%";
+
+    // Posicionar con offset calculado
+    var px=offset.ox+(coord.x/100)*offset.iw;
+    var py=offset.oy+(coord.y/100)*offset.ih;
+    mk.style.left=(px/c.offsetWidth*100)+"%";
+    mk.style.top=(py/c.offsetHeight*100)+"%";
+
     mk.setAttribute("data-equipo",eq.id);
     mk.title=eq.id+" - "+eq.nombre;
 
     var lb=eq.id.replace("Pal ","P").replace("Wrapper ","W").replace("SP-","S");
-    // Wrappers son rombos (rotados), necesitan span interno
     if(eq.tipo==="wrapper") mk.innerHTML="<span>"+lb+"</span>";
     else mk.textContent=lb;
 
@@ -539,6 +567,8 @@ function renderMarcadores(){
     c.appendChild(mk);
   });
 }
+
+
 
 
 // >>> BLOQUE 1: contarTarjetasEquipo y obtenerTarjetasEquipo usan _equipoId
