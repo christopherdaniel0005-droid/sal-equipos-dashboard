@@ -519,7 +519,7 @@ function renderMarcadores(){
     mk.style.left=coord.x+"%";mk.style.top=coord.y+"%";
     mk.setAttribute("data-equipo",eq.id);mk.title=eq.id+" - "+eq.nombre;
     var lb=eq.id.replace("Pal ","P").replace("Wrapper ","W").replace("SP-","S");
-    if(eq.tipo==="espiral") mk.innerHTML="<span>"+lb+"</span>";else mk.textContent=lb;
+    if(eq.tipo==="wrapper") mk.innerHTML="<span>"+lb+"</span>";else mk.textContent=lb;
     if(ta>0){var bg=document.createElement("div");bg.className="marker-badge";bg.textContent=ta;mk.appendChild(bg);}
     var le=document.createElement("div");le.className="marker-label";le.textContent=eq.id;mk.appendChild(le);
     mk.addEventListener("click",function(){seleccionarEquipoMapa(eq.id);});
