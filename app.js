@@ -512,14 +512,6 @@ function renderMarcadores(){
   var c=document.getElementById("mapaContainer");
   c.querySelectorAll(".marker").forEach(function(m){m.remove();});
 
-  // Usar la imagen como background para que los % coincidan exactamente
-  var img=document.getElementById("mapaImg");
-  if(img){
-    img.style.position="absolute";
-    img.style.width="100%";
-    img.style.height="100%";
-    img.style.objectFit="fill";
-  }
 
   EQUIPOS_MAPA.forEach(function(eq){
     var coord=MAPA_COORDS[eq.id];if(!coord) return;
