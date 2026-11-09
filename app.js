@@ -334,7 +334,7 @@ function resolverEquipo(equipo, equipoFull) {
 // ============================================================
 var GITHUB_REPO = "christopherdaniel0005-droid/sal-equipos-dashboard";
 var GITHUB_FILE = "data/equip-status.json";
-var GITHUB_TOKEN = "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";
+var GITHUB_TOKEN = "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";
 var GITHUB_API = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + GITHUB_FILE;
 var _githubSHA = null;
 
