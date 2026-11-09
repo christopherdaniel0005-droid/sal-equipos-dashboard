@@ -44,7 +44,7 @@ body{font-family:Calibri,Arial,sans-serif;color:#3D3D3D;background:#f3f3f3;displ
 .mapa-wrap{display:flex;flex:1;overflow:hidden}
 .mapa-main{flex:1;position:relative;overflow:hidden;background:#f9f8fb}
 .mapa-main img{width:100%;height:100%;object-fit:contain;display:block}
-.marker{position:absolute;width:24px;height:24px;aspect-ratio:1;margin-left:-12px;margin-top:-12px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.3);overflow:hidden;line-height:1;text-align:center;padding:1px}
+.marker{position:absolute;width:24px;height:24px;aspect-ratio:1;margin-left:-12px;margin-top:-12px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s;z-index:2;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.3);overflow:visible;line-height:1;text-align:center;padding:1px}
 .marker:hover{transform:scale(1.3);z-index:100}
 .marker.wrapper:hover{transform:rotate(45deg) scale(1.3);z-index:100}
 .marker.pal{border-radius:6px}
@@ -273,7 +273,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
   .mapa-panel-header h3{font-size:14px}
   .mapa-legend{flex-wrap:wrap;gap:8px;padding:8px}
   .mapa-legend label{font-size:11px}
- .marker{width:10px!important;height:10px!important;min-width:10px;min-height:10px;max-width:10px;max-height:10px;margin-left:-5px!important;margin-top:-5px!important;font-size:0px;padding:0;border-width:1px}
+ .marker{width:10px!important;height:10px!important;min-width:10px;min-height:10px;max-width:10px;max-height:10px;margin-left:-5px!important;margin-top:-5px!important;font-size:0px;padding:0;border-width:1px;overflow:visible}
 .marker-badge{width:10px;height:10px;min-width:10px;min-height:10px;font-size:6px;margin-bottom:1px;border-width:1px}
 .marker-label{display:block!important;font-size:6px;padding:0 1px;background:transparent;color:#333;margin-top:1px;text-shadow:0 0 2px rgba(255,255,255,.9)}
 .marker:hover .marker-label{font-size:8px;background:rgba(255,255,255,.85);padding:1px 3px}
@@ -339,7 +339,7 @@ table.data-table tbody tr:hover{background:#f9f8fb}
   .chart-wrap{height:240px;max-height:240px}
   .chart-wrap canvas{max-height:220px!important;height:220px!important}
   .mapa-main{min-height:250px}
-  .marker{width:8px!important;height:8px!important;min-width:8px;min-height:8px;max-width:8px;max-height:8px;margin-left:-4px!important;margin-top:-4px!important;font-size:0px;padding:0;border-width:1px}
+  .marker{width:8px!important;height:8px!important;min-width:8px;min-height:8px;max-width:8px;max-height:8px;margin-left:-4px!important;margin-top:-4px!important;font-size:0px;padding:0;border-width:1px;overflow:visible}
 .marker-badge{width:8px;height:8px;min-width:8px;min-height:8px;font-size:5px;margin-bottom:0;border-width:1px}
 .marker-label{font-size:5px;margin-top:0}
   .hm-cell{min-width:50px;font-size:10px}
