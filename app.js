@@ -621,6 +621,7 @@ function initMapa(){renderMarcadores();initMapaLabels();initMapaZoom();}
 function renderMarcadores(){
   var c=document.getElementById("mapaContainer");
   c.querySelectorAll(".marker").forEach(function(m){m.remove();});
+  if(!c.offsetWidth || !c.offsetHeight){console.log("Mapa oculto, skip render");return;}
 
   // Calcular offset real de la imagen con object-fit:contain
   var img=document.getElementById("mapaImg");
@@ -743,7 +744,8 @@ function initTabs(){
     var t=tab.getAttribute("data-tab");
     tabs.forEach(function(x){x.classList.remove("active");});tab.classList.add("active");
     contents.forEach(function(c){c.classList.remove("active");});
-    document.getElementById(t==="mapa"?"tabMapa":t==="tarjetas"?"tabTarjetas":"tabOperatividad").classList.add("active");
+  document.getElementById(t==="mapa"?"tabMapa":t==="tarjetas"?"tabTarjetas":"tabOperatividad").classList.add("active");
+  if(t==="mapa") setTimeout(renderMarcadores,50);
   });});
   var vt=document.getElementById("mpVerTodas");
   if(vt) vt.addEventListener("click",function(e){e.preventDefault();
