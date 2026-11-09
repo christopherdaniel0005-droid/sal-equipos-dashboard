@@ -328,13 +328,122 @@ function resolverEquipo(equipo, equipoFull) {
 // ============================================================
 // 5. LOCALSTORAGE
 // ============================================================
-function cargarEstados(){
-  try{var s=localStorage.getItem("sal_equip_status");if(s) equipStatus=JSON.parse(s);}catch(e){}
-  EQUIPOS.forEach(function(eq){if(!equipStatus[eq.id]) equipStatus[eq.id]="operativo";});
+
+// ============================================================
+// GITHUB SYNC — Estados de equipos
+// ============================================================
+var GITHUB_REPO = "christopherdaniel0005-droid/sal-equipos-dashboard";
+var GITHUB_FILE = "data/equip-status.json";
+var GITHUB_TOKEN = "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";
+var GITHUB_API = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + GITHUB_FILE;
+var _githubSHA = null;
+
+// --- CARGAR: Lee de GitHub, fallback a localStorage ---
+function cargarEstados(callback) {
+  // Primero cargar de localStorage como cache inmediato
+  try {
+    var s = localStorage.getItem("sal_equip_status");
+    if (s) equipStatus = JSON.parse(s);
+  } catch(e) {}
+  EQUIPOS.forEach(function(eq) {
+    if (!equipStatus[eq.id]) equipStatus[eq.id] = "operativo";
+  });
+
+  // Luego intentar leer de GitHub (fuente de verdad)
+  fetch(GITHUB_API, {
+    headers: { "Accept": "application/vnd.github.v3+json" }
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error("GitHub read failed: " + r.status);
+    return r.json();
+  })
+  .then(function(data) {
+    _githubSHA = data.sha;
+    var content = atob(data.content.replace(/\n/g, ""));
+    var parsed = JSON.parse(content);
+    if (parsed.estados) {
+      equipStatus = parsed.estados;
+      EQUIPOS.forEach(function(eq) {
+        if (!equipStatus[eq.id]) equipStatus[eq.id] = "operativo";
+      });
+      // Actualizar cache local
+      try { localStorage.setItem("sal_equip_status", JSON.stringify(equipStatus)); } catch(e) {}
+      console.log("Estados cargados desde GitHub");
+      // Re-render si ya estaba inicializado
+      if (typeof renderMarcadores === "function") {
+        renderMarcadores();
+        renderKPIs();
+        if (typeof renderOperatividad === "function") renderOperatividad();
+      }
+    }
+    if (parsed.historial) {
+      equipStatusHistory = parsed.historial;
+      try { localStorage.setItem("sal_equip_history", JSON.stringify(equipStatusHistory)); } catch(e) {}
+    }
+    if (callback) callback();
+  })
+  .catch(function(err) {
+    console.warn("No se pudo leer de GitHub, usando localStorage:", err.message);
+    if (callback) callback();
+  });
 }
-function guardarEstados(){try{localStorage.setItem("sal_equip_status",JSON.stringify(equipStatus));}catch(e){}}
-function cargarHistorial(){try{var s=localStorage.getItem("sal_equip_history");if(s) equipStatusHistory=JSON.parse(s);}catch(e){}}
-function guardarHistorial(){try{localStorage.setItem("sal_equip_history",JSON.stringify(equipStatusHistory));}catch(e){}}
+
+// --- GUARDAR: Escribe a GitHub + actualiza localStorage ---
+function guardarEstados(onDone) {
+  // Siempre guardar en localStorage primero (inmediato)
+  try { localStorage.setItem("sal_equip_status", JSON.stringify(equipStatus)); } catch(e) {}
+
+  var payload = JSON.stringify({
+    estados: equipStatus,
+    historial: equipStatusHistory,
+    ultimaActualizacion: new Date().toISOString()
+  }, null, 2);
+
+  var body = {
+    message: "Status update " + new Date().toLocaleString("es-MX"),
+    content: btoa(unescape(encodeURIComponent(payload)))
+  };
+  if (_githubSHA) body.sha = _githubSHA;
+
+  fetch(GITHUB_API, {
+    method: "PUT",
+    headers: {
+      "Accept": "application/vnd.github.v3+json",
+      "Authorization": "token " + GITHUB_TOKEN,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error("GitHub write failed: " + r.status);
+    return r.json();
+  })
+  .then(function(data) {
+    _githubSHA = data.content.sha;
+    console.log("Estados guardados en GitHub OK");
+    if (onDone) onDone(true);
+  })
+  .catch(function(err) {
+    console.error("Error guardando en GitHub:", err.message);
+    if (onDone) onDone(false);
+  });
+}
+
+// --- GUARDAR HISTORIAL: ahora se guarda junto con estados ---
+function guardarHistorial() {
+  try { localStorage.setItem("sal_equip_history", JSON.stringify(equipStatusHistory)); } catch(e) {}
+  // No llamar guardarEstados aquí, se llama desde confirmarCambioEstado
+}
+
+// --- CARGAR HISTORIAL: ahora viene de GitHub junto con estados ---
+function cargarHistorial() {
+  try {
+    var s = localStorage.getItem("sal_equip_history");
+    if (s) equipStatusHistory = JSON.parse(s);
+  } catch(e) {}
+}
+
+
 function registrarCambioEstado(equipId,de,a,motivo){
   equipStatusHistory.push({equipo:equipId,de:de,a:a,motivo:motivo||"",fecha:new Date().toISOString()});
   guardarHistorial();
@@ -1122,7 +1231,15 @@ function confirmarCambioEstado(){
   var mot=document.getElementById("modalMotivo").value.trim();
   var ant=equipStatus[modalEquipoActual]||"operativo";
   equipStatus[modalEquipoActual]=nst;
-  guardarEstados();
+// Feedback visual
+var btnGuardar = document.querySelector("#modalEstado .btn-save, #modalEstado button[onclick]");
+var textoOriginal = "";
+if (btnGuardar) { textoOriginal = btnGuardar.textContent; btnGuardar.textContent = "Guardando..."; btnGuardar.disabled = true; }
+
+guardarEstados(function(ok) {
+  if (btnGuardar) { btnGuardar.textContent = ok ? "Guardado!" : "Error - reintentar"; btnGuardar.disabled = false; }
+  setTimeout(function() { if (btnGuardar) btnGuardar.textContent = textoOriginal; }, 2000);
+});
   registrarCambioEstado(modalEquipoActual,ant,nst,mot);
   cerrarModal();
   renderKPIs();
@@ -1130,7 +1247,7 @@ function confirmarCambioEstado(){
   if(mapaSeleccionado===modalEquipoActual) seleccionarEquipoMapa(modalEquipoActual);
   if(typeof renderOperatividad==="function") renderOperatividad();
 }
-// >>> FIN PARTE 6 de 7 — Verifica: ultima linea es cierre de confirmarCambioEstado
+
 
 
 // ============================================================
@@ -1482,27 +1599,27 @@ function _mzIndicator(){
 // INICIALIZACION FINAL
 // ============================================================
 function inicializarApp(){
-  cargarEstados();
   cargarHistorial();
-  cargarTarjetas(function(){
-    renderKPIs();
-    initMapa();
-    initTarjetas();
-    initOperatividad();
-    initTabs();
-    console.log("Dashboard inicializado correctamente");
-    
-   // Boton para cerrar panel en dispositivo movil 
-    var btnCP=document.getElementById("btnClosePanel");
-if(btnCP){
-  if(window.innerWidth<=768) btnCP.style.display="block";
-  btnCP.addEventListener("click",function(){
-    document.querySelector(".mapa-panel").classList.remove("panel-open");
+  cargarEstados(function(){
+    cargarTarjetas(function(){
+      renderKPIs();
+      initMapa();
+      initTarjetas();
+      initOperatividad();
+      initTabs();
+      console.log("Dashboard inicializado correctamente");
+
+      var btnCP=document.getElementById("btnClosePanel");
+      if(btnCP){
+        if(window.innerWidth<=768) btnCP.style.display="block";
+        btnCP.addEventListener("click",function(){
+          document.querySelector(".mapa-panel").classList.remove("panel-open");
+        });
+      }
+    });
   });
 }
 
-  });
-}
 document.addEventListener("DOMContentLoaded",inicializarApp);
 // FIN app.js
 
