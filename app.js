@@ -607,6 +607,10 @@ function seleccionarEquipoMapa(eid){
       body.appendChild(it);});}
   document.getElementById("mpVerTodas").style.display=tarjs.length>0?"inline":"none";
   document.getElementById("mpUpdated").textContent="Ultima actualizacion: hoy "+String(new Date().getHours()).padStart(2,"0")+":"+String(new Date().getMinutes()).padStart(2,"0");
+// Abrir panel en móvil
+var panel=document.querySelector(".mapa-panel");
+if(panel&&window.innerWidth<=768){panel.classList.add("panel-open");}
+
 }
 function obtenerTarjetasEquipo(eid){
   var r=[];tarjetasData.forEach(function(t){
@@ -1487,6 +1491,16 @@ function inicializarApp(){
     initOperatividad();
     initTabs();
     console.log("Dashboard inicializado correctamente");
+    
+   // Boton para cerrar panel en dispositivo movil 
+    var btnCP=document.getElementById("btnClosePanel");
+if(btnCP){
+  if(window.innerWidth<=768) btnCP.style.display="block";
+  btnCP.addEventListener("click",function(){
+    document.querySelector(".mapa-panel").classList.remove("panel-open");
+  });
+}
+
   });
 }
 document.addEventListener("DOMContentLoaded",inicializarApp);
