@@ -37,7 +37,7 @@
     "SP-9B": "operativo",
     "SP-10": "operativo",
     "SP-10 FZ": "operativo",
-    "SP-11 OT": "operativo",
+    "SP-11 OT": "fuera",
     "SP-11 PPL": "operativo",
     "SP-11 PPU": "operativo",
     "SP-GENZ": "operativo",
@@ -68,6 +68,14 @@
     "PC-Arthur": "operativo",
     "PC-Sunrise": "operativo"
   },
-  "historial": [],
-  "ultimaActualizacion": "2026-11-10T15:28:49.770Z"
+  "historial": [
+    {
+      "equipo": "SP-3",
+      "de": "operativo",
+      "a": "fuera",
+      "motivo": "",
+      "fecha": "2026-11-10T15:28:49.770Z"
+    }
+  ],
+  "ultimaActualizacion": "2026-11-10T15:29:05.578Z"
 }
