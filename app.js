@@ -334,15 +334,17 @@ function resolverEquipo(equipo, equipoFull) {
 // ============================================================
 var GITHUB_REPO="christopherdaniel0005-droid/sal-equipos-dashboard";
 var GITHUB_FILE="data/equip-status.json";
-var GITHUB_RAW="https://raw.githubusercontent.com/"+GITHUB_REPO+"/main/"+GITHUB_FILE;
+var GITHUB_API_READ="https://api.github.com/repos/"+GITHUB_REPO+"/contents/"+GITHUB_FILE;
 
 function cargarEstados(callback){
   try{var s=localStorage.getItem("sal_equip_status");if(s) equipStatus=JSON.parse(s);}catch(e){}
   EQUIPOS.forEach(function(eq){if(!equipStatus[eq.id]) equipStatus[eq.id]="operativo";});
 
-  fetch(GITHUB_RAW+"?t="+Date.now())
+  fetch(GITHUB_API_READ+"?t="+Date.now(),{headers:{"Accept":"application/vnd.github.v3+json"}})
   .then(function(r){if(!r.ok) throw new Error(r.status);return r.json();})
-  .then(function(parsed){
+  .then(function(data){
+    var parsed=JSON.parse(atob(data.content.replace(/
+/g,"")));
     if(parsed.estados){
       equipStatus=parsed.estados;
       EQUIPOS.forEach(function(eq){if(!equipStatus[eq.id]) equipStatus[eq.id]="operativo";});
@@ -361,6 +363,7 @@ function cargarEstados(callback){
     if(callback) callback();
   });
 }
+
 
 function guardarEstados(onDone){
   try{localStorage.setItem("sal_equip_status",JSON.stringify(equipStatus));}catch(e){}
