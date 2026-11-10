@@ -330,110 +330,71 @@ function resolverEquipo(equipo, equipoFull) {
 // ============================================================
 
 // ============================================================
-// GITHUB SYNC — Estados de equipos
+// SYNC — Estados de equipos via Vercel API
 // ============================================================
-var GITHUB_REPO = "christopherdaniel0005-droid/sal-equipos-dashboard";
-var GITHUB_FILE = "data/equip-status.json";
-var GITHUB_TOKEN = "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";
-var GITHUB_API = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + GITHUB_FILE;
-var _githubSHA = null;
+var GITHUB_REPO="christopherdaniel0005-droid/sal-equipos-dashboard";
+var GITHUB_FILE="data/equip-status.json";
+var GITHUB_RAW="https://raw.githubusercontent.com/"+GITHUB_REPO+"/main/"+GITHUB_FILE;
 
-// --- CARGAR: Lee de GitHub, fallback a localStorage ---
-function cargarEstados(callback) {
-  // Primero cargar de localStorage como cache inmediato
-  try {
-    var s = localStorage.getItem("sal_equip_status");
-    if (s) equipStatus = JSON.parse(s);
-  } catch(e) {}
-  EQUIPOS.forEach(function(eq) {
-    if (!equipStatus[eq.id]) equipStatus[eq.id] = "operativo";
-  });
+function cargarEstados(callback){
+  try{var s=localStorage.getItem("sal_equip_status");if(s) equipStatus=JSON.parse(s);}catch(e){}
+  EQUIPOS.forEach(function(eq){if(!equipStatus[eq.id]) equipStatus[eq.id]="operativo";});
 
-  // Luego intentar leer de GitHub (fuente de verdad)
-  fetch(GITHUB_API, {
-    headers: { "Accept": "application/vnd.github.v3+json" }
-  })
-  .then(function(r) {
-    if (!r.ok) throw new Error("GitHub read failed: " + r.status);
-    return r.json();
-  })
-  .then(function(data) {
-    _githubSHA = data.sha;
-    var content = atob(data.content.replace(/\n/g, ""));
-    var parsed = JSON.parse(content);
-    if (parsed.estados) {
-      equipStatus = parsed.estados;
-      EQUIPOS.forEach(function(eq) {
-        if (!equipStatus[eq.id]) equipStatus[eq.id] = "operativo";
-      });
-      // Actualizar cache local
-      try { localStorage.setItem("sal_equip_status", JSON.stringify(equipStatus)); } catch(e) {}
+  fetch(GITHUB_RAW+"?t="+Date.now())
+  .then(function(r){if(!r.ok) throw new Error(r.status);return r.json();})
+  .then(function(parsed){
+    if(parsed.estados){
+      equipStatus=parsed.estados;
+      EQUIPOS.forEach(function(eq){if(!equipStatus[eq.id]) equipStatus[eq.id]="operativo";});
+      try{localStorage.setItem("sal_equip_status",JSON.stringify(equipStatus));}catch(e){}
       console.log("Estados cargados desde GitHub");
-      // Re-render si ya estaba inicializado
-      if (typeof renderMarcadores === "function") {
-        renderMarcadores();
-        renderKPIs();
-        if (typeof renderOperatividad === "function") renderOperatividad();
-      }
+      if(typeof renderMarcadores==="function"){renderMarcadores();renderKPIs();if(typeof renderOperatividad==="function") renderOperatividad();}
     }
-    if (parsed.historial) {
-      equipStatusHistory = parsed.historial;
-      try { localStorage.setItem("sal_equip_history", JSON.stringify(equipStatusHistory)); } catch(e) {}
+    if(parsed.historial){
+      equipStatusHistory=parsed.historial;
+      try{localStorage.setItem("sal_equip_history",JSON.stringify(equipStatusHistory));}catch(e){}
     }
-    if (callback) callback();
+    if(callback) callback();
   })
-  .catch(function(err) {
-    console.warn("No se pudo leer de GitHub, usando localStorage:", err.message);
-    if (callback) callback();
+  .catch(function(err){
+    console.warn("GitHub read fallback localStorage:",err.message);
+    if(callback) callback();
   });
 }
 
-// --- GUARDAR: Escribe a GitHub + actualiza localStorage ---
-function guardarEstados(onDone) {
-  // Siempre guardar en localStorage primero (inmediato)
-  try { localStorage.setItem("sal_equip_status", JSON.stringify(equipStatus)); } catch(e) {}
+function guardarEstados(onDone){
+  try{localStorage.setItem("sal_equip_status",JSON.stringify(equipStatus));}catch(e){}
 
-  var payload = JSON.stringify({
-    estados: equipStatus,
-    historial: equipStatusHistory,
-    ultimaActualizacion: new Date().toISOString()
-  }, null, 2);
-
-  var body = {
-    message: "Status update " + new Date().toLocaleString("es-MX"),
-    content: btoa(unescape(encodeURIComponent(payload)))
+  var payload={
+    estados:equipStatus,
+    historial:equipStatusHistory,
+    ultimaActualizacion:new Date().toISOString()
   };
-  if (_githubSHA) body.sha = _githubSHA;
 
-  fetch(GITHUB_API, {
-    method: "PUT",
-    headers: {
-      "Accept": "application/vnd.github.v3+json",
-      "Authorization": "token " + GITHUB_TOKEN,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body)
+  fetch("/api/save-status",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
   })
-  .then(function(r) {
-    if (!r.ok) throw new Error("GitHub write failed: " + r.status);
-    return r.json();
+  .then(function(r){if(!r.ok) throw new Error(r.status);return r.json();})
+  .then(function(data){
+    console.log("GitHub save OK via API");
+    if(onDone) onDone(true);
   })
-  .then(function(data) {
-    _githubSHA = data.content.sha;
-    console.log("Estados guardados en GitHub OK");
-    if (onDone) onDone(true);
-  })
-  .catch(function(err) {
-    console.error("Error guardando en GitHub:", err.message);
-    if (onDone) onDone(false);
+  .catch(function(err){
+    console.error("API save error:",err.message);
+    if(onDone) onDone(false);
   });
 }
 
-// --- GUARDAR HISTORIAL: ahora se guarda junto con estados ---
-function guardarHistorial() {
-  try { localStorage.setItem("sal_equip_history", JSON.stringify(equipStatusHistory)); } catch(e) {}
-  // No llamar guardarEstados aquí, se llama desde confirmarCambioEstado
+function cargarHistorial(){
+  try{var s=localStorage.getItem("sal_equip_history");if(s) equipStatusHistory=JSON.parse(s);}catch(e){}
 }
+
+function guardarHistorial(){
+  try{localStorage.setItem("sal_equip_history",JSON.stringify(equipStatusHistory));}catch(e){}
+}
+
 
 // --- CARGAR HISTORIAL: ahora viene de GitHub junto con estados ---
 function cargarHistorial() {
