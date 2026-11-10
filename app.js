@@ -343,8 +343,9 @@ function cargarEstados(callback){
   fetch(GITHUB_API_READ+"?t="+Date.now(),{headers:{"Accept":"application/vnd.github.v3+json"}})
   .then(function(r){if(!r.ok) throw new Error(r.status);return r.json();})
   .then(function(data){
-    var parsed=JSON.parse(atob(data.content.replace(/
-/g,"")));
+  var nl=String.fromCharCode(10);
+  var clean=data.content.split(nl).join("");
+    var parsed=JSON.parse(atob(clean));    
     if(parsed.estados){
       equipStatus=parsed.estados;
       EQUIPOS.forEach(function(eq){if(!equipStatus[eq.id]) equipStatus[eq.id]="operativo";});
